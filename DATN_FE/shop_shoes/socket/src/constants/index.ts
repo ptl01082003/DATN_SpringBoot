@@ -1,0 +1,5 @@
+export enum ROLE_TYPES {
+  USER = "USER",
+  ADMIN = "ADMIN",
+  MEMBERSHIP = "MEMBERSHIP",
+}
