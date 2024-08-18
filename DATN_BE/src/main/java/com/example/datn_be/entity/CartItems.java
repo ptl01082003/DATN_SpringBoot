@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -20,18 +21,16 @@ public class CartItems {
     private Integer cartItemId;
 
     @ManyToOne
-    @JoinColumn(name = "productDetailId")  // Tên cột giống với tên biến
-    private ProductDetails productDetailId;
+    @JoinColumn(name = "productDetailId", nullable = false)
+    private ProductDetails productDetail;
 
     @ManyToOne
-    @JoinColumn(name = "cartId")  // Tên cột giống với tên biến
-    private ShoppingCarts cartId;
+    @JoinColumn(name = "cartId", nullable = false)
+    private ShoppingCarts shoppingCart;
 
     @Column
-    private Integer quanity;
+    private Integer quantity;
 
     @Column
     private BigDecimal amount;
-
-
 }

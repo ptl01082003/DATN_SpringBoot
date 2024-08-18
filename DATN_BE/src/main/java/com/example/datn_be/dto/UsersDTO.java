@@ -16,4 +16,6 @@ public class UsersDTO {
     private String birth;
     private String fullName;
     private Integer roleId;
+
+
 }

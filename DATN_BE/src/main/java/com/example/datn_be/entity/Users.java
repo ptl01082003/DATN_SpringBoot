@@ -41,4 +41,7 @@ public class Users {
     @JoinColumn(name = "roleId", nullable = false)
     private Roles roles;
 
+    public String getRole() {
+        return this.roles != null ? this.roles.getType().name() : null;
+    }
 }
