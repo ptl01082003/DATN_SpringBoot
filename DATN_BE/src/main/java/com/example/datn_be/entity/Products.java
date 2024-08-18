@@ -64,8 +64,8 @@ public class Products {
     @OneToMany(mappedBy = "products")
     private List<ProductDetails> productDetails;
 
-    @OneToMany(mappedBy = "products")
-    private List<Images> gallery;
+//    @OneToMany(mappedBy = "products")
+//    private List<Images> gallery;
 
     @PrePersist
     @PreUpdate
