@@ -1,6 +1,5 @@
 package com.example.datn_be.controller;
 
-
 import com.example.datn_be.dto.BrandsDTO;
 import com.example.datn_be.entity.Brands;
 import com.example.datn_be.service.BrandService;
@@ -12,13 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/brands")
+@RequestMapping("/api/v1/brands")
 public class BrandsController {
 
     @Autowired
     private BrandService brandService;
 
-    @PostMapping("/add")
+    // Thêm thương hiệu mới
+    @PostMapping("/create")
     public ResponseEntity<?> addBrand(@RequestBody BrandsDTO brandDTO) {
         try {
             Brands brand = brandService.addBrand(brandDTO);
@@ -34,7 +34,8 @@ public class BrandsController {
         }
     }
 
-    @GetMapping("/all")
+    // Lấy tất cả thương hiệu (thay vì GET, sử dụng POST)
+    @GetMapping("")
     public ResponseEntity<?> getBrands() {
         try {
             Iterable<Brands> brands = brandService.getBrands();
@@ -50,9 +51,11 @@ public class BrandsController {
         }
     }
 
-    @GetMapping("/{brandId}")
-    public ResponseEntity<?> getById(@PathVariable Integer brandId) {
+    // Lấy thương hiệu theo ID (thay vì GET, sử dụng POST)
+    @PostMapping("/getById")
+    public ResponseEntity<?> getById(@RequestBody Map<String, Integer> request) {
         try {
+            Integer brandId = request.get("brandId");
             Brands brand = brandService.getById(brandId);
             if (brand != null) {
                 return new ResponseEntity<>(
@@ -73,7 +76,8 @@ public class BrandsController {
         }
     }
 
-    @PutMapping("/update")
+    // Cập nhật thương hiệu (thay vì PUT, sử dụng POST)
+    @PostMapping("/edit")
     public ResponseEntity<?> updateBrand(@RequestBody BrandsDTO brandDTO) {
         try {
             Brands updatedBrand = brandService.updateBrand(brandDTO);
@@ -96,9 +100,11 @@ public class BrandsController {
         }
     }
 
-    @DeleteMapping("/delete/{brandId}")
-    public ResponseEntity<?> deleteBrand(@PathVariable Integer brandId) {
+    // Xóa thương hiệu theo ID (thay vì DELETE, sử dụng POST)
+    @PostMapping("/remove")
+    public ResponseEntity<?> deleteBrand(@RequestBody Map<String, Integer> request) {
         try {
+            Integer brandId = request.get("brandId");
             boolean isDeleted = brandService.deleteBrand(brandId);
             if (isDeleted) {
                 return new ResponseEntity<>(

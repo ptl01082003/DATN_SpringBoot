@@ -25,7 +25,7 @@ public class Images {
 
     @ManyToOne
     @JoinColumn(name = "productId")  // Sử dụng tên biến làm tên cột
-    private Products productId;
+    private Products products;
 
 
 }
