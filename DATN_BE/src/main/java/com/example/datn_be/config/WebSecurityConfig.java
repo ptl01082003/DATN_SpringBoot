@@ -29,15 +29,16 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())  // Tắt CSRF
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/refresh-token").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().permitAll()  // Cho phép tất cả các yêu cầu
+                );
 
         return http.build();
     }
+
+
+
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {

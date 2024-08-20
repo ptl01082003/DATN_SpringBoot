@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -37,10 +38,11 @@ public class BrandsController {
     @GetMapping("/all")
     public ResponseEntity<?> getBrands() {
         try {
-            Iterable<Brands> brands = brandService.getBrands();
+            List<Brands> brands = brandService.getBrands();
             return new ResponseEntity<>(
                     Map.of("message", "Thực hiện thành công", "data", brands),
                     HttpStatus.OK
+
             );
         } catch (Exception e) {
             return new ResponseEntity<>(

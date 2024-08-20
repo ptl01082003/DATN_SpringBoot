@@ -1,5 +1,6 @@
 package com.example.datn_be.dto;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,9 +10,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "brands")
 public class BrandsDTO {
-
-    private Integer brandId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "brandId")
+    private Integer brandid;
+    @Column(name = "name")
     private String name;
 
 }
