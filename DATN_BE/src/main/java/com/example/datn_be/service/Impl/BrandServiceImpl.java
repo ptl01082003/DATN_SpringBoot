@@ -7,6 +7,8 @@ import com.example.datn_be.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class BrandServiceImpl implements BrandService {
 
@@ -21,7 +23,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public Iterable<Brands> getBrands() {
+    public List<Brands> getBrands() {
         return brandsRepository.findAll();
     }
 
