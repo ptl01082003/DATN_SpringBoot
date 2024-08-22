@@ -57,8 +57,9 @@ const BrandService = {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/remove`,
+        null,
         {
-          brandId,
+          params: { brandId },
         }
       );
       return response;
