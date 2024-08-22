@@ -2,6 +2,8 @@ package com.example.datn_be.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -12,10 +14,6 @@ public class UsersDTO {
     private String userName;
     private String email;
     private String phone;
-    private String password;
-    private String birth;
     private String fullName;
-    private Integer roleId;
-
-
+    private List<String> roles;
 }
