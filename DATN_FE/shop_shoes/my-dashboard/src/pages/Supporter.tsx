@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import AxiosClient from "../networks/AxiosRequest";
 import { selectLstOnlineUsers, selectUserInfo } from "../app/slice/userSlice";
 import { Avatar, Divider } from "antd";
-import { socket } from "../App";
+// import { socket } from "../App";
 import TimeAgo from "../components/TimeAgo";
 import { convertTextToShortName } from "../constants/constants";
 
@@ -39,18 +39,18 @@ const ConversationsMessage = ({
     })();
   }, [conversationId]);
 
-  useEffect(() => {
-    socket.on("newMessages", async (data: any) => {
-      console.log(messages);
-      if (data?.conversationId === conversationId) {
-        setMessages((previous) => {
-          const mergeData = [...previous, data];
-          return mergeData;
-        });
-        goToMessagesNodeById(data?.messagesId);
-      }
-    });
-  }, [conversationId]);
+  // useEffect(() => {
+  //   socket.on("newMessages", async (data: any) => {
+  //     console.log(messages);
+  //     if (data?.conversationId === conversationId) {
+  //       setMessages((previous) => {
+  //         const mergeData = [...previous, data];
+  //         return mergeData;
+  //       });
+  //       goToMessagesNodeById(data?.messagesId);
+  //     }
+  //   });
+  // }, [conversationId]);
 
   const goToMessagesNodeById = (id: number) => {
     setTimeout(() => {
@@ -70,10 +70,10 @@ const ConversationsMessage = ({
       receiverId: receiverId,
     });
 
-    socket.emit("newMessages", {
-      messages: resultMessage?.data,
-      receiverId: receiverId,
-    });
+    // socket.emit("newMessages", {
+    //   messages: resultMessage?.data,
+    //   receiverId: receiverId,
+    // });
 
     setMessages((previous) => {
       previous.push(resultMessage?.data);
@@ -164,14 +164,14 @@ export default function SupporterPage() {
     })();
   }, []);
 
-  useEffect(() => {
-    socket.on("newConversations", async () => {
-      const lstConversations = await AxiosClient.post(
-        "/conversations/lst-conversations"
-      );
-      setConversation(lstConversations.data || []);
-    });
-  }, []);
+  // useEffect(() => {
+  //   socket.on("newConversations", async () => {
+  //     const lstConversations = await AxiosClient.post(
+  //       "/conversations/lst-conversations"
+  //     );
+  //     setConversation(lstConversations.data || []);
+  //   });
+  // }, []);
 
   return (
     <div className="flex gap-6">

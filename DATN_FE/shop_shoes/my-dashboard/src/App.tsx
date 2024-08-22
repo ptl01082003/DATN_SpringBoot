@@ -29,11 +29,11 @@ import { useEffect } from "react";
 import { changelstOnlineUsers } from "./app/slice/userSlice";
 import { fetchGetUserInfo } from "./app/thunks/UserThunk";
 
-export const socket = io.connect("http://localhost:6500", {
-  auth: {
-    token: localStorage.getItem(KEY_STORAGE.TOKEN),
-  },
-});
+// export const socket = io.connect("http://localhost:6500", {
+//   auth: {
+//     token: localStorage.getItem(KEY_STORAGE.TOKEN),
+//   },
+// });
 
 function App() {
   const dispatch = useAppDispatch();
@@ -45,11 +45,11 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-    socket.on("changelstOnlineUsers", (data) => {
-      dispatch(changelstOnlineUsers(data));
-    });
-  }, []);
+  // useEffect(() => {
+  //   socket.on("changelstOnlineUsers", (data) => {
+  //     dispatch(changelstOnlineUsers(data));
+  //   });
+  // }, []);
 
   return (
     <div className="App">

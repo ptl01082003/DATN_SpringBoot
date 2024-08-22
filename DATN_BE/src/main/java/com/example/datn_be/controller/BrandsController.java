@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -34,11 +35,11 @@ public class BrandsController {
         }
     }
 
-    // Lấy tất cả thương hiệu (thay vì GET, sử dụng POST)
-    @GetMapping("")
+    // Lấy tất cả thương hiệu
+    @PostMapping("")
     public ResponseEntity<?> getBrands() {
         try {
-            Iterable<Brands> brands = brandService.getBrands();
+            List<Brands> brands = brandService.getBrands();
             return new ResponseEntity<>(
                     Map.of("message", "Thực hiện thành công", "data", brands),
                     HttpStatus.OK
@@ -51,7 +52,7 @@ public class BrandsController {
         }
     }
 
-    // Lấy thương hiệu theo ID (thay vì GET, sử dụng POST)
+    // Lấy thương hiệu theo ID
     @PostMapping("/getById")
     public ResponseEntity<?> getById(@RequestBody Map<String, Integer> request) {
         try {
@@ -76,7 +77,7 @@ public class BrandsController {
         }
     }
 
-    // Cập nhật thương hiệu (thay vì PUT, sử dụng POST)
+    // Cập nhật thương hiệu
     @PostMapping("/edit")
     public ResponseEntity<?> updateBrand(@RequestBody BrandsDTO brandDTO) {
         try {
@@ -100,28 +101,23 @@ public class BrandsController {
         }
     }
 
-    // Xóa thương hiệu theo ID (thay vì DELETE, sử dụng POST)
     @PostMapping("/remove")
-    public ResponseEntity<?> deleteBrand(@RequestBody Map<String, Integer> request) {
+    public ResponseEntity<Map<String, Object>> deleteBrand(@RequestParam("brandId") Integer brandId) {
+        if (brandId == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "brandId không được để trống"));
+        }
         try {
-            Integer brandId = request.get("brandId");
             boolean isDeleted = brandService.deleteBrand(brandId);
             if (isDeleted) {
-                return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công"),
-                        HttpStatus.OK
-                );
+                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
             } else {
-                return new ResponseEntity<>(
-                        Map.of("message", "Thương hiệu không tồn tại"),
-                        HttpStatus.NOT_FOUND
-                );
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "Thương hiệu không tồn tại"));
             }
         } catch (Exception e) {
-            return new ResponseEntity<>(
-                    Map.of("message", "Thực hiện thất bại", "error", e.getMessage()),
-                    HttpStatus.BAD_REQUEST
-            );
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Thực hiện thất bại", "error", e.getMessage()));
         }
     }
+
 }

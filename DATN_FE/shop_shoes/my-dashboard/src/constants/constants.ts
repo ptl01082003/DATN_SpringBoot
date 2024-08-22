@@ -4,7 +4,7 @@ export enum KEY_STORAGE {
 }
 
 export const URL_IMAGE = (path) => {
-  return `http://localhost:5500/${path}`;
+  return `http://localhost:8080/${path}`;
 };
 
 export type Response<T> = {
