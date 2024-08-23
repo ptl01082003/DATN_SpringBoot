@@ -34,7 +34,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public Brands updateBrand(BrandsDTO brandDTO) {
-        Brands brand = brandsRepository.findById(brandDTO.getBrandId()).orElse(null);
+        Brands brand = brandsRepository.findById(brandDTO.getBrandid()).orElse(null);
         if (brand != null) {
             brand.setName(brandDTO.getName());
             return brandsRepository.save(brand);

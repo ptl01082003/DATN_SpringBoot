@@ -43,6 +43,7 @@ public class BrandsController {
             return new ResponseEntity<>(
                     Map.of("message", "Thực hiện thành công", "data", brands),
                     HttpStatus.OK
+
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
