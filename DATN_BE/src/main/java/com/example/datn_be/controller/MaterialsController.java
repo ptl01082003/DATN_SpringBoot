@@ -35,7 +35,7 @@ public class MaterialsController {
     }
 
         @PostMapping("")
-        public ResponseEntity<?> getMaterial() {
+        public ResponseEntity<?> getMaterials() {
             try {
                 List<Materials> materials = materialService.getMaterials();
                 return new ResponseEntity<>(

@@ -11,7 +11,7 @@ const MaterialService = {
       const response = await AxiosClient.post<any, Response<any>>(API_URL);
       return response;
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách màu sắc", error);
+      console.error("Lỗi khi lấy danh sách chất liệu", error);
       throw error;
     }
   },
@@ -25,7 +25,7 @@ const MaterialService = {
       );
       return response;
     } catch (error) {
-      console.error(`Lỗi khi lấy thông tin màu sắc ${materialId}`, error);
+      console.error(`Lỗi khi lấy thông tin chất liệu ${materialId}`, error);
       throw error;
     }
   },

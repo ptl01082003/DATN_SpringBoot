@@ -2,7 +2,7 @@ import Axios from "axios";
 import { KEY_STORAGE, RESPONSE_CODE } from "../constants/constants";
 
 export const AxiosConfig = {
-  baseURL: "http://localhost:5500/api/v1",
+  baseURL: "http://localhost:8080/api/v1",
   timeout: 15000,
   withCredentials: true,
   headers: {
@@ -29,7 +29,7 @@ AxiosClient.interceptors.request.use(
 AxiosClient.interceptors.response.use(
   async function (response) {
     const { code } = response.data;
-    
+
     if (code == RESPONSE_CODE.NOT_AUTHOR) {
       return window.location.replace("/sign-in");
     }

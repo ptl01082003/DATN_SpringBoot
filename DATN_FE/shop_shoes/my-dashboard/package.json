@@ -25,6 +25,7 @@
     "console-browserify": "^1.2.0",
     "dayjs": "^1.11.12",
     "moment": "^2.30.1",
+    "my-dashboard": "file:",
     "react": "^18.3.1",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18.3.1",
