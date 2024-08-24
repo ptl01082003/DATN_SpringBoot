@@ -5,9 +5,11 @@ import com.example.datn_be.entity.Origins;
 import com.example.datn_be.respository.OriginsRepository;
 import com.example.datn_be.service.OriginService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class OriginServiceImpl implements OriginService {
 
     @Autowired
