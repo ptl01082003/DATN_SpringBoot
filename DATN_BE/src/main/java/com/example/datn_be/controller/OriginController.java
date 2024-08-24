@@ -1,2 +1,4 @@
-package com.example.datn_be.controller;public class OriginController {
+package com.example.datn_be.controller;
+
+public class OriginController {
 }
