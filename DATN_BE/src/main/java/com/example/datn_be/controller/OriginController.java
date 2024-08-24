@@ -1,9 +1,6 @@
 package com.example.datn_be.controller;
 
-
-import com.example.datn_be.dto.BrandsDTO;
 import com.example.datn_be.dto.OriginsDTO;
-import com.example.datn_be.entity.Brands;
 import com.example.datn_be.entity.Origins;
 import com.example.datn_be.service.OriginService;
 import org.springframework.beans.factory.annotation.Autowired;

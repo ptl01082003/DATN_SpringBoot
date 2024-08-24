@@ -13,7 +13,7 @@ import java.util.List;
 public class OriginServiceImpl implements OriginService {
 
     @Autowired
-    OriginsRepository originsRepository;
+    private OriginsRepository originsRepository;
 
     @Override
     public Origins addOrigin(OriginsDTO originsDTO) {
