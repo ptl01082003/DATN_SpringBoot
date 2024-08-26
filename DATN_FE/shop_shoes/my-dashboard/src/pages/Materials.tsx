@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import MaterialService from "../services/MaterialApi";
 import { tableCustomizeStyle } from "../styles/styles";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { confirmAlert } from "react-confirm-alert"; // Import thư viện
+import "react-confirm-alert/src/react-confirm-alert.css"; // Import CSS
 import { FormProps } from "antd/lib";
 
 // type MaterialType = {
@@ -58,8 +60,6 @@ export default function MaterialPage() {
     open: false,
     data: {},
   });
-  
- 
 
   const columns = [
     {
@@ -95,19 +95,63 @@ export default function MaterialPage() {
     },
   ];
 
-  useEffect(() => {
-    (async () => {
-      const response = await MaterialService.getMaterials();
-        setMaterials(response?.data||[]);
-      
-    })();
-  }, [shouldRender]);
+  // useEffect(() => {
+  //   (async () => {
+  //     const response = await MaterialService.getMaterials();
+  //       setMaterials(response?.data||[]);
 
-  const deleteMaterialItems = async (record: any) => {
-    const response = await MaterialService.deleteMaterial(record.materialId!);
-    if (response.code === 0) {
-      setShouldRender((prev) => !prev);
-    }
+  //   })();
+  // }, [shouldRender]);
+
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      const response = await MaterialService.getMaterials();
+      console.log("Fetched materials:", response.data);
+
+      setMaterials(response.data);
+    };
+
+    fetchMaterials();
+  }, [shouldRender]); // Theo dõi `shouldRender`
+
+  // const deleteMaterialItems = async (record: any) => {
+  //   const response = await MaterialService.deleteMaterial(record.materialId!);
+  //   console.log('Delete response:', response);
+  //   if (response.code === 0) {
+  //     setShouldRender((prev) => !prev);
+  //   }
+  // };
+  const confirmDelete = (onConfirm: () => void) => {
+    confirmAlert({
+      title: "Xác nhận",
+      message: "Bạn có chắc chắn muốn xóa chất liệu này?",
+      buttons: [
+        {
+          label: "Có",
+          onClick: onConfirm,
+        },
+        {
+          label: "Không",
+          // Không làm gì khi người dùng chọn không
+        },
+      ],
+    });
+  };
+
+  const deleteMaterialItems = (record: any) => {
+    confirmDelete(async () => {
+      try {
+        const response = await MaterialService.deleteMaterial(
+          record.materialId!
+        );
+        console.log("Delete response:", response);
+        if (response.code === 0) {
+          setShouldRender((prev) => !prev);
+        }
+      } catch (error) {
+        console.error("Error deleting material:", error);
+      }
+    });
   };
 
   const editMaterialItems = (record: any) => {
@@ -116,21 +160,125 @@ export default function MaterialPage() {
       data: record,
     });
   };
-
-  const onFinishCreate = async (values: any) => {
-    const response = await MaterialService.createMaterial(values);
-    if (response.code === 0) {
-      setOpenCreateModal(false);
-      setShouldRender((prev) => !prev);
-    }
-  };
-
-  const editBrandItems = async (record: any) => {
-    setOpenEditModal({
-      open: true,
-      data: record,
+  const confirmSave = (onConfirm: () => void, action: string) => {
+    confirmAlert({
+      title: "Xác nhận",
+      message: `Bạn có chắc chắn muốn ${action} chất liệu này?`,
+      buttons: [
+        {
+          label: "Có",
+          onClick: onConfirm,
+        },
+        {
+          label: "Không",
+          // Không làm gì khi người dùng chọn không
+        },
+      ],
     });
   };
+  const confirmEdit = (onConfirm: () => void) => {
+    confirmAlert({
+      title: 'Xác nhận',
+      message: 'Bạn có chắc chắn muốn lưu thay đổi?',
+      buttons: [
+        {
+          label: 'Có',
+          onClick: onConfirm
+        },
+        {
+          label: 'Không',
+          // Không làm gì khi người dùng chọn không
+        }
+      ]
+    });
+  };
+  
+  const onFinishEdit = async (values: any) => {
+    confirmEdit(async () => {
+  try {
+    const response = await MaterialService.updateMaterial({
+      ...values,
+      materialId: openEditModal.data.materialId,
+    });
+
+    if (response.code === 0) {
+      // Đóng modal sau khi thao tác thành công
+      setOpenEditModal({ open: false, data: {} });
+
+      // Hiển thị thông báo xác nhận
+      confirmAlert({
+        title: 'Thành công',
+        message: 'Chất liệu đã được cập nhật thành công!',
+        buttons: [
+          {
+            label: 'OK',
+            onClick: () => {
+              // Cập nhật danh sách chất liệu và re-render
+              setShouldRender((prev) => !prev);
+            },
+          },
+        ],
+      });
+    } else {
+      console.error('Error:', response.data.message);
+      // Nếu cần, hiển thị thông báo lỗi
+    }
+  } catch (error) {
+    console.error('Error updating material:', error);
+    // Nếu cần, hiển thị thông báo lỗi
+  }
+})};
+
+
+  // const onFinishCreate = async (values: any) => {
+  //   const response = await MaterialService.createMaterial(values);
+  //   if (response.code === 0) {
+  //     setOpenCreateModal(false);
+  //     setShouldRender((prev) => !prev);
+  //   }
+  // };
+  
+
+  const onFinishCreate = async (values: any) => {
+    confirmSave(async () => {
+      try {
+        const response = await MaterialService.createMaterial(values);
+        if (response.code === 0) {
+          // setOpenCreateModal(false);
+          setShouldRender((prev) => !prev);
+        } else {
+          console.error("Error:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error creating material:", error);
+      }
+    }, "thêm mới");
+  };
+
+  // const edit = async (values: any) => {
+  //   confirmSave(async () => {
+  //     try {
+  //       const response = await MaterialService.updateMaterial({
+  //         ...values,
+  //         materialId: openEditModal.data.materialId,
+  //       });
+  //       if (response.data.code === 0) {
+  //         setOpenEditModal({ open: false, data: {} });
+  //         setShouldRender((prev) => !prev);
+  //       } else {
+  //         console.error("Error:", response.data.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error updating material:", error);
+  //     }
+  //   }, "sửa");
+  // };
+  // const editBrandItems = async (record: any) => {
+  //   setOpenEditModal({
+  //     open: true,
+  //     data: record,
+  //   });
+  // };
 
   // const onEditFinish: FormProps<MaterialType>["onFinish"] = async (
   //   values: MaterialType
@@ -195,7 +343,13 @@ export default function MaterialPage() {
             <Input />
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit">
+            <Button
+              type="primary"
+              htmlType="submit"
+              onClick={() => {
+                setOpenCreateModal(false);
+              }}
+            >
               Add
             </Button>
           </Form.Item>
@@ -217,7 +371,7 @@ export default function MaterialPage() {
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
           initialValues={openEditModal.data}
-          // onFinish={onFinishEdit}
+          onFinish={onFinishEdit}
           autoComplete="off"
         >
           <Form.Item
@@ -230,7 +384,9 @@ export default function MaterialPage() {
             <Input />
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" onClick={() => {
+                setOpenEditModal(false);
+              }}>
               Save Changes
             </Button>
           </Form.Item>

@@ -23,7 +23,7 @@ public class MaterialsController {
         try {
             Materials materials=materialService.addMaterials(materialsDTO);
             return new ResponseEntity<>(
-                    Map.of("message","Complete","data",materials),
+                    Map.of("code",0,"message","Complete","data",materials),
                     HttpStatus.CREATED
             );
         } catch (Exception e){
@@ -79,7 +79,7 @@ public class MaterialsController {
             Materials updateMaterial = materialService.updateMaterial(materialsDTO);
             if (updateMaterial != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", updateMaterial),
+                        Map.of("code",0,"message", "Thực hiện thành công", "data", updateMaterial),
                         HttpStatus.OK
                 );
             } else {
@@ -96,15 +96,15 @@ public class MaterialsController {
         }
     }
 
-    @PostMapping("/remove")
-    public ResponseEntity<Map<String, Object>> deleteMaterial(@RequestParam("materialId") Integer materialId) {
+    @PostMapping("/remove/{materialId}")
+    public ResponseEntity<Map<String, Object>> deleteMaterial(@PathVariable("materialId") Integer materialId) {
         if (materialId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "materialId không được để trống"));
         }
         try {
             boolean isDeleted = materialService.deleteMaterial(materialId);
             if (isDeleted) {
-                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
+                return ResponseEntity.ok(Map.of("code",0,"message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("message", "Chất liệu  không tồn tại"));

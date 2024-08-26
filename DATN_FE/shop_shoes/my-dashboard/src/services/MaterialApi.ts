@@ -4,6 +4,9 @@ import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
 const API_URL = "/materials"; // Đảm bảo rằng URL này phù hợp với địa chỉ API của bạn
 
+
+
+
 const MaterialService = {
   // Lấy danh sách tất cả màu sắc
   getMaterials: async () => {
@@ -63,12 +66,13 @@ const MaterialService = {
   deleteMaterial: async (materialId: number) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/remove`,
-        materialId
+        `${API_URL}/remove/${materialId}`
+        // materialId
       );
       return response;
+      // return API_URL;
     } catch (error) {
-      console.error(`Lỗi khi xóa màu sắc ${materialId}`, error);
+      console.error(`Lỗi khi xóa chất liệu ${materialId}`, error);
       throw error;
     }
   },
