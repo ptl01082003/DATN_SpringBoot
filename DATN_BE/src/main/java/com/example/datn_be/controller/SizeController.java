@@ -1,0 +1,127 @@
+package com.example.datn_be.controller;
+
+import com.example.datn_be.dto.SizesDTO;
+import com.example.datn_be.entity.Sizes;
+import com.example.datn_be.service.SizeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("api/v1/size")
+public class SizeController {
+
+    @Autowired
+    private SizeService sizeService;
+
+    //Lấy tất cả size
+    @PostMapping("")
+    public ResponseEntity<?> getOrigins(){
+        try{
+            List<Sizes> listSize = sizeService.getSizeList();
+            return  new ResponseEntity<>(
+                    Map.of("message","Thực hiện thành công","data",listSize),
+                    HttpStatus.OK
+            );
+        }catch (Exception e){
+            return  new ResponseEntity<>(
+                    Map.of("message","Thực hiện thất bại","erro",e.getMessage()),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    //Thêm size
+    @PostMapping("/create")
+    public ResponseEntity<?> addSize(@RequestBody SizesDTO sizesDTO){
+        try{
+            Sizes size = sizeService.addSize(sizesDTO);
+            return  new ResponseEntity<>(
+                    Map.of("message","Thực hiện thành công","data",size),
+                    HttpStatus.OK
+            );
+        }catch (Exception e){
+            return  new ResponseEntity<>(
+                    Map.of("message","Thực hiện thất bại","erro",e.getMessage()),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    //Lấy xuất size id
+    @PostMapping("/getById")
+    public ResponseEntity<?> getSizeById(@RequestBody  Map<String, Integer> request){
+        try{
+            Integer sizeId = request.get("sizeId");
+            Sizes size = sizeService.getById(sizeId);
+            if(size != null){
+                return new ResponseEntity<>(
+                        Map.of("message","Thực hiện thành công","data",size),
+                        HttpStatus.OK
+                );
+            }else {
+                return new ResponseEntity<>(
+                        Map.of("message", "Xuất xứ không tồn tại"),
+                        HttpStatus.NOT_FOUND
+                );
+            }
+        }catch (Exception e) {
+            return new ResponseEntity<>(
+                    Map.of("message", "Thực hiện thất bại", "error", e.getMessage()),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    //Cập nhật size
+    @PostMapping("/edit")
+    public ResponseEntity<?> updateSize(@RequestBody SizesDTO sizesDTO) {
+        try {
+            Sizes size = sizeService.updateSize(sizesDTO);
+            if (size != null) {
+                return new ResponseEntity<>(
+                        Map.of("message", "Thực hiện thành công", "data", size),
+                        HttpStatus.OK
+                );
+            } else {
+                return new ResponseEntity<>(
+                        Map.of("message", "Thương hiệu không tồn tại"),
+                        HttpStatus.NOT_FOUND
+                );
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    Map.of("message", "Thực hiện thất bại", "error", e.getMessage()),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    //Xóa xuất xứ
+    @PostMapping("/remove")
+    public ResponseEntity<Map<String, Object>> deleteSize(@RequestParam("sizeId") Integer sizeId) {
+        if (sizeId == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "originId không được để trống"));
+        }
+        try {
+            boolean isDeleted = sizeService.deleteSize(sizeId);
+            if (isDeleted) {
+                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "Thương hiệu không tồn tại"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Thực hiện thất bại", "error", e.getMessage()));
+        }
+    }
+}
