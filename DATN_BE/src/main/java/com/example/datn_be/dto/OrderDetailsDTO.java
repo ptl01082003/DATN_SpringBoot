@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,6 +27,7 @@ public class OrderDetailsDTO {
     private String refundStatus;
     private BigDecimal refundAmount;
     private List<OrderItemsDTO> orderItems;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    // Getters and Setters
 }

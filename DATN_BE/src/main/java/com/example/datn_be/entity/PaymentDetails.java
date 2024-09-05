@@ -27,17 +27,17 @@ public class PaymentDetails {
 
     @ManyToOne
     @JoinColumn(name = "orderDetailId", nullable = false)
-    private OrderDetails orderDetail;
+    private OrderDetails orderDetails;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status",nullable = false)
     private PAYMENT_STATUS status = PAYMENT_STATUS.IDLE;
 
-    @Column(nullable = false)
+    @Column(name = "amount",nullable = false)
     private Double amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "provider",nullable = false)
     private PAYMENT_PROVIDER provider;
 
 

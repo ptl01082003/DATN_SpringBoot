@@ -1,20 +1,14 @@
 /**@jsxImportSource @emotion/react */
 import { Button, Form, Input, Modal, Space, Table } from "antd";
 import { useEffect, useState } from "react";
-import MaterialService from "../services/MaterialApi";
+
 import { tableCustomizeStyle } from "../styles/styles";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { confirmAlert } from "react-confirm-alert"; // Import thư viện
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import CSS
 import { FormProps } from "antd/lib";
+import MaterialService from "../services/MaterialApi";
 
-// type MaterialType = {
-//   materialId?: number;
-//   name?: string;
-// };
-type FieldType = {
-  name?: string;
-};
 const deletebtn = [
   <svg
     width="16"
@@ -52,7 +46,7 @@ const pencil = [
     ></path>
   </svg>,
 ];
-export default function MaterialPage() {
+export default function StylePage() {
   const [materials, setMaterials] = useState<any>([]);
   const [shouldRender, setShouldRender] = useState<boolean>(false);
   const [isOpenCreateModal, setOpenCreateModal] = useState<boolean>(false);
@@ -68,7 +62,7 @@ export default function MaterialPage() {
       key: "materialId",
     },
     {
-      title: "Tên Vật Liệu",
+      title: "Tên kiểu dáng",
       dataIndex: "name",
       key: "name",
     },
@@ -79,13 +73,13 @@ export default function MaterialPage() {
           <Space size="middle">
             <Button
               icon={<EditOutlined />}
-              onClick={() => editMaterialItems(record)}
+              onClick={() => editStyleItems(record)}
             >
               Sửa
             </Button>
             <Button
               icon={<DeleteOutlined />}
-              onClick={() => deleteMaterialItems(record)}
+              onClick={() => deleteStyleItems(record)}
             >
               Xóa
             </Button>
@@ -94,14 +88,6 @@ export default function MaterialPage() {
       },
     },
   ];
-
-  // useEffect(() => {
-  //   (async () => {
-  //     const response = await MaterialService.getMaterials();
-  //       setMaterials(response?.data||[]);
-
-  //   })();
-  // }, [shouldRender]);
 
   useEffect(() => {
     const fetchMaterials = async () => {
@@ -113,14 +99,6 @@ export default function MaterialPage() {
 
     fetchMaterials();
   }, [shouldRender]); // Theo dõi `shouldRender`
-
-  // const deleteMaterialItems = async (record: any) => {
-  //   const response = await MaterialService.deleteMaterial(record.materialId!);
-  //   console.log('Delete response:', response);
-  //   if (response.code === 0) {
-  //     setShouldRender((prev) => !prev);
-  //   }
-  // };
   const confirmDelete = (onConfirm: () => void) => {
     confirmAlert({
       title: "Xác nhận",
@@ -138,7 +116,7 @@ export default function MaterialPage() {
     });
   };
 
-  const deleteMaterialItems = (record: any) => {
+  const deleteStyleItems = (record: any) => {
     confirmDelete(async () => {
       try {
         const response = await MaterialService.deleteMaterial(
@@ -154,7 +132,7 @@ export default function MaterialPage() {
     });
   };
 
-  const editMaterialItems = (record: any) => {
+  const editStyleItems = (record: any) => {
     setOpenEditModal({
       open: true,
       data: record,
@@ -178,66 +156,57 @@ export default function MaterialPage() {
   };
   const confirmEdit = (onConfirm: () => void) => {
     confirmAlert({
-      title: 'Xác nhận',
-      message: 'Bạn có chắc chắn muốn lưu thay đổi?',
+      title: "Xác nhận",
+      message: "Bạn có chắc chắn muốn lưu thay đổi?",
       buttons: [
         {
-          label: 'Có',
-          onClick: onConfirm
+          label: "Có",
+          onClick: onConfirm,
         },
         {
-          label: 'Không',
+          label: "Không",
           // Không làm gì khi người dùng chọn không
-        }
-      ]
+        },
+      ],
     });
   };
-  
+
   const onFinishEdit = async (values: any) => {
     confirmEdit(async () => {
-  try {
-    const response = await MaterialService.updateMaterial({
-      ...values,
-      materialId: openEditModal.data.materialId,
+      try {
+        const response = await MaterialService.updateMaterial({
+          ...values,
+          materialId: openEditModal.data.materialId,
+        });
+
+        if (response.code === 0) {
+          // Đóng modal sau khi thao tác thành công
+          setOpenEditModal({ open: false, data: {} });
+
+          // Hiển thị thông báo xác nhận
+          confirmAlert({
+            title: "Thành công",
+            message: "Chất liệu đã được cập nhật thành công!",
+            buttons: [
+              {
+                label: "OK",
+                onClick: () => {
+                  // Cập nhật danh sách chất liệu và re-render
+                  setShouldRender((prev) => !prev);
+                },
+              },
+            ],
+          });
+        } else {
+          console.error("Error:", response.data.message);
+          // Nếu cần, hiển thị thông báo lỗi
+        }
+      } catch (error) {
+        console.error("Error updating material:", error);
+        // Nếu cần, hiển thị thông báo lỗi
+      }
     });
-
-    if (response.code === 0) {
-      // Đóng modal sau khi thao tác thành công
-      setOpenEditModal({ open: false, data: {} });
-
-      // Hiển thị thông báo xác nhận
-      confirmAlert({
-        title: 'Thành công',
-        message: 'Chất liệu đã được cập nhật thành công!',
-        buttons: [
-          {
-            label: 'OK',
-            onClick: () => {
-              // Cập nhật danh sách chất liệu và re-render
-              setShouldRender((prev) => !prev);
-            },
-          },
-        ],
-      });
-    } else {
-      console.error('Error:', response.data.message);
-      // Nếu cần, hiển thị thông báo lỗi
-    }
-  } catch (error) {
-    console.error('Error updating material:', error);
-    // Nếu cần, hiển thị thông báo lỗi
-  }
-})};
-
-
-  // const onFinishCreate = async (values: any) => {
-  //   const response = await MaterialService.createMaterial(values);
-  //   if (response.code === 0) {
-  //     setOpenCreateModal(false);
-  //     setShouldRender((prev) => !prev);
-  //   }
-  // };
-  
+  };
 
   const onFinishCreate = async (values: any) => {
     confirmSave(async () => {
@@ -254,44 +223,6 @@ export default function MaterialPage() {
       }
     }, "thêm mới");
   };
-
-  // const edit = async (values: any) => {
-  //   confirmSave(async () => {
-  //     try {
-  //       const response = await MaterialService.updateMaterial({
-  //         ...values,
-  //         materialId: openEditModal.data.materialId,
-  //       });
-  //       if (response.data.code === 0) {
-  //         setOpenEditModal({ open: false, data: {} });
-  //         setShouldRender((prev) => !prev);
-  //       } else {
-  //         console.error("Error:", response.data.message);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error updating material:", error);
-  //     }
-  //   }, "sửa");
-  // };
-  // const editBrandItems = async (record: any) => {
-  //   setOpenEditModal({
-  //     open: true,
-  //     data: record,
-  //   });
-  // };
-
-  // const onEditFinish: FormProps<MaterialType>["onFinish"] = async (
-  //   values: MaterialType
-  // ) => {
-  //   const res = await MaterialService.updateMaterial({
-  //     ...values,
-  //     materialId: openEditModal?.data?.materialId,
-  //   });
-  //   if (res.code === 0) {
-  //     setOpenEditModal(undefined);
-  //     setShouldRender((x) => !x);
-  //   }
-  // };
 
   return (
     <>
@@ -316,7 +247,7 @@ export default function MaterialPage() {
       </div>
 
       <Modal
-        title="Create Material"
+        title="Create material"
         centered
         visible={isOpenCreateModal}
         destroyOnClose={true}
@@ -325,7 +256,7 @@ export default function MaterialPage() {
         width={750}
       >
         <Form
-          name="createMaterial"
+          name="createsmaterial"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
@@ -357,7 +288,7 @@ export default function MaterialPage() {
       </Modal>
 
       <Modal
-        title="Edit Material"
+        title="Edit material"
         centered
         visible={openEditModal.open}
         destroyOnClose={true}
@@ -366,7 +297,7 @@ export default function MaterialPage() {
         width={750}
       >
         <Form
-          name="editMaterial"
+          name="editsmaterial"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
@@ -375,7 +306,7 @@ export default function MaterialPage() {
           autoComplete="off"
         >
           <Form.Item
-            label="Material Name"
+            label="material Name"
             name="name"
             rules={[
               { required: true, message: "Please input the material name!" },
@@ -384,9 +315,13 @@ export default function MaterialPage() {
             <Input />
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit" onClick={() => {
+            <Button
+              type="primary"
+              htmlType="submit"
+              onClick={() => {
                 setOpenEditModal(false);
-              }}>
+              }}
+            >
               Save Changes
             </Button>
           </Form.Item>

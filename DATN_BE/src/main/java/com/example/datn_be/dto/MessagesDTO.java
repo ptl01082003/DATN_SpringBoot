@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -16,5 +18,6 @@ public class MessagesDTO {
     private Integer conversationId;
     private String contents;
     private String imageUrl;
-
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

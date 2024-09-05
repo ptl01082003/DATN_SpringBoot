@@ -44,29 +44,32 @@ const SizeService = {
     }
   },
 
-  // Cập nhật thông tin một kích cỡ đã có
-  updateSize: async (sizeID: number, sizeData: any) => {
+  updateSize: async (params: any) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/edit/${sizeID}`,
-        sizeData
+        `${API_URL}/edit`,
+        params
       );
       return response;
     } catch (error) {
-      console.error(`Lỗi khi cập nhật kích cỡ ${sizeID}`, error);
+      console.error(`Lỗi khi cập nhật style`, error);
       throw error;
     }
   },
 
-  // Xóa một kích cỡ dựa trên ID
-  deleteSize: async (sizeID: number) => {
+  // Xóa một màu sắc dựa trên ID
+  deleteSize: async (sizeId: number) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/remove/${sizeID}`
+        `${API_URL}/remove`,
+        null,
+        {
+          params: { sizeId },
+        }
       );
       return response;
     } catch (error) {
-      console.error(`Lỗi khi xóa kích cỡ ${sizeID}`, error);
+      console.error(`Lỗi khi xóa style ${sizeId}`, error);
       throw error;
     }
   },

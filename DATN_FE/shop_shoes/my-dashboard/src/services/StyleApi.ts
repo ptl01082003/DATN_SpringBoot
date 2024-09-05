@@ -43,29 +43,33 @@ const StyleService = {
     }
   },
 
-  // Cập nhật thông tin một màu sắc đã có
-  updateStyle: async (styleID: number, styleData: any) => {
+
+  updateStyle: async (params: any) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/edit/${styleID}`,
-        styleData
+        `${API_URL}/edit`,
+        params
       );
       return response;
     } catch (error) {
-      console.error(`Lỗi khi cập nhật màu sắc ${styleID}`, error);
+      console.error(`Lỗi khi cập nhật style`, error);
       throw error;
     }
   },
 
   // Xóa một màu sắc dựa trên ID
-  deleteStyle: async (styleID: number) => {
+  deleteStyle: async (styleId: number) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/remove/${styleID}`
+        `${API_URL}/remove`,
+        null,
+        {
+          params: { styleId },
+        }
       );
       return response;
     } catch (error) {
-      console.error(`Lỗi khi xóa màu sắc ${styleID}`, error);
+      console.error(`Lỗi khi xóa style ${styleId}`, error);
       throw error;
     }
   },

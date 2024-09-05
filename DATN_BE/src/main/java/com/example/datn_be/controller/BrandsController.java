@@ -18,7 +18,7 @@ public class BrandsController {
     @Autowired
     private BrandService brandService;
 
-    // Thêm thương hiệu mới
+
     @PostMapping("/create")
     public ResponseEntity<?> addBrand(@RequestBody BrandsDTO brandDTO) {
         try {
@@ -35,7 +35,7 @@ public class BrandsController {
         }
     }
 
-    // Lấy tất cả thương hiệu
+
     @PostMapping("")
     public ResponseEntity<?> getBrands() {
         try {
@@ -53,7 +53,7 @@ public class BrandsController {
         }
     }
 
-    // Lấy thương hiệu theo ID
+
     @PostMapping("/getById")
     public ResponseEntity<?> getById(@RequestBody Map<String, Integer> request) {
         try {
@@ -78,7 +78,7 @@ public class BrandsController {
         }
     }
 
-    // Cập nhật thương hiệu
+
     @PostMapping("/edit")
     public ResponseEntity<?> updateBrand(@RequestBody BrandsDTO brandDTO) {
         try {

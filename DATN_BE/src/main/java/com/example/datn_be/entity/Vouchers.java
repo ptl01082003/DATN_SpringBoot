@@ -22,7 +22,7 @@ public class Vouchers {
     @Column(name = "voucherId")
     private Integer voucherId;
 
-    @Column
+    @Column(name = "code")
     private String code;
 
     @Lob
@@ -44,11 +44,11 @@ public class Vouchers {
     @Column(name = "discountValue", precision = 16, scale = 2)
     private BigDecimal discountValue;
 
-    @Column
+    @Column(name = "quantity")
     private Integer quantity;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(name = "status")
     private VouchersStatus status;
 
     @Enumerated(EnumType.STRING)
@@ -67,10 +67,10 @@ public class Vouchers {
     @Column(name = "maxOrderCount")
     private Integer maxOrderCount;
 
-    @OneToMany(mappedBy = "voucher")
+    @OneToMany(mappedBy = "vouchers")
     private List<UserVouchers> userVouchers;
 
-    @OneToMany(mappedBy = "voucher")
+    @OneToMany(mappedBy = "vouchers")
     private List<OrderDetails> orderDetails;
 
 

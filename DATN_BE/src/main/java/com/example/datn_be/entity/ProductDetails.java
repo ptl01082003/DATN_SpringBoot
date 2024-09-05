@@ -1,17 +1,24 @@
 package com.example.datn_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+
+
+@Entity
+@Table(name = "product_details")
+
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity
-@Table(name = "product_details")
+
 public class ProductDetails {
 
     @Id
@@ -24,16 +31,15 @@ public class ProductDetails {
 
     @ManyToOne
     @JoinColumn(name = "productId", nullable = false)
+    @JsonBackReference
     private Products products;
 
-    @Column(nullable = false)
+    @Column(name = "sellQuantity",nullable = false)
     private Integer sellQuantity = 0;
 
-    @Column(nullable = false)
+    @Column(name = "quantity",nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false)
+    @Column(name = "numberStatistics",nullable = false)
     private Integer numberStatistics = 0;
-
-
 }

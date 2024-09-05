@@ -27,29 +27,30 @@ public class OrderItems {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer orderItemId;
 
-    @Column(nullable = false)
+    @Column(name = "amount",nullable = false)
     private Double amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status",nullable = false)
     private ORDER_STATUS status = ORDER_STATUS.CHO_THANH_TOAN;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "returnStatus",nullable = false)
     private RETURN_STATUS returnStatus;
 
-    @Column(nullable = false)
+    @Column(name = "price")
     private Double price;
 
-    @Column(nullable = false)
+    @Column(name = "priceDiscount")
     private Double priceDiscount;
 
-    @Column(nullable = false)
+    @Column(name = "userId")
     private Integer userId;
 
-    @Column(nullable = false)
+    @Column(name = "isReview")
     private Boolean isReview = false;
 
-    @Column(nullable = false)
+    @Column(name = "quantity")
     private Integer quantity;
 
     @ManyToOne

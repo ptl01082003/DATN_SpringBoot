@@ -19,10 +19,10 @@ public class Reviewers {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer reviewerId;
 
-    @Column(nullable = false)
+    @Column(name = "stars",nullable = false)
     private Float stars;
 
-    @Column
+    @Column(name = "contents")
     private String contents;
 
     @Column(name = "productId")
@@ -34,9 +34,9 @@ public class Reviewers {
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
-    private Users user;
+    private Users users;
 
-    @OneToMany(mappedBy = "reviewer")
+    @OneToMany(mappedBy = "reviewers")
     private Set<ReviewerPhoto> reviewerPhotos;
 
 

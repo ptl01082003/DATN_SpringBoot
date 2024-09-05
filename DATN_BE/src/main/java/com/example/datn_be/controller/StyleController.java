@@ -1,7 +1,9 @@
 package com.example.datn_be.controller;
 
+import com.example.datn_be.dto.BrandsDTO;
 import com.example.datn_be.dto.MaterialsDTO;
 import com.example.datn_be.dto.StylesDTO;
+import com.example.datn_be.entity.Brands;
 import com.example.datn_be.entity.Materials;
 import com.example.datn_be.entity.Styles;
 import com.example.datn_be.service.StyleService;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/style")
+@RequestMapping("/api/v1/styles")
 public class StyleController {
     @Autowired
     StyleService styleService;
@@ -74,18 +76,19 @@ public class StyleController {
             );
         }
     }
+
     @PostMapping("/edit")
-    public ResponseEntity<?> updateMaterial(@RequestBody StylesDTO stylesDTO) {
+    public ResponseEntity<?> updateStyle(@RequestBody StylesDTO stylesDTO) {
         try {
-            Styles updateStyle = styleService.updateStyle(stylesDTO);
-            if (updateStyle != null) {
+            Styles updatedStyle = styleService.updateStyle(stylesDTO);
+            if (updatedStyle != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", updateStyle),
+                        Map.of("message", "Thực hiện thành công", "data", updatedStyle),
                         HttpStatus.OK
                 );
             } else {
                 return new ResponseEntity<>(
-                        Map.of("message", "Phong cách  không tồn tại"),
+                        Map.of("message", "Thương hiệu không tồn tại"),
                         HttpStatus.NOT_FOUND
                 );
             }
@@ -97,10 +100,11 @@ public class StyleController {
         }
     }
 
+
     @PostMapping("/remove")
-    public ResponseEntity<Map<String, Object>> deleteMaterial(@RequestParam("materialId") Integer styleId) {
+    public ResponseEntity<Map<String, Object>> deleteMaterial(@RequestParam("styleId") Integer styleId) {
         if (styleId == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "materialId không được để trống"));
+            return ResponseEntity.badRequest().body(Map.of("message", "styleId không được để trống"));
         }
         try {
             boolean isDeleted = styleService.deleteStyle(styleId);

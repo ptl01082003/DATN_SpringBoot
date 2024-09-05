@@ -1,7 +1,6 @@
-// src/services/ProductService.ts
-
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
+
 const API_URL = "/products";
 
 const ProductService = {
@@ -18,8 +17,8 @@ const ProductService = {
   getProductById: async (productId: number) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}`,
-        productId
+        `${API_URL}/details`,
+        { productId }
       );
       return response;
     } catch (error) {
@@ -44,19 +43,29 @@ const ProductService = {
   updateProduct: async (params) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/edit`,
+        `${API_URL}/update`,
         params
       );
       return response;
     } catch (error) {
+      console.error("Lỗi khi cập nhật sản phẩm", error);
       throw error;
     }
   },
 
   deleteProduct: async (productId: number) => {
-    return await AxiosClient.post<any, Response<any>>(`${API_URL}/remove`, {
-      productId,
-    });
+    try {
+      const response = await AxiosClient.post<any, Response<any>>(
+        `${API_URL}/remove`,
+        {
+          productId,
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error(`Lỗi khi xóa sản phẩm ${productId}`, error);
+      throw error;
+    }
   },
 };
 

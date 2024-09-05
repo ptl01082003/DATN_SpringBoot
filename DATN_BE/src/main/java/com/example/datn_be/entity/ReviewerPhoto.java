@@ -18,12 +18,12 @@ public class ReviewerPhoto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer photoId;
 
-    @Column(nullable = false)
+    @Column(name = "path", nullable = false)
     private String path;
 
     @ManyToOne
     @JoinColumn(name = "reviewerId", nullable = false)
-    private Reviewers reviewer;
+    private Reviewers reviewers;
 
 
 }

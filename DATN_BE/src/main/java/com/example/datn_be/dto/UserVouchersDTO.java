@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -18,5 +20,6 @@ public class UserVouchersDTO {
     private LocalDate receivedAt;
     private LocalDate usedAt;
     private String status;
-
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

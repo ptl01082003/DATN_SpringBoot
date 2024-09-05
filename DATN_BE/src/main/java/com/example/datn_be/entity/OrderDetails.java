@@ -26,31 +26,31 @@ public class OrderDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer orderDetailId;
 
-    @Column(nullable = false)
+    @Column(name = "totals",nullable = false)
     private Double totals;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "orderCode",nullable = false, unique = true)
     private String orderCode;
 
-    @Column(nullable = false)
+    @Column(name = "amount",nullable = false)
     private Double amount;
 
-    @Column(nullable = false)
+    @Column(name = "name",nullable = false)
     private String name;
 
-    @Column(length = 500)
+    @Column(name = "address",length = 500)
     private String address;
 
     @ManyToOne
     @JoinColumn(name = "voucherId")
-    private Vouchers voucher;
+    private Vouchers vouchers;
 
-    @Column(nullable = false)
+    @Column(name = "phone",nullable = false)
     private String phone;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
-    private Users user;
+    private Users users;
 
     @OneToMany(mappedBy = "orderDetails")
     private List<OrderItems> orderItems;
@@ -58,15 +58,15 @@ public class OrderDetails {
     @Enumerated(EnumType.STRING)
     private REFUND_STATUS refundStatus;
 
-    @Column
+    @Column(name = "refundAmount")
     private Double refundAmount;
 
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(name = "createdAt",updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column
+    @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
     @PrePersist

@@ -96,18 +96,18 @@ public class MaterialsController {
         }
     }
 
-    @PostMapping("/remove/{materialId}")
-    public ResponseEntity<Map<String, Object>> deleteMaterial(@PathVariable("materialId") Integer materialId) {
+    @PostMapping("/remove")
+    public ResponseEntity<Map<String, Object>> deleteMaterial(@RequestParam("materialId") Integer materialId) {
         if (materialId == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "materialId không được để trống"));
+            return ResponseEntity.badRequest().body(Map.of("message", "brandId không được để trống"));
         }
         try {
             boolean isDeleted = materialService.deleteMaterial(materialId);
             if (isDeleted) {
-                return ResponseEntity.ok(Map.of("code",0,"message", "Thực hiện thành công"));
+                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Chất liệu  không tồn tại"));
+                        .body(Map.of("message", "Thương hiệu không tồn tại"));
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest()

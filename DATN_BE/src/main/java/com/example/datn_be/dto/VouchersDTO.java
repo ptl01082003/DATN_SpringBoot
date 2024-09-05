@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,5 +32,7 @@ public class VouchersDTO {
     private Integer maxOrderCount;
     private List<UserVouchersDTO> userVouchers;
     private List<OrderDetailsDTO> orderDetails;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }

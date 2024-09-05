@@ -18,11 +18,8 @@ import lombok.Setter;
 @Setter
 @Table(name = "brands")
 public class BrandsDTO {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "brandId")
-    private Integer brandid;
-    @Column(name = "name")
+
+    private Integer brandId;
     private String name;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

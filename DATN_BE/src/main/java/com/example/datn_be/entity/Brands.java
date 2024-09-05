@@ -9,12 +9,12 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
 
 import java.time.LocalDateTime;
 @Entity
 @Table(name = "brands")
-@EnableJpaAuditing
+
 @EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,7 +27,7 @@ public class Brands {
     @Column(name = "brandId")
     private Integer brandId;
 
-    @Column(name = "name")
+    @Column(name = "name",nullable = false)
     private String name;
 
     @CreatedDate

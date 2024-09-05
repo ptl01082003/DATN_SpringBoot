@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/v1/origin")
+@RequestMapping("api/v1/origins")
 public class OriginController {
 
     @Autowired
     private OriginService originService;
 
-    //Lấy tất cả xuất xứ
+
     @PostMapping("")
     public ResponseEntity<?> getOrigins(){
         try{
@@ -39,7 +39,6 @@ public class OriginController {
         }
     }
 
-    //Thêm xuất xứ
     @PostMapping("/create")
     public ResponseEntity<?> addOrigin(@RequestBody OriginsDTO originsDTO){
         try{
@@ -56,7 +55,7 @@ public class OriginController {
         }
     }
 
-    //Lấy xuất xứ theo id
+
     @PostMapping("/getById")
     public ResponseEntity<?> getOriginById(@RequestBody  Map<String, Integer> request){
         try{
@@ -81,7 +80,7 @@ public class OriginController {
         }
     }
 
-    //Cập nhật xuất xứ
+
     @PostMapping("/edit")
     public ResponseEntity<?> updateOrigin(@RequestBody OriginsDTO originsDTO) {
         try {
@@ -105,7 +104,7 @@ public class OriginController {
         }
     }
 
-    //Xóa xuất xứ
+
     @PostMapping("/remove")
     public ResponseEntity<Map<String, Object>> deleteOrigin(@RequestParam("originId") Integer originId) {
         if (originId == null) {

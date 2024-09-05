@@ -7,11 +7,13 @@ import com.example.datn_be.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UsersRepository userRepository;
     @Autowired
     private UsersRepository usersRepository;
 
@@ -24,8 +26,15 @@ public class UserServiceImpl implements UserService {
         UsersDTO userDto = new UsersDTO();
         userDto.setUserId(user.getUserId());
         userDto.setUserName(user.getUserName());
-        // Chuyển đổi thêm các trường nếu cần
+        userDto.setEmail(user.getEmail());
+        userDto.setPhone(user.getPhone());
+        userDto.setFullName(user.getFullName());
+        userDto.setCreatedAt(user.getCreatedAt());
+        userDto.setUpdatedAt(user.getUpdatedAt());
+
+        userDto.setRoles(user.getRoles() != null ?
+                Collections.singletonList(user.getRole()) : Collections.emptyList());
+
         return userDto;
     }
 }
-

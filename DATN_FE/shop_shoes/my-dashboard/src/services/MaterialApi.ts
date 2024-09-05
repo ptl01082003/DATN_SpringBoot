@@ -5,8 +5,6 @@ import { Response } from "../constants/constants";
 const API_URL = "/materials"; // Đảm bảo rằng URL này phù hợp với địa chỉ API của bạn
 
 
-
-
 const MaterialService = {
   // Lấy danh sách tất cả màu sắc
   getMaterials: async () => {
@@ -34,11 +32,11 @@ const MaterialService = {
   },
 
   // Tạo mới một màu sắc
-  createMaterial: async (materialData: any) => {
+  createMaterial: async (styleData: any) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/create`,
-        materialData
+        styleData
       );
       return response;
     } catch (error) {
@@ -47,35 +45,36 @@ const MaterialService = {
     }
   },
 
-  // Cập nhật thông tin một màu sắc đã có
-  updateMaterial: async (params) => {
+  updateMaterial: async (params: any) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/edit`,
-        {
-          params,
-        }
+        params
       );
       return response;
     } catch (error) {
+      console.error(`Lỗi khi cập nhật style`, error);
       throw error;
     }
   },
 
-  // Xóa một màu sắc dựa trênF ID
+  // Xóa một màu sắc dựa trên ID
   deleteMaterial: async (materialId: number) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/remove/${materialId}`
-        // materialId
+        `${API_URL}/remove`,
+        null,
+        {
+          params: { materialId },
+        }
       );
       return response;
-      // return API_URL;
     } catch (error) {
-      console.error(`Lỗi khi xóa chất liệu ${materialId}`, error);
+      console.error(`Lỗi khi xóa style ${materialId}`, error);
       throw error;
     }
   },
 };
+
 
 export default MaterialService;

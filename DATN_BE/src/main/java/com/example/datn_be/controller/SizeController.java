@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/v1/size")
+@RequestMapping("api/v1/sizes")
 public class SizeController {
 
     @Autowired
     private SizeService sizeService;
 
-    //Lấy tất cả size
+
     @PostMapping("")
-    public ResponseEntity<?> getOrigins(){
+    public ResponseEntity<?> getSizes(){
         try{
             List<Sizes> listSize = sizeService.getSizeList();
             return  new ResponseEntity<>(
@@ -39,7 +39,7 @@ public class SizeController {
         }
     }
 
-    //Thêm size
+
     @PostMapping("/create")
     public ResponseEntity<?> addSize(@RequestBody SizesDTO sizesDTO){
         try{
@@ -56,7 +56,7 @@ public class SizeController {
         }
     }
 
-    //Lấy xuất size id
+
     @PostMapping("/getById")
     public ResponseEntity<?> getSizeById(@RequestBody  Map<String, Integer> request){
         try{
@@ -81,7 +81,7 @@ public class SizeController {
         }
     }
 
-    //Cập nhật size
+
     @PostMapping("/edit")
     public ResponseEntity<?> updateSize(@RequestBody SizesDTO sizesDTO) {
         try {
@@ -105,11 +105,11 @@ public class SizeController {
         }
     }
 
-    //Xóa xuất xứ
+
     @PostMapping("/remove")
     public ResponseEntity<Map<String, Object>> deleteSize(@RequestParam("sizeId") Integer sizeId) {
         if (sizeId == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "originId không được để trống"));
+            return ResponseEntity.badRequest().body(Map.of("message", "sizeId không được để trống"));
         }
         try {
             boolean isDeleted = sizeService.deleteSize(sizeId);

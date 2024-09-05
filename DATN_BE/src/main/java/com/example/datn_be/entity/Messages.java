@@ -22,7 +22,7 @@ public class Messages {
 
     @ManyToOne
     @JoinColumn(name = "userId")
-    private Users user;
+    private Users users;
 
     @ManyToOne
     @JoinColumn(name = "conversationId")

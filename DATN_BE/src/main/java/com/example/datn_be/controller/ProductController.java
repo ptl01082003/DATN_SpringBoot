@@ -1,8 +1,6 @@
 package com.example.datn_be.controller;
 
-
 import com.example.datn_be.dto.ProductsDTO;
-import com.example.datn_be.entity.Images;
 import com.example.datn_be.entity.Products;
 import com.example.datn_be.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,7 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    // Thêm sản phẩm mới
+
     @PostMapping("/create")
     public ResponseEntity<?> addProduct(@RequestBody ProductsDTO productDTO) {
         try {
@@ -37,7 +35,7 @@ public class ProductController {
         }
     }
 
-    // Lấy tất cả sản phẩm
+
     @PostMapping("")
     public ResponseEntity<?> getProducts() {
         try {
@@ -54,8 +52,25 @@ public class ProductController {
         }
     }
 
-    // Lấy sản phẩm theo mã sản phẩm
-    @PostMapping("/product-details")
+
+    @PostMapping("/list")
+    public ResponseEntity<?> getLstProducts(@RequestBody Map<String, Object> request) {
+        try {
+            List<Products> products = productService.getLstProducts(request);
+            return new ResponseEntity<>(
+                    Map.of("message", "Thực hiện thành công", "data", products),
+                    HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    Map.of("message", "Thực hiện thất bại", "error", e.getMessage()),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    // Lấy chi tiết sản phẩm theo mã sản phẩm (sử dụng POST theo yêu cầu)
+    @PostMapping("/details")
     public ResponseEntity<?> getProductDetails(@RequestBody Map<String, String> request) {
         try {
             String code = request.get("code");
@@ -79,8 +94,8 @@ public class ProductController {
         }
     }
 
-    // Cập nhật sản phẩm
-    @PostMapping("/edit")
+    // Cập nhật sản phẩm (sử dụng POST theo yêu cầu)
+    @PostMapping("/update")
     public ResponseEntity<?> updateProduct(@RequestBody ProductsDTO productDTO) {
         try {
             Products updatedProduct = productService.updateProduct(productDTO);
@@ -103,7 +118,7 @@ public class ProductController {
         }
     }
 
-    // Xóa sản phẩm theo ID
+    // Xóa sản phẩm (sử dụng POST theo yêu cầu)
     @PostMapping("/remove")
     public ResponseEntity<?> deleteProduct(@RequestBody Map<String, Integer> request) {
         try {
@@ -128,7 +143,7 @@ public class ProductController {
         }
     }
 
-    // Lấy sản phẩm giảm giá
+    // Lấy sản phẩm có khuyến mãi (sử dụng POST theo yêu cầu)
     @PostMapping("/discounted")
     public ResponseEntity<?> getDiscountedProducts() {
         try {

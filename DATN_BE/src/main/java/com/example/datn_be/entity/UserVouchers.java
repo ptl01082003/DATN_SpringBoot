@@ -21,19 +21,19 @@ public class UserVouchers {
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
-    private Users user;
+    private Users users;
 
     @ManyToOne
     @JoinColumn(name = "voucherId", nullable = false)
-    private Vouchers voucher;
+    private Vouchers vouchers;
 
-    @Column(name = "received_at")
+    @Column(name = "receivedAt")
     private LocalDateTime receivedAt;
 
-    @Column(name = "used_at")
+    @Column(name = "usedAt")
     private LocalDateTime usedAt;
 
-    @Column
+    @Column(name = "status")
     private String status;
 
 

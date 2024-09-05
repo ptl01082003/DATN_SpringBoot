@@ -20,16 +20,16 @@ public class ShoppingCarts {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer cartId;
 
-    @Column(nullable = false)
+    @Column(name = "totals",nullable = false)
     private Double totals;
 
-    @Column(nullable = false)
+    @Column(name = "amount",nullable = false)
     private Double amount;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
-    private Users user;
+    private Users users;
 
-    @OneToMany(mappedBy = "shoppingCart")
+    @OneToMany(mappedBy = "shoppingCarts")
     private Set<CartItems> cartItems;
 }

@@ -5,8 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,11 +29,19 @@ public class CartItems {
 
     @ManyToOne
     @JoinColumn(name = "cartId", nullable = false)
-    private ShoppingCarts shoppingCart;
+    private ShoppingCarts shoppingCarts;
 
-    @Column
+    @Column(name = "quantity")
     private Integer quantity;
 
-    @Column
+    @Column(name = "amount")
     private BigDecimal amount;
+
+    @CreatedDate
+    @Column(name = "createdAt", updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
 }

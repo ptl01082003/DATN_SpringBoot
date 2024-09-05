@@ -25,7 +25,7 @@ public class Roles {
     private Integer roleId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "type",nullable = false)
     private RoleTypes type;
 
 }

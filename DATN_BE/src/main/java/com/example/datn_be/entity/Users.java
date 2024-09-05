@@ -19,25 +19,27 @@ public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "userId",nullable = false)
     private Integer userId;
 
-    @Column(nullable = false)
+    @Column(name = "userName",nullable = false)
     private String userName;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "email",nullable = false, unique = true)
     private String email;
 
-    @Column
+    @Column(name = "phone")
     private String phone;
 
-    @Column(nullable = false)
+    @Column(name = "password",nullable = false)
     private String password;
 
-    @Column
+    @Column(name = "birth")
     private LocalDate birth;
 
-    @Column(nullable = false)
+    @Column(name = "fullName",nullable = false)
     private String fullName;
+
     @Column(name = "createdAt")
     private LocalDateTime createdAt;
 

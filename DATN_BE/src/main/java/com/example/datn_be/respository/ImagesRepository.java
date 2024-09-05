@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ImagesRepository extends JpaRepository<Images, Integer> {
-    List<Images> findByProducts_ProductId(Integer productId);
+
     void deleteByProducts_ProductId(Integer productId);
+
 }
