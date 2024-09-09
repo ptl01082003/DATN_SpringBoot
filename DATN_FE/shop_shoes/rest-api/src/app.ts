@@ -44,6 +44,8 @@ redis.initial();
 
 connectDB();
 
+import "./utils/CronJobs";
+
 //PUBLIC ROUTER
 app.use(bodyParser.json());
 
@@ -52,8 +54,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 appRouter();
-
-import "./utils/CronJobs";
 
 
 

@@ -1,9 +1,11 @@
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
 
+// Đảm bảo rằng URL này tương ứng với API của bạn
 const API_URL = "/vouchers";
 
 const VoucherService = {
+  // Lấy danh sách tất cả các vouchers
   getVouchers: async () => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(API_URL);
@@ -14,19 +16,21 @@ const VoucherService = {
     }
   },
 
-  // getVoucherById: async (voucherId: number) => {
-  //   try {
-  //     const response = await AxiosClient.post<any, Response<any>>(
-  //       `${API_URL}/get-by-id`,
-  //       { voucherId }
-  //     );
-  //     return response;
-  //   } catch (error) {
-  //     console.error(`Error fetching voucher ${voucherId}`, error);
-  //     throw error;
-  //   }
-  // },
+  // Lấy thông tin voucher theo ID
+  getVoucherById: async (voucherId: number) => {
+    try {
+      const response = await AxiosClient.post<any, Response<any>>(
+        `${API_URL}/get-by-id`,
+        { voucherId }
+      );
+      return response; // Sử dụng response.data để trả về dữ liệu chính xác
+    } catch (error) {
+      console.error(`Error fetching voucher ${voucherId}`, error);
+      throw error;
+    }
+  },
 
+  // Tạo một voucher mới
   createVoucher: async (voucherData: any) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
@@ -40,24 +44,29 @@ const VoucherService = {
     }
   },
 
-  updateVoucher: async (params: any) => {
+  // Cập nhật thông tin voucher
+  updateVoucher: async (voucherData: any) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/edit`,
-        params
+        voucherData
       );
       return response;
     } catch (error) {
-      console.error(`Error updating voucher ${params}`, error);
+      console.error("Error updating voucher", error);
       throw error;
     }
   },
 
+  // Xóa voucher theo ID
   deleteVoucher: async (voucherId: number) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/remove`,
-        { voucherId }
+        null,
+        {
+          params: { voucherId },
+        }
       );
       return response;
     } catch (error) {

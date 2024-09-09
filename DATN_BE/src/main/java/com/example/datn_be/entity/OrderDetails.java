@@ -52,8 +52,9 @@ public class OrderDetails {
     @JoinColumn(name = "userId", nullable = false)
     private Users users;
 
-    @OneToMany(mappedBy = "orderDetails")
+    @OneToMany(mappedBy = "orderDetails", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItems> orderItems;
+
 
     @Enumerated(EnumType.STRING)
     private REFUND_STATUS refundStatus;

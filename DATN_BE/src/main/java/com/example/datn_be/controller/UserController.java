@@ -15,7 +15,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/get-info")
+    @PostMapping("/get-info")
     public ResponseEntity<Map<String, Object>> getInfo(@RequestParam Integer userId) {
         try {
             UsersDTO userDto = userService.getUserInfo(userId);

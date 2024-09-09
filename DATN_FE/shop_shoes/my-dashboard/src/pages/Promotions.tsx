@@ -135,8 +135,8 @@ export default function PromotionsPage() {
       open: true,
       data: {
         ...record,
-        startDay: dayjs(record.startDay),
-        endDay: dayjs(record.endDay),
+        startDay: dayjs(record.startDay, 'YYYY-MM-DD HH:mm:ss'),
+        endDay: dayjs(record.endDay, 'YYYY-MM-DD HH:mm:ss'),
       },
     });
   };
@@ -177,6 +177,8 @@ export default function PromotionsPage() {
         ...values,
         promotionId: openEditModal.data.promotionId,
         productId: product?.productId,
+        startDay: dayjs(values.startDay).format("YYYY-MM-DD HH:mm:ss"), 
+      endDay: dayjs(values.endDay).format("YYYY-MM-DD HH:mm:ss"), 
       });
       if (res.code === 0) {
         message.success("Cập nhật khuyến mãi thành công");

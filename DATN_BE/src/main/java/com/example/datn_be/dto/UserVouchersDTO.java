@@ -17,8 +17,8 @@ public class UserVouchersDTO {
     private Integer id;
     private Integer userId;
     private Integer voucherId;
-    private LocalDate receivedAt;
-    private LocalDate usedAt;
+    private LocalDateTime receivedAt;
+    private LocalDateTime usedAt;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

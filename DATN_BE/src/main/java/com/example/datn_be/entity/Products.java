@@ -51,7 +51,7 @@ public class Products {
     @Column(name = "status", nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean status;
 
-    @Column(name = "display", nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
+    @Column(name = "display", columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean display;
 
     @Column(name = "description", columnDefinition = "TEXT")

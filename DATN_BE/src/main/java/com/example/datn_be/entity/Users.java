@@ -46,8 +46,8 @@ public class Users {
     @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "roleId", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "roleId")
     private Roles roles;
 
     public String getRole() {

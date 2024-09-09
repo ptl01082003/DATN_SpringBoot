@@ -1,5 +1,6 @@
 package com.example.datn_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,6 +39,7 @@ public class Images {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "productId", nullable = false)
+    @JoinColumn(name = "productId",referencedColumnName = "productId", nullable = false)
+    @JsonBackReference
     private Products products;
 }

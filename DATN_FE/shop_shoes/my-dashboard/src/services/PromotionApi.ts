@@ -1,10 +1,11 @@
-// src/services/PromotionService.ts
-
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
+
+// Đảm bảo rằng URL này tương ứng với API của bạn
 const API_URL = "/promotions";
 
 const PromotionService = {
+  // Lấy danh sách tất cả các promotions
   getPromotions: async () => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(API_URL);
@@ -15,19 +16,21 @@ const PromotionService = {
     }
   },
 
+  // Lấy thông tin promotion theo ID
   getPromotionById: async (promotionId: number) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}`,
-        promotionId
+        `${API_URL}/get-by-id`,
+        { promotionId }
       );
-      return response;
+      return response; // Sử dụng response.data để trả về dữ liệu chính xác
     } catch (error) {
       console.error(`Error fetching promotion ${promotionId}`, error);
       throw error;
     }
   },
 
+  // Tạo một promotion mới
   createPromotion: async (promotionData: any) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
@@ -41,25 +44,28 @@ const PromotionService = {
     }
   },
 
-  updatePromotion: async (params: any) => {
+  // Cập nhật thông tin promotion
+  updatePromotion: async (promotionData: any) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/edit`,
-        params
+        promotionData
       );
-
       return response;
     } catch (error) {
+      console.error("Error updating promotion", error);
       throw error;
     }
   },
 
+  // Xóa promotion theo ID
   deletePromotion: async (promotionId: number) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/remove`,
+        null,
         {
-          promotionId,
+          params: { promotionId },
         }
       );
       return response;

@@ -1,7 +1,10 @@
 package com.example.datn_be.controller;
 
-import com.example.datn_be.dto.PromotionsDTO;
-import com.example.datn_be.service.PromotionService;
+import com.example.datn_be.dto.VouchersDTO;
+import com.example.datn_be.entity.Vouchers;
+import com.example.datn_be.service.VouchersService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,21 +14,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @RestController
-@RequestMapping("/api/v1/promotions")
-public class PromotionController {
+@RequestMapping("/api/v1/vouchers")
+public class VouchersController {
 
     @Autowired
-    private PromotionService promotionService;
+    private VouchersService voucherService;
 
-    // Tạo khuyến mãi mới
     @PostMapping("/create")
-    public ResponseEntity<?> addPromotion(@RequestBody PromotionsDTO promotionsDTO) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> addVoucher(@RequestBody VouchersDTO voucherDTO) {
         try {
-            PromotionsDTO createdPromotion = promotionService.createPromotion(promotionsDTO);
+            VouchersDTO voucher = voucherService.createVoucher(voucherDTO);
             return new ResponseEntity<>(
-                    Map.of("message", "Thực hiện thành công", "data", createdPromotion),
+                    Map.of("message", "Thực hiện thành công", "data", voucher),
                     HttpStatus.CREATED
             );
         } catch (Exception e) {
@@ -36,13 +40,12 @@ public class PromotionController {
         }
     }
 
-    // Lấy tất cả các khuyến mãi
     @PostMapping("")
-    public ResponseEntity<?> getAllPromotions() {
+    public ResponseEntity<?> getVouchers() {
         try {
-            List<PromotionsDTO> promotions = promotionService.getAllPromotions();
+            List<VouchersDTO> vouchers = voucherService.getAllVouchers();
             return new ResponseEntity<>(
-                    Map.of("message", "Thực hiện thành công", "data", promotions),
+                    Map.of("message", "Thực hiện thành công", "data", vouchers),
                     HttpStatus.OK
             );
         } catch (Exception e) {
@@ -53,20 +56,20 @@ public class PromotionController {
         }
     }
 
-    // Lấy khuyến mãi theo ID
     @PostMapping("/getById")
-    public ResponseEntity<?> getPromotionById(@RequestBody Map<String, Integer> request) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getById(@RequestBody Map<String, Integer> request) {
         try {
-            Integer promotionId = request.get("promotionId");
-            Optional<PromotionsDTO> promotion = promotionService.getPromotionById(promotionId);
-            if (promotion != null) {
+            Integer voucherId = request.get("voucherId");
+            Optional<VouchersDTO> voucher = voucherService.getVoucherById(voucherId);
+            if (voucher != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", promotion),
+                        Map.of("message", "Thực hiện thành công", "data", voucher),
                         HttpStatus.OK
                 );
             } else {
                 return new ResponseEntity<>(
-                        Map.of("message", "Khuyến mãi không tồn tại"),
+                        Map.of("message", "Voucher không tồn tại"),
                         HttpStatus.NOT_FOUND
                 );
             }
@@ -78,20 +81,22 @@ public class PromotionController {
         }
     }
 
-    // Cập nhật khuyến mãi
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @PostMapping("/edit")
-    public ResponseEntity<?> updatePromotion(@RequestBody PromotionsDTO promotionsDTO) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateVoucher(@RequestBody VouchersDTO voucherDTO) {
         try {
-            PromotionsDTO updatedPromotion = promotionService.updatePromotion(promotionsDTO.getPromotionId(), promotionsDTO);
-            if (updatedPromotion != null) {
+            // Lấy ID từ đối tượng voucherDTO
+            Integer voucherId = voucherDTO.getVoucherId();
+            // Gọi phương thức updateVoucher của service với voucherId và voucherDTO
+            VouchersDTO updatedVoucherDTO = voucherService.updateVoucher(voucherId, voucherDTO);
+            if (updatedVoucherDTO != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", updatedPromotion),
+                        Map.of("message", "Thực hiện thành công", "data", updatedVoucherDTO),
                         HttpStatus.OK
                 );
             } else {
                 return new ResponseEntity<>(
-                        Map.of("message", "Khuyến mãi không tồn tại"),
+                        Map.of("message", "Voucher không tồn tại"),
                         HttpStatus.NOT_FOUND
                 );
             }
@@ -102,24 +107,27 @@ public class PromotionController {
             );
         }
     }
-
-    // Xóa khuyến mãi
+    private static final Logger logger = LoggerFactory.getLogger(VouchersController.class);
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/remove")
-    public ResponseEntity<Map<String, Object>> deletePromotion(@RequestParam Integer promotionId) {
-        if (promotionId == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "promotionId không được để trống"));
+    public ResponseEntity<Map<String, Object>> deleteVoucher(@RequestParam("voucherId") Integer voucherId) {
+        logger.info("Attempting to delete voucher with ID: " + voucherId);
+        if (voucherId == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "voucherId không được để trống"));
         }
         try {
-            boolean isDeleted = promotionService.deletePromotion(promotionId);
+            boolean isDeleted = voucherService.deleteVoucher(voucherId);
             if (isDeleted) {
                 return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Khuyến mãi không tồn tại"));
+                        .body(Map.of("message", "Voucher không tồn tại"));
             }
         } catch (Exception e) {
+            logger.error("Error deleting voucher with ID: " + voucherId, e);
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Thực hiện thất bại", "error", e.getMessage()));
         }
     }
+
 }

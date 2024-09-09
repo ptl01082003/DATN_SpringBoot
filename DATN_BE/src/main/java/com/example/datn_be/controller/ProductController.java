@@ -118,7 +118,7 @@ public class ProductController {
         }
     }
 
-    // Xóa sản phẩm (sử dụng POST theo yêu cầu)
+
     @PostMapping("/remove")
     public ResponseEntity<?> deleteProduct(@RequestBody Map<String, Integer> request) {
         try {

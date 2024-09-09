@@ -57,13 +57,13 @@ public class ProductServiceImpl implements ProductService {
 
         // Set các thuộc tính quan hệ từ ID
         product.setOrigins(originsRepository.findById(productDTO.getOriginId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid origin ID: " + productDTO.getOriginId())));
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ origin ID: " + productDTO.getOriginId())));
         product.setStyles(stylesRepository.findById(productDTO.getStyleId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid style ID: " + productDTO.getStyleId())));
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ style ID: " + productDTO.getStyleId())));
         product.setMaterials(materialsRepository.findById(productDTO.getMaterialId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid material ID: " + productDTO.getMaterialId())));
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ material ID: " + productDTO.getMaterialId())));
         product.setBrands(brandsRepository.findById(productDTO.getBrandId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid brand ID: " + productDTO.getBrandId())));
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ brand ID: " + productDTO.getBrandId())));
 
         Products savedProduct = productsRepository.save(product);
 
@@ -72,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
                 ProductDetails detail = new ProductDetails();
                 detail.setProducts(savedProduct);  // Thiết lập quan hệ giữa ProductDetails và Product
                 detail.setSizes(sizesRepository.findById(detailDTO.getSizeId())
-                        .orElseThrow(() -> new IllegalArgumentException("Invalid size ID: " + detailDTO.getSizeId())));
+                        .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ size ID: " + detailDTO.getSizeId())));
                 detail.setQuantity(detailDTO.getQuantity());
                 productDetailsRepository.save(detail);
             }
@@ -165,13 +165,13 @@ public class ProductServiceImpl implements ProductService {
 
         // Cập nhật các thuộc tính quan hệ
         product.setOrigins(originsRepository.findById(productDTO.getOriginId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid origin ID: " + productDTO.getOriginId())));
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ origin ID: " + productDTO.getOriginId())));
         product.setStyles(stylesRepository.findById(productDTO.getStyleId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid style ID: " + productDTO.getStyleId())));
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ style ID: " + productDTO.getStyleId())));
         product.setMaterials(materialsRepository.findById(productDTO.getMaterialId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid material ID: " + productDTO.getMaterialId())));
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ material ID: " + productDTO.getMaterialId())));
         product.setBrands(brandsRepository.findById(productDTO.getBrandId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid brand ID: " + productDTO.getBrandId())));
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ brand ID: " + productDTO.getBrandId())));
 
         productsRepository.save(product);
 
@@ -187,21 +187,21 @@ public class ProductServiceImpl implements ProductService {
                     detail = new ProductDetails();
                     detail.setProducts(product);  // Thiết lập quan hệ giữa ProductDetails và Product
                     detail.setSizes(sizesRepository.findById(detailDTO.getSizeId())
-                            .orElseThrow(() -> new IllegalArgumentException("Invalid size ID: " + detailDTO.getSizeId())));
+                            .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ size ID: " + detailDTO.getSizeId())));
                     detail.setQuantity(detailDTO.getQuantity());
                     productDetailsRepository.save(detail);
                 }
             }
         }
 
-        // Cập nhật hình ảnh sản phẩm
+
         imagesRepository.deleteByProducts_ProductId(productDTO.getProductId());
 
         if (productDTO.getGallery() != null) {
             for (String path : productDTO.getGallery()) {
                 Images image = new Images();
                 image.setPath(path);
-                image.setProducts(product);  // Thiết lập quan hệ giữa Images và Product
+                image.setProducts(product);
                 imagesRepository.save(image);
             }
         }

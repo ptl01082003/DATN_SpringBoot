@@ -3,6 +3,7 @@ package com.example.datn_be.config.security;
 import com.example.datn_be.dto.UsersDTO;
 import com.example.datn_be.service.UserService;
 import com.example.datn_be.utils.JwtTokenProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +18,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.stream.Collectors;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -31,7 +34,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+
+
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+        log.debug("Processing request: {}", path);
+
+        if (path.startsWith("/api/v1/")) {
+            log.debug("Skipping authentication for public endpoint: {}", path);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = getJwtFromRequest(request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
@@ -43,7 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (user != null) {
                 // Tạo đối tượng Authentication từ thông tin người dùng
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        user, null, user.getRoles() != null ? user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList()) : Collections.emptyList()
+                        user.getUserName(), null,
+                        user.getRoles() != null ? user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList()) : Collections.emptyList()
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

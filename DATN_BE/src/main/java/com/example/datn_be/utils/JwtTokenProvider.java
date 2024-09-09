@@ -5,10 +5,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 
 @Component
@@ -23,6 +25,14 @@ public class JwtTokenProvider {
     @Value("${app.jwtRefreshSecret}")
     private String jwtRefreshSecret;
 
+    private Key getKeyForAccessToken() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
+
+    private Key getKeyForRefreshToken() {
+        return Keys.hmacShaKeyFor(jwtRefreshSecret.getBytes());
+    }
+
     public String generateAccessToken(Users user) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
@@ -31,7 +41,7 @@ public class JwtTokenProvider {
                 .setSubject(Integer.toString(user.getUserId()))
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, jwtSecret.getBytes()) // Chuyển đổi secret key thành byte array
+                .signWith(getKeyForAccessToken(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
@@ -43,50 +53,51 @@ public class JwtTokenProvider {
                 .setSubject(Integer.toString(user.getUserId()))
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, jwtRefreshSecret.getBytes()) // Chuyển đổi secret key thành byte array
+                .signWith(getKeyForRefreshToken(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret.getBytes()).parseClaimsJws(authToken); // Chuyển đổi secret key thành byte array
+            Jwts.parserBuilder().setSigningKey(getKeyForAccessToken()).build().parseClaimsJws(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
+            // Log error details if needed
             return false;
         }
     }
 
     public boolean validateRefreshToken(String refreshToken) {
         try {
-            Jwts.parser().setSigningKey(jwtRefreshSecret.getBytes()).parseClaimsJws(refreshToken); // Chuyển đổi secret key thành byte array
+            Jwts.parserBuilder().setSigningKey(getKeyForRefreshToken()).build().parseClaimsJws(refreshToken);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
+            // Log error details if needed
             return false;
         }
     }
 
-    public Claims getClaims(String token, String secretKey) {
-        return Jwts.parser()
-                .setSigningKey(secretKey.getBytes()) // Chuyển đổi secret key thành byte array
-                .parseClaimsJws(token)
-                .getBody();
+    private Claims getClaims(String token, Key key) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
     public Integer getUserIdFromToken(String token) {
-        Claims claims = getClaims(token, jwtSecret);
+        Claims claims = getClaims(token, getKeyForAccessToken());
         return Integer.parseInt(claims.getSubject());
     }
 
     public Integer getUserIdFromRefreshToken(String token) {
-        Claims claims = getClaims(token, jwtRefreshSecret);
+        Claims claims = getClaims(token, getKeyForRefreshToken());
         return Integer.parseInt(claims.getSubject());
     }
 
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     public String encodePassword(String password) {
-        return new BCryptPasswordEncoder().encode(password);
+        return passwordEncoder.encode(password);
     }
 
     public boolean checkPassword(String rawPassword, String encodedPassword) {
-        return new BCryptPasswordEncoder().matches(rawPassword, encodedPassword);
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 }
