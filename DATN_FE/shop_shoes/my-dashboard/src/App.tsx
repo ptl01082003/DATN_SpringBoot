@@ -18,6 +18,7 @@ import BrandsPage from "./pages/Brands";
 import StylesPage from "./pages/Styles";
 import MaterialsPage from "./pages/Materials";
 import OriginsPage from "./pages/Origins";
+import DeliveredOrders from "./pages/OderDetails";
 import SizePage from "./pages/Sizes";
 import PromotionsPage from "./pages/Promotions";
 import ProductPage from "./pages/Products";
@@ -28,6 +29,7 @@ import { useAppDispatch } from "./app/hooks";
 import { useEffect } from "react";
 import { changelstOnlineUsers } from "./app/slice/userSlice";
 import { fetchGetUserInfo } from "./app/thunks/UserThunk";
+import OrderDetails from "./pages/OderDetails";
 
 // export const socket = io.connect("http://localhost:6500", {
 //   auth: {
@@ -85,6 +87,7 @@ function App() {
             <Route path={"products"} element={<ProductPage />} />
             <Route path={"vouchers"} element={<VouchersPage />} />
             <Route path={"supports"} element={<SupporterPage />} />
+            <Route path={"order"} element={<OrderDetails/>} />
             {/* <Route path={"product-details"} element={<ProductDetailsPage />} /> */}
           </Route>
         </Routes>

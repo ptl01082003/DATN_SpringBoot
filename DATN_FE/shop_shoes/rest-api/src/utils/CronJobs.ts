@@ -1,11 +1,8 @@
-import cron from "node-cron";
-import { distributeVouchers } from "../service/VoucherService"; // Đảm bảo đường dẫn đúng
-import { Users } from "../models/Users";
-import { OrderDetails } from "../models/OrderDetails";
-import { OrderItems } from "../models/OrderItems";
-import { updateProductPrices } from "./utils";
+// import cron from "node-cron";
+// import { distributeVouchers } from "../service/VoucherService"; // Đảm bảo đường dẫn đúng
 
-// Đặt lịch cron job (ví dụ: chạy mỗi ngày lúc 1 giờ sáng)
+// import { updateProductPrices } from "./utils";
+
 // cron.schedule("* * * * *", async () => {
 //   try {
 //     console.log("Starting voucher distribution job...");
@@ -23,3 +20,35 @@ import { updateProductPrices } from "./utils";
 //     console.error("Lỗi khi thực hiện cron job:", error);
 //   }
 // });
+//     // Đảm bảo rằng các cron jobs được thực thi khi server khởi động
+// console.log("Cron jobs đã được lập lịch.");
+
+
+import cron from "node-cron";
+import { distributeVouchers } from "../service/VoucherService"; // Đảm bảo đường dẫn đúng
+import { updateProductPrices } from "./utils";
+
+// Job cron để phân phối voucher
+cron.schedule("0 0 * * *", async () => {
+  console.log(`Cron job phân phối voucher bắt đầu lúc: ${new Date().toLocaleString()}`);
+  try {
+    await distributeVouchers();
+    console.log("Cron job phân phối voucher hoàn thành.");
+  } catch (error) {
+    console.error("Lỗi khi phân phối voucher:", error);
+  }
+});
+
+// Job cron để cập nhật giá sản phẩm
+cron.schedule("0 0 * * *", async () => {
+  console.log(`Cron job cập nhật giá sản phẩm bắt đầu lúc: ${new Date().toLocaleString()}`);
+  try {
+    await updateProductPrices();
+    console.log("Cron job cập nhật giá sản phẩm hoàn thành.");
+  } catch (error) {
+    console.error("Lỗi khi cập nhật giá sản phẩm:", error);
+  }
+});
+
+// Đảm bảo rằng các cron jobs được thực thi khi server khởi động
+console.log("Cron jobs đã được lập lịch.");

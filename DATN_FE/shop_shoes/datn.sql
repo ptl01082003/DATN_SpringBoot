@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.38, for macos14 (arm64)
+-- MySQL dump 10.13  Distrib 8.0.36, for Win64 (x86_64)
 --
 -- Host: localhost    Database: datn
 -- ------------------------------------------------------
--- Server version	9.0.0
+-- Server version	8.0.37
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -96,9 +96,9 @@ CREATE TABLE `cart_items` (
   PRIMARY KEY (`cartItemId`),
   KEY `productDetailId` (`productDetailId`),
   KEY `cartId` (`cartId`),
-  CONSTRAINT `cart_items_ibfk_257` FOREIGN KEY (`productDetailId`) REFERENCES `product_details` (`productDetailId`) ON UPDATE CASCADE,
-  CONSTRAINT `cart_items_ibfk_258` FOREIGN KEY (`cartId`) REFERENCES `shopping_carts` (`cartId`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `cart_items_ibfk_337` FOREIGN KEY (`productDetailId`) REFERENCES `product_details` (`productDetailId`) ON UPDATE CASCADE,
+  CONSTRAINT `cart_items_ibfk_338` FOREIGN KEY (`cartId`) REFERENCES `shopping_carts` (`cartId`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -128,9 +128,9 @@ CREATE TABLE `conversations` (
   KEY `senderId` (`senderId`),
   KEY `receiverId` (`receiverId`),
   KEY `lastMessageId` (`lastMessageId`),
-  CONSTRAINT `conversations_ibfk_7` FOREIGN KEY (`senderId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE,
-  CONSTRAINT `conversations_ibfk_8` FOREIGN KEY (`receiverId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE,
-  CONSTRAINT `conversations_ibfk_9` FOREIGN KEY (`lastMessageId`) REFERENCES `messages` (`messagesId`) ON UPDATE CASCADE
+  CONSTRAINT `conversations_ibfk_127` FOREIGN KEY (`senderId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE,
+  CONSTRAINT `conversations_ibfk_128` FOREIGN KEY (`receiverId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE,
+  CONSTRAINT `conversations_ibfk_129` FOREIGN KEY (`lastMessageId`) REFERENCES `messages` (`messagesId`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -186,7 +186,7 @@ CREATE TABLE `images` (
   PRIMARY KEY (`imageId`),
   KEY `productId` (`productId`),
   CONSTRAINT `images_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=236 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=237 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -212,7 +212,7 @@ CREATE TABLE `materials` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`materialId`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -243,8 +243,8 @@ CREATE TABLE `messages` (
   PRIMARY KEY (`messagesId`),
   KEY `userId` (`userId`),
   KEY `conversationId` (`conversationId`),
-  CONSTRAINT `messages_ibfk_5` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE,
-  CONSTRAINT `messages_ibfk_6` FOREIGN KEY (`conversationId`) REFERENCES `conversations` (`conversationId`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `messages_ibfk_85` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE,
+  CONSTRAINT `messages_ibfk_86` FOREIGN KEY (`conversationId`) REFERENCES `conversations` (`conversationId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -276,12 +276,14 @@ CREATE TABLE `order_details` (
   `address` varchar(500) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `voucherId` int DEFAULT NULL,
+  `refundStatus` varchar(255) DEFAULT NULL,
+  `refundAmount` int DEFAULT NULL,
   PRIMARY KEY (`orderDetailId`),
   KEY `userId` (`userId`),
   KEY `order_details_voucherId_foreign_idx` (`voucherId`),
-  CONSTRAINT `order_details_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE,
-  CONSTRAINT `order_details_voucherId_foreign_idx` FOREIGN KEY (`voucherId`) REFERENCES `vouchers` (`voucherId`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `order_details_ibfk_79` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE,
+  CONSTRAINT `order_details_ibfk_80` FOREIGN KEY (`voucherId`) REFERENCES `vouchers` (`voucherId`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -290,6 +292,7 @@ CREATE TABLE `order_details` (
 
 LOCK TABLES `order_details` WRITE;
 /*!40000 ALTER TABLE `order_details` DISABLE KEYS */;
+INSERT INTO `order_details` VALUES (17,1,'EFB42C9F',1000,1861694536,'2024-09-09 11:48:20','2024-09-09 15:15:42','test bug 5/8','lbeephamthanhlong@gmail.com','0369232003',NULL,NULL,NULL),(18,2,'4F28528A',2000,1861694536,'2024-09-09 13:39:19','2024-09-09 13:39:29','test bug 5/8','lbeephamthanhlong@gmail.com','0369232003',5,NULL,NULL),(19,1,'F3583EB2',1000,1861694536,'2024-09-09 13:39:55','2024-09-09 14:16:31','test bug 5/8','lbeephamthanhlong@gmail.com','0369232003',5,NULL,NULL),(20,2,'60C4D7E3',2000,1861694536,'2024-09-09 13:40:34','2024-09-09 14:16:31','test bug 5/8','lbeephamthanhlong@gmail.com','0369232003',5,NULL,NULL),(21,1,'B53ECE7E',1000,1861694536,'2024-09-09 13:40:59','2024-09-09 15:16:29','test bug 5/8','lbeephamthanhlong@gmail.com','0369232003',5,NULL,NULL),(22,1,'9AB2B05B',3000,1861694536,'2024-09-09 14:15:07','2024-09-09 14:15:07','test bug 5/8','lbeephamthanhlong@gmail.com','0369232003',NULL,NULL,NULL),(23,1,'5C052D91',1000,1861694536,'2024-09-09 14:18:12','2024-09-09 14:18:12','test bug 5/8','lbeephamthanhlong@gmail.com','0369232003',NULL,NULL,NULL),(24,1,'CA60C18E',3000,1861694536,'2024-09-09 14:20:10','2024-09-09 14:20:10','test bug 5/8','lbeephamthanhlong@gmail.com','0369232003',NULL,NULL,NULL),(25,1,'EBC4D95A',3000,1861694536,'2024-09-09 14:20:32','2024-09-09 14:21:54','test bug 5/8','lbeephamthanhlong@gmail.com','0369232003',5,NULL,NULL),(26,1,'0970B23D',3500,1861694536,'2024-09-09 14:20:55','2024-09-09 14:20:55','test bug 5/8','Giao Nhân Giao Thủy Nam Định','0369232003',5,NULL,NULL);
 /*!40000 ALTER TABLE `order_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -313,12 +316,13 @@ CREATE TABLE `order_items` (
   `price` int DEFAULT NULL,
   `priceDiscount` int DEFAULT NULL,
   `isReview` tinyint(1) DEFAULT '0',
+  `returnStatus` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`orderItemId`),
   KEY `productDetailId` (`productDetailId`),
   KEY `orderDetailId` (`orderDetailId`),
-  CONSTRAINT `order_items_ibfk_255` FOREIGN KEY (`productDetailId`) REFERENCES `product_details` (`productDetailId`) ON UPDATE CASCADE,
-  CONSTRAINT `order_items_ibfk_256` FOREIGN KEY (`orderDetailId`) REFERENCES `order_details` (`orderDetailId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `order_items_ibfk_335` FOREIGN KEY (`productDetailId`) REFERENCES `product_details` (`productDetailId`) ON UPDATE CASCADE,
+  CONSTRAINT `order_items_ibfk_336` FOREIGN KEY (`orderDetailId`) REFERENCES `order_details` (`orderDetailId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -327,6 +331,7 @@ CREATE TABLE `order_items` (
 
 LOCK TABLES `order_items` WRITE;
 /*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
+INSERT INTO `order_items` VALUES (15,1,12,17,'2024-09-09 11:48:20','2024-09-09 15:16:48',1000,'CHO_THANH_TOAN',1861694536,1000,1000,0,NULL),(16,1,35,18,'2024-09-09 13:39:19','2024-09-09 15:16:48',1000,'CHO_THANH_TOAN',1861694536,2000,1000,0,NULL),(17,1,36,18,'2024-09-09 13:39:19','2024-09-09 15:16:48',1000,'CHO_THANH_TOAN',1861694536,2000,1000,0,NULL),(18,1,12,19,'2024-09-09 13:39:55','2024-09-09 15:16:48',1000,'CHO_THANH_TOAN',1861694536,1000,1000,0,NULL),(19,1,12,20,'2024-09-09 13:40:34','2024-09-09 15:16:48',1000,'CHO_THANH_TOAN',1861694536,1000,1000,0,NULL),(20,1,13,20,'2024-09-09 13:40:34','2024-09-09 15:16:48',1000,'CHO_THANH_TOAN',1861694536,1000,1000,0,NULL),(21,1,12,21,'2024-09-09 13:40:59','2024-09-09 15:16:48',1000,'CHO_THANH_TOAN',1861694536,1000,1000,0,NULL),(22,1,42,22,'2024-09-09 14:15:07','2024-09-09 15:16:48',3000,'CHO_XAC_NHAN',1861694536,3000,3000,0,NULL),(23,1,13,23,'2024-09-09 14:18:12','2024-09-09 14:19:02',1000,'CHO_LAY_HANG',1861694536,1000,1000,0,NULL),(24,1,42,24,'2024-09-09 14:20:10','2024-09-09 15:16:48',3000,'CHO_XAC_NHAN',1861694536,3000,3000,0,NULL),(25,1,42,25,'2024-09-09 14:20:32','2024-09-09 15:16:48',3000,'CHO_XAC_NHAN',1861694536,3000,3000,0,NULL),(26,1,47,26,'2024-09-09 14:20:55','2024-09-09 14:21:15',4500,'CHO_LAY_HANG',1861694536,4500,4500,0,NULL);
 /*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -343,7 +348,7 @@ CREATE TABLE `origins` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`originId`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -399,7 +404,7 @@ CREATE TABLE `payment_details` (
   PRIMARY KEY (`paymentDetailId`),
   KEY `orderDetailId` (`orderDetailId`),
   CONSTRAINT `payment_details_ibfk_1` FOREIGN KEY (`orderDetailId`) REFERENCES `order_details` (`orderDetailId`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -408,6 +413,7 @@ CREATE TABLE `payment_details` (
 
 LOCK TABLES `payment_details` WRITE;
 /*!40000 ALTER TABLE `payment_details` DISABLE KEYS */;
+INSERT INTO `payment_details` VALUES (1,17,'IDLE',1000,'MOMO','2024-09-09 11:48:20','2024-09-09 11:48:20'),(2,18,'IDLE',2000,'MOMO','2024-09-09 13:39:19','2024-09-09 13:39:29'),(3,19,'IDLE',1000,'MOMO','2024-09-09 13:39:55','2024-09-09 14:16:31'),(4,20,'IDLE',2000,'MOMO','2024-09-09 13:40:34','2024-09-09 14:16:31'),(5,21,'IDLE',1000,'MOMO','2024-09-09 13:40:59','2024-09-09 14:16:31'),(6,22,'CASH',3000,'CASH','2024-09-09 14:15:07','2024-09-09 14:15:07'),(7,23,'SUCCESS',1000,'MOMO','2024-09-09 14:18:12','2024-09-09 14:19:02'),(8,24,'CASH',3000,'CASH','2024-09-09 14:20:10','2024-09-09 14:20:10'),(9,25,'CASH',3000,'CASH','2024-09-09 14:20:32','2024-09-09 14:21:54'),(10,26,'SUCCESS',3500,'MOMO','2024-09-09 14:20:55','2024-09-09 14:21:15');
 /*!40000 ALTER TABLE `payment_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -430,9 +436,9 @@ CREATE TABLE `product_details` (
   PRIMARY KEY (`productDetailId`),
   KEY `sizeId` (`sizeId`),
   KEY `productId` (`productId`),
-  CONSTRAINT `product_details_ibfk_257` FOREIGN KEY (`sizeId`) REFERENCES `sizes` (`sizeId`) ON UPDATE CASCADE,
-  CONSTRAINT `product_details_ibfk_258` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `product_details_ibfk_337` FOREIGN KEY (`sizeId`) REFERENCES `sizes` (`sizeId`) ON UPDATE CASCADE,
+  CONSTRAINT `product_details_ibfk_338` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -441,7 +447,7 @@ CREATE TABLE `product_details` (
 
 LOCK TABLES `product_details` WRITE;
 /*!40000 ALTER TABLE `product_details` DISABLE KEYS */;
-INSERT INTO `product_details` VALUES (1,1,144899,10,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(2,9,144899,41,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(3,2,144899,20,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(4,10,144899,56,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(5,3,144899,30,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(6,11,144899,47,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(7,4,144899,85,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(8,5,144899,800,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(9,6,144899,74,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(10,7,144899,83,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(11,8,144899,56,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(12,1,108523,34,'2024-07-26 15:13:17','2024-08-06 19:24:57',6,0),(13,6,108523,40,'2024-07-26 15:13:17','2024-08-06 19:24:57',4,0),(14,2,108523,55,'2024-07-26 15:13:17','2024-08-06 19:24:58',1,0),(15,7,108523,76,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(16,3,108523,86,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(17,8,108523,57,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(18,4,108523,72,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(19,9,108523,94,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(20,5,108523,1000,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(21,10,108523,29,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(22,5,180334,500,'2024-07-26 15:21:08','2024-07-26 15:21:08',0,0),(23,6,180334,60,'2024-07-26 15:21:08','2024-07-26 15:21:08',0,0),(24,4,185894,50,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(25,5,185894,600,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(26,6,185894,574,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(27,7,185894,475,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(28,8,185894,123,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(29,1,169105,20,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(30,2,169105,70,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(31,3,169105,72,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(32,4,169105,98,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(33,5,169105,72,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(34,6,169105,64,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(35,5,111141,32,'2024-07-26 15:42:50','2024-08-08 14:41:18',2,0),(36,1,111141,240,'2024-07-26 15:42:50','2024-08-08 14:41:18',2,0),(37,2,111141,52,'2024-07-26 15:42:50','2024-08-08 14:41:18',2,0),(38,3,111141,24,'2024-07-26 15:42:50','2024-07-26 15:42:50',0,0),(39,4,111141,43,'2024-07-26 15:42:50','2024-07-26 15:42:50',0,0),(40,4,127775,89,'2024-07-26 16:09:00','2024-07-26 16:09:00',0,0),(41,5,127775,98,'2024-07-26 16:09:00','2024-07-26 16:09:00',0,0),(42,5,128185,56,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(43,2,128185,234,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(44,1,128185,42,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(45,3,128185,23,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(46,4,128185,432,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(47,5,160412,800,'2024-07-26 16:24:44','2024-07-26 16:24:44',0,0);
+INSERT INTO `product_details` VALUES (1,1,144899,10,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(2,9,144899,41,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(3,2,144899,20,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(4,10,144899,56,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(5,3,144899,30,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(6,11,144899,47,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(7,4,144899,85,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(8,5,144899,800,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(9,6,144899,74,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(10,7,144899,83,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(11,8,144899,56,'2024-07-26 15:03:43','2024-07-26 15:03:43',0,0),(12,1,108523,34,'2024-07-26 15:13:17','2024-08-06 19:24:57',6,0),(13,6,108523,39,'2024-07-26 15:13:17','2024-09-09 14:19:02',1,0),(14,2,108523,55,'2024-07-26 15:13:17','2024-08-06 19:24:58',1,0),(15,7,108523,76,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(16,3,108523,86,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(17,8,108523,57,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(18,4,108523,72,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(19,9,108523,94,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(20,5,108523,1000,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(21,10,108523,29,'2024-07-26 15:13:17','2024-07-26 15:13:17',0,0),(22,5,180334,500,'2024-07-26 15:21:08','2024-07-26 15:21:08',0,0),(23,6,180334,60,'2024-07-26 15:21:08','2024-07-26 15:21:08',0,0),(24,4,185894,50,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(25,5,185894,600,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(26,6,185894,574,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(27,7,185894,475,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(28,8,185894,123,'2024-07-26 15:28:41','2024-07-26 15:28:41',0,0),(29,1,169105,20,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(30,2,169105,70,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(31,3,169105,72,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(32,4,169105,98,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(33,5,169105,72,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(34,6,169105,64,'2024-07-26 15:34:00','2024-07-26 15:34:00',0,0),(35,5,111141,32,'2024-07-26 15:42:50','2024-08-08 14:41:18',2,0),(36,1,111141,240,'2024-07-26 15:42:50','2024-08-08 14:41:18',2,0),(37,2,111141,52,'2024-07-26 15:42:50','2024-08-08 14:41:18',2,0),(38,3,111141,24,'2024-07-26 15:42:50','2024-07-26 15:42:50',0,0),(39,4,111141,43,'2024-07-26 15:42:50','2024-07-26 15:42:50',0,0),(40,4,127775,89,'2024-07-26 16:09:00','2024-07-26 16:09:00',0,0),(41,5,127775,98,'2024-07-26 16:09:00','2024-07-26 16:09:00',0,0),(42,5,128185,56,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(43,2,128185,234,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(44,1,128185,42,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(45,3,128185,23,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(46,4,128185,432,'2024-07-26 16:15:42','2024-07-26 16:15:42',0,0),(47,5,160412,799,'2024-07-26 16:24:44','2024-09-09 14:21:15',1,0);
 /*!40000 ALTER TABLE `product_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -501,11 +507,11 @@ CREATE TABLE `products` (
   KEY `styleId` (`styleId`),
   KEY `materialId` (`materialId`),
   KEY `brandId` (`brandId`),
-  CONSTRAINT `products_ibfk_513` FOREIGN KEY (`originId`) REFERENCES `origins` (`originId`) ON UPDATE CASCADE,
-  CONSTRAINT `products_ibfk_514` FOREIGN KEY (`styleId`) REFERENCES `styles` (`styleId`) ON UPDATE CASCADE,
-  CONSTRAINT `products_ibfk_515` FOREIGN KEY (`materialId`) REFERENCES `materials` (`materialId`) ON UPDATE CASCADE,
-  CONSTRAINT `products_ibfk_516` FOREIGN KEY (`brandId`) REFERENCES `brands` (`brandId`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=185895 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `products_ibfk_673` FOREIGN KEY (`originId`) REFERENCES `origins` (`originId`) ON UPDATE CASCADE,
+  CONSTRAINT `products_ibfk_674` FOREIGN KEY (`styleId`) REFERENCES `styles` (`styleId`) ON UPDATE CASCADE,
+  CONSTRAINT `products_ibfk_675` FOREIGN KEY (`materialId`) REFERENCES `materials` (`materialId`) ON UPDATE CASCADE,
+  CONSTRAINT `products_ibfk_676` FOREIGN KEY (`brandId`) REFERENCES `brands` (`brandId`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=185897 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -514,7 +520,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (108523,'Adidas ultraboost 1.0 \"triple white\" hàng chính hãng','709D93',1990000.00,1000.00,1,NULL,'<h3><strong>Giày Adidas Ultraboost 1.0 \"Triple White\" HQ4202&nbsp;</strong><br><br>Giày Thể Thao Adidas Ultraboost 1.0 \"Triple White\" HQ4202 là một đôi giày chạy bộ được yêu thích bởi sự thoải mái, hiệu suất và phong cách. Với phối màu trắng toàn tập cổ điển, đôi giày này dễ dàng phối hợp với nhiều trang phục khác nhau.</h3><h3><strong>Ưu điểm:</strong></h3><h3>Thiết kế ôm sát,&nbsp;hỗ trợ tốt cho bàn chân</h3><h3>Chất liệu Primeknit nhẹ nhàng và thoáng khí</h3><h3>Đế Boost êm ái cho cảm giác di chuyển nhẹ nhàng và thoải mái</h3><h3>Phù hợp cho cả tập luyện thể thao và đi chơi</h3><h3><a href=\"https://bountysneakers.com/hq4202\">Giày Thể Thao Adidas Ultraboost 1.0 \"Triple White\" HQ4202</a> là một lựa chọn tuyệt vời cho những ai đang tìm kiếm một đôi giày chạy bộ thoải mái, hiệu suất cao và phong cách. Tuy nhiên, giá thành cao có thể là một rào cản đối với một số người.<br><br>&nbsp;</h3><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-101253550207.webp\"></figure><p>&nbsp;</p>',2,1,1,4,'2024-07-26 15:13:17','2024-08-06 15:25:21',1000.00),(111141,'Giày MLB Chunky Liner New York Yankees Off White ','82E878',1050000.00,2000.00,1,NULL,'<h2><br><strong>Giày MLB Chunky Liner New York Yankees Off White&nbsp;</strong><br><br>Chất liệu: Da tổng hợp&nbsp;</h2><ul><li>Kiểu dáng giày sneaker đế cao chunky thời trang</li><li>Thiết kế lấy cảm hứng từ hiệp hội bóng chày MLB</li><li>Cộng hưởng cùng chi tiết chữ logo bóng chày với họa tiết monogram&nbsp;in sắc nét</li><li>Lớp lót êm ái, nâng dáng bước chân</li><li>Đế cao su với độ bền cao, chắc chắn mang lại độ ma sát tốt</li><li>Gam màu hiện đại dễ dàng phối với nhiều trang phục và phụ kiện</li><li>Xuất xứ thương hiệu: Hàn Quốc<br>&nbsp;<img src=\"http://localhost:5500/public/Uploads/image-104246938718.webp\"></li></ul><p>&nbsp;</p>',7,1,5,1,'2024-07-26 15:42:50','2024-08-06 15:35:07',2000.00),(127775,'Giày Balenciaga Speed Recycled Trainers Graffiti \'Green\'','18213F',556100.00,2500.00,1,NULL,'<p><a href=\"https://www.farfetch.com/vn/shopping/men/balenciaga/items.aspx\"><strong>Balenciaga</strong></a></p><p>&nbsp;</p><h2><strong>Giày Balenciaga Speed Recycled Trainers Graffiti \'Green\'</strong></h2><p>&nbsp;</p><p>Một trong những kiểu dáng được thèm muốn nhất của hãng, giày thể thao Triple S đại diện cho phong cách giày dép đầy sáng tạo và lấy cảm hứng từ thời trang dạo phố của Balenciaga. Nằm trên phần đế đúc dễ nhận biết, phiên bản màu trắng kem này được hoàn thiện với các điểm nhấn bằng lưới ở phía trên và nhãn hiệu ở lưỡi giày.<br><br>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-100497974036.webp\"></figure><figure class=\"image image-style-side\"><img src=\"http://localhost:5500/public/Uploads/image-103880809867.jpeg\"></figure>',4,1,4,3,'2024-07-26 16:09:00','2024-08-06 16:52:32',2500.00),(128185,'Giày Converse Run Star Legacy CX ‘Pink White’','99F959',500000.00,3000.00,1,NULL,'<h2><strong>Giày Converse Run Star Legacy CX ‘Pink White’</strong></h2><figure class=\"image image-style-side\"><img src=\"http://localhost:5500/public/Uploads/image-103140096822.jpeg\"></figure><h3><br><br>Nâng tầm diện mạo của bạn chưa bao giờ dễ dàng hơn thế. Lấy cảm hứng từ sự tinh tế thường ngày của áo blazer, những đôi giày cao gót này kết hợp phong cách All Star không thể nhầm lẫn với những cập nhật tinh tế. Chất liệu hỗn hợp sang trọng và các tông màu đa dạng kết hợp với các chi tiết được khâu tinh tế để mang lại vẻ ngoài cao cấp, dễ dàng. Tính năng và lợi ích Thân giày bằng vải dệt bền bỉ, với kiểu dáng Chucks cổ điển Đệm xốp CX giúp mang lại sự thoải mái ở mức độ tiếp theo Da và đường khâu trang trí công phu tạo thêm điểm nhấn tinh tế Cản trước bằng cao su dạng sọc giúp tạo kiểu dáng và chức năng dễ tháo lắp Miếng dán mắt cá chân mang tính biểu tượng của Chuck Taylor và nhãn hiệu ngôi sao ở gót chân 3D 49mm Có thể có chênh lệch 1-2 cm về số đo tùy thuộc vào quá trình phát triển và sản xuất. Tuyên bố từ chối trách nhiệm về màu sắc: Màu sắc thực tế có thể khác nhau. Điều này là do mỗi màn hình máy tính có khả năng hiển thị màu sắc khác nhau, chúng tôi không thể đảm bảo rằng màu sắc bạn nhìn thấy phản ánh chính xác màu sắc thực của sản phẩm.<br><br>&nbsp;</h3><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-101054121322.png\"></figure>',9,3,6,7,'2024-07-26 16:15:41','2024-08-06 16:55:50',3000.00),(144899,'Adidas samba og \"cloud white\" hàng chính hãng','A5A062',1850000.00,4000.00,1,NULL,'<h2><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Giày Adidas Samba OG \"Cloud White\" B75806</strong><br><br><a href=\"https://bountysneakers.com/b75806\">Adidas Samba OG \"Cloud White\" B75806</a> là một đôi giày sneaker cổ điển được yêu thích bởi phong cách đơn giản và linh hoạt. Đôi giày này được làm bằng da cao cấp với phần trên màu trắng và các điểm nhấn màu đen. Nó có đế ngoài bằng cao su màu nâu gum mang lại độ bám và độ bền.&nbsp;<br>Giày Adidas Samba OG \"Cloud White\" B75806 là một lựa chọn tuyệt vời cho trang phục bình thường. Chúng có thể được mang với quần jean, quần short hoặc váy. Chúng cũng đủ thoải mái để mang cả ngày.<br>&nbsp;</h2><h2>&nbsp;</h2><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-102829685523.png\"></figure><p>&nbsp;</p>',2,1,4,4,'2024-07-26 15:03:42','2024-08-06 17:03:11',4000.00),(153469,' Balenciaga Speed ‘Black’ ','C4F878',18000000.00,3500.00,1,NULL,'<p><a href=\"http://www.giaygoo.vn/products/giay-balenciaga-speed-trainer-den-trang\"><strong>GIÀY BALENCIAGA ĐEN&nbsp;TRẮNG SPEED&nbsp;</strong></a><br>Thiết kế theo dạng \"<strong>Giày Vớ</strong>\" <strong>cổ cao</strong>, có form dáng đi khá ôm chân bởi chi tiết thun co giãn phần cổ giày. Trong khi đó, phần đế trắng với những đường rãnh cắt to có nhiệm vụ làm cho đế giày linh hoạt khi bẻ cong và cũng là điểm nhấn ấn tượng khiến đôi giày trong bắt mắt từ xa. Đầu giày thon và gọn tôn lên vẻ đẹp tinh tế nhưng không kém phần năng động so với chính dòng giày sneaker vốn có.Thiết kế&nbsp;<strong>giày balenciaga đen trắng</strong>&nbsp;là mẫu giày khiến cả nam lẫn nữ say mê. \"Con cưng\" của giám đốc sáng tạo Demna Gvasalia nhà Balenciaga có dáng vẻ độc đáo và mạnh mẽ. Thiết kế kết hợp giày thể thao, tất cao cổ và bộ giảm xóc. Balenciaga Speed Trainers có ba phiên bản: đen, trắng và đỏ, nặng 240 gram.<br><br>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-103776340823.jpeg\"></figure>',4,3,1,3,'2024-07-26 15:57:01','2024-07-30 11:43:00',3500.00),(160412,'CLASSIC SK8-HI BLACK/WHITE','A7EC2F',600000.00,4500.00,1,NULL,'<p><i><strong>VANS&nbsp;</strong></i><a href=\"https://vans-news.com/vans-sk8\"><strong>SK8</strong>&nbsp;</a><br>xuất hiện lần đầu năm 1978 với tên gọi <i>\"Style 38\"</i> với thiết kế cao qua mắt cá chân, bảo vệ phần quan trọng nơi mà các vận động viên trượt ván lạm dụng nhiều để có những&nbsp;<i>Tricks</i> độc đáo, và đồng thời&nbsp;<strong>Sk8</strong> cũng mang lại phong cách thời trang đặc biệt điểm màu cho công viên thời bấy giờ.&nbsp;</p><p>Phiên bản <i><strong>VANS&nbsp;Classic Sk8 Black/White</strong></i> là một trong style kinh điển của <strong>VANS</strong> và đã mang lại lợi nhuận khổng lồ cho hãng khi luôn&nbsp;nằm trong mục <i>Best Seller</i> của <strong>VANS</strong>. Tông màu đen đơn giản dễ phối đồ cùng cổ cao kinh điển sẽ là sản phẩm tuyệt vời cho các fan yêu thời trang.<br><br>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-101069823872.png\"></figure><p><br>&nbsp;</p>',3,2,2,6,'2024-07-26 16:24:44','2024-07-30 11:43:09',4500.00),(169105,'Bigball Chunky Pastel \"Hồng\" - chính hãng ','C32CE1',1500000.00,5000.00,1,NULL,'<h2><br><strong>Bigball Chunky Pastel \"Hồng\" - chính hãng&nbsp;</strong><br><br>Đắm chìm trong sự ngọt ngào và cá tính cùng đôi giày sneakers Bigball Chunky Pastel đến từ MLB. Với thiết kế phom dáng đặc trưng nhưng được biến tấu đầy ngọt ngào cùng các gam màu pastel tinh tế, item này sẵn sàng cùng bạn tự tin thể hiện cá tính và phong cách riêng.</h2><p>Thương hiệu: MLB<br>Xuất xứ: Hàn Quốc<br>Giới tính: Unisex<br>Kiểu dáng: Giày sneakers cổ thấp<br>Màu sắc: Pink, Purple<br>Chất liệu: Da tổng hợp<br>Đế: EVA<br>Thiết kế:</p><ul><li>Kiểu dáng giày sneaker đế cao thời trang</li><li>Thiết kế lấy cảm hứng từ hiệp hội bóng chày MLB</li><li>Cộng hưởng cùng chi tiết chữ logo bóng chày nổi bật ở má ngoài</li><li>Đế cao su với độ bền cao, chắc chắn mang lại độ ma sát tốt</li><li>Gam màu hiện đại dễ dàng phối với nhiều trang phục và phụ kiện</li></ul><p>Logo: Được in trên lót trong &nbsp;<br>Mũi giày: Tròn<br>Dây quai: Dây buộc tròn, có thể điều chỉnh dễ dàng &nbsp;&nbsp;<br>Thoáng khí: Có lớp lót thoáng khí &nbsp;<br>Thích hợp dùng trong các dịp: Đi làm, đi chơi,...<br>Xu hướng theo mùa: Sử dụng được tất cả các mùa trong năm<br>&nbsp;</p><p>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-103409143762.png\"></figure><p><br>&nbsp;</p>',7,1,4,1,'2024-07-26 15:34:00','2024-07-30 11:43:17',5000.00),(180334,'J Balvin x Air Jordan 1 High','95E13F',8000000.00,5500.00,1,NULL,'<h2><strong>J Balvin x Air Jordan 1 High</strong><br><br>Ban đầu được ra mắt trong một buổi biểu diễn giữa giờ trên sân khấu lớn nhất của giải bóng bầu dục Mỹ, đôi AJ1 độc quyền này sử dụng sự kết hợp chiết trung của màu sắc, họa tiết và đồ họa để tái hiện hình bóng cổ điển theo hình ảnh của nghệ sĩ thu âm người Colombia J Balvin. Các lớp phủ được may thô làm mờ các đường nét thiết kế sắc nét thường thấy của thiết kế, trong khi quang phổ màu neon thổi vào diện mạo một luồng năng lượng mạnh mẽ. Đồ họa có thể tùy chỉnh (bao gồm cả khuôn mặt cười đặc trưng của Balvin) tạo nên nét độc đáo cho lưỡi gà, với hình ảnh tương tự trang trí đế giày và gót giày. Buộc dây giày và tiến bước theo nhịp trống của riêng bạn trong bộ sưu tập đầy màu sắc và được mong đợi từ lâu này.</h2><p>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-101206975497.png\"></figure><p>&nbsp;</p>',10,3,5,2,'2024-07-26 15:21:08','2024-07-30 11:43:28',5500.00),(185894,'Nike Pegasus 41 Electric ','888555',2000000.00,1500.00,1,NULL,'<h2><br><strong>Nike Pegasus 41 Electric</strong><br><br>Đệm phản hồi trong Pegasus mang đến một chuyến đi tràn đầy năng lượng cho việc chạy bộ trên đường hàng ngày. Trải nghiệm khả năng phục hồi năng lượng nhẹ hơn với hai bộ phận Air Zoom và đế giữa bằng bọt ReactX. Thêm vào đó, lưới kỹ thuật cải tiến ở phần trên giúp giảm trọng lượng và tăng khả năng thoáng khí.</h2><p>Các tính năng chính<br>Phần trên bằng lưới kỹ thuật thoáng khí được nâng cấp<br>Đế giữa bằng bọt ReactX bao quanh các bộ phận Air Zoom ở bàn chân trước và gót chân để mang đến một chuyến đi tràn đầy năng lượng.<br>Đế ngoài bằng cao su lấy cảm hứng từ bánh quế đặc trưng để tạo lực kéo và độ linh hoạt<br>Cổ áo, lưỡi giày và lót giày sang trọng để vừa vặn và thoải mái<br>Có gì mới? Đế giữa bằng bọt ReactX hoàn toàn mới phản hồi nhanh hơn 13% so với công nghệ React trước đây.<br>Được chế tạo để mang lại hiệu suất và bảo vệ môi trường, bọt ReactX được thiết kế để giảm lượng khí thải carbon ít nhất 43% trong một đôi đế giữa do giảm năng lượng trong quá trình sản xuất so với bọt React trước đây. Lượng khí thải carbon của ReactX dựa trên đánh giá từ lúc bắt đầu đến khi ra mắt do PRé Sustainability B.V. và Intertek China xem xét. Các thành phần đế giữa khác như túi khí, tấm đế hoặc các công thức bọt khác không được xem xét.<br>Chi tiết sản phẩm<br>Trọng lượng: Xấp xỉ 297g (cỡ nam 9)<br>Độ chênh lệch từ gót chân đến mũi chân: 10mm<br>MR-10 cuối cùng—vừa vặn nhất và nhất quán nhất của chúng tôi (giống như Pegasus 40)<br>Không dùng làm thiết bị bảo vệ cá nhân (PPE)<br>Chi tiết sản phẩm<br>Màu sắc hiển thị: Nhiều màu/Nhiều màu<br>Kiểu dáng: FV2229-900<br>Quốc gia/Khu vực xuất xứ: Trung Quốc<br><br>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-102635987475.png\"></figure><p>&nbsp;</p>',10,1,1,2,'2024-07-26 15:28:41','2024-07-30 11:43:37',1500.00);
+INSERT INTO `products` VALUES (108523,'Adidas ultraboost 1.0 \"triple white\" hàng chính hãng','709D93',1990000.00,1000.00,1,NULL,'<h3><strong>Giày Adidas Ultraboost 1.0 \"Triple White\" HQ4202&nbsp;</strong><br><br>Giày Thể Thao Adidas Ultraboost 1.0 \"Triple White\" HQ4202 là một đôi giày chạy bộ được yêu thích bởi sự thoải mái, hiệu suất và phong cách. Với phối màu trắng toàn tập cổ điển, đôi giày này dễ dàng phối hợp với nhiều trang phục khác nhau.</h3><h3><strong>Ưu điểm:</strong></h3><h3>Thiết kế ôm sát,&nbsp;hỗ trợ tốt cho bàn chân</h3><h3>Chất liệu Primeknit nhẹ nhàng và thoáng khí</h3><h3>Đế Boost êm ái cho cảm giác di chuyển nhẹ nhàng và thoải mái</h3><h3>Phù hợp cho cả tập luyện thể thao và đi chơi</h3><h3><a href=\"https://bountysneakers.com/hq4202\">Giày Thể Thao Adidas Ultraboost 1.0 \"Triple White\" HQ4202</a> là một lựa chọn tuyệt vời cho những ai đang tìm kiếm một đôi giày chạy bộ thoải mái, hiệu suất cao và phong cách. Tuy nhiên, giá thành cao có thể là một rào cản đối với một số người.<br><br>&nbsp;</h3><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-101253550207.webp\"></figure><p>&nbsp;</p>',2,1,1,4,'2024-07-26 15:13:17','2024-09-09 13:44:00',1000.00),(111141,'Giày MLB Chunky Liner New York Yankees Off White ','82E878',1050000.00,2000.00,1,NULL,'<h2><br><strong>Giày MLB Chunky Liner New York Yankees Off White&nbsp;</strong><br><br>Chất liệu: Da tổng hợp&nbsp;</h2><ul><li>Kiểu dáng giày sneaker đế cao chunky thời trang</li><li>Thiết kế lấy cảm hứng từ hiệp hội bóng chày MLB</li><li>Cộng hưởng cùng chi tiết chữ logo bóng chày với họa tiết monogram&nbsp;in sắc nét</li><li>Lớp lót êm ái, nâng dáng bước chân</li><li>Đế cao su với độ bền cao, chắc chắn mang lại độ ma sát tốt</li><li>Gam màu hiện đại dễ dàng phối với nhiều trang phục và phụ kiện</li><li>Xuất xứ thương hiệu: Hàn Quốc<br>&nbsp;<img src=\"http://localhost:5500/public/Uploads/image-104246938718.webp\"></li></ul><p>&nbsp;</p>',7,1,5,1,'2024-07-26 15:42:50','2024-09-09 13:44:00',1000.00),(127775,'Giày Balenciaga Speed Recycled Trainers Graffiti \'Green\'','18213F',556100.00,2500.00,1,NULL,'<p><a href=\"https://www.farfetch.com/vn/shopping/men/balenciaga/items.aspx\"><strong>Balenciaga</strong></a></p><p>&nbsp;</p><h2><strong>Giày Balenciaga Speed Recycled Trainers Graffiti \'Green\'</strong></h2><p>&nbsp;</p><p>Một trong những kiểu dáng được thèm muốn nhất của hãng, giày thể thao Triple S đại diện cho phong cách giày dép đầy sáng tạo và lấy cảm hứng từ thời trang dạo phố của Balenciaga. Nằm trên phần đế đúc dễ nhận biết, phiên bản màu trắng kem này được hoàn thiện với các điểm nhấn bằng lưới ở phía trên và nhãn hiệu ở lưỡi giày.<br><br>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-100497974036.webp\"></figure><figure class=\"image image-style-side\"><img src=\"http://localhost:5500/public/Uploads/image-103880809867.jpeg\"></figure>',4,1,4,3,'2024-07-26 16:09:00','2024-08-06 16:52:32',2500.00),(128185,'Giày Converse Run Star Legacy CX ‘Pink White’','99F959',500000.00,3000.00,1,NULL,'<h2><strong>Giày Converse Run Star Legacy CX ‘Pink White’</strong></h2><figure class=\"image image-style-side\"><img src=\"http://localhost:5500/public/Uploads/image-103140096822.jpeg\"></figure><h3><br><br>Nâng tầm diện mạo của bạn chưa bao giờ dễ dàng hơn thế. Lấy cảm hứng từ sự tinh tế thường ngày của áo blazer, những đôi giày cao gót này kết hợp phong cách All Star không thể nhầm lẫn với những cập nhật tinh tế. Chất liệu hỗn hợp sang trọng và các tông màu đa dạng kết hợp với các chi tiết được khâu tinh tế để mang lại vẻ ngoài cao cấp, dễ dàng. Tính năng và lợi ích Thân giày bằng vải dệt bền bỉ, với kiểu dáng Chucks cổ điển Đệm xốp CX giúp mang lại sự thoải mái ở mức độ tiếp theo Da và đường khâu trang trí công phu tạo thêm điểm nhấn tinh tế Cản trước bằng cao su dạng sọc giúp tạo kiểu dáng và chức năng dễ tháo lắp Miếng dán mắt cá chân mang tính biểu tượng của Chuck Taylor và nhãn hiệu ngôi sao ở gót chân 3D 49mm Có thể có chênh lệch 1-2 cm về số đo tùy thuộc vào quá trình phát triển và sản xuất. Tuyên bố từ chối trách nhiệm về màu sắc: Màu sắc thực tế có thể khác nhau. Điều này là do mỗi màn hình máy tính có khả năng hiển thị màu sắc khác nhau, chúng tôi không thể đảm bảo rằng màu sắc bạn nhìn thấy phản ánh chính xác màu sắc thực của sản phẩm.<br><br>&nbsp;</h3><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-101054121322.png\"></figure>',9,3,6,7,'2024-07-26 16:15:41','2024-08-06 16:55:50',3000.00),(144899,'Adidas samba og \"cloud white\" hàng chính hãng','A5A062',1850000.00,4000.00,1,NULL,'<h2><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Giày Adidas Samba OG \"Cloud White\" B75806</strong><br><br><a href=\"https://bountysneakers.com/b75806\">Adidas Samba OG \"Cloud White\" B75806</a> là một đôi giày sneaker cổ điển được yêu thích bởi phong cách đơn giản và linh hoạt. Đôi giày này được làm bằng da cao cấp với phần trên màu trắng và các điểm nhấn màu đen. Nó có đế ngoài bằng cao su màu nâu gum mang lại độ bám và độ bền.&nbsp;<br>Giày Adidas Samba OG \"Cloud White\" B75806 là một lựa chọn tuyệt vời cho trang phục bình thường. Chúng có thể được mang với quần jean, quần short hoặc váy. Chúng cũng đủ thoải mái để mang cả ngày.<br>&nbsp;</h2><h2>&nbsp;</h2><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-102829685523.png\"></figure><p>&nbsp;</p>',2,1,4,4,'2024-07-26 15:03:42','2024-08-06 17:03:11',4000.00),(153469,' Balenciaga Speed ‘Black’ ','C4F878',18000000.00,3500.00,1,NULL,'<p><a href=\"http://www.giaygoo.vn/products/giay-balenciaga-speed-trainer-den-trang\"><strong>GIÀY BALENCIAGA ĐEN&nbsp;TRẮNG SPEED&nbsp;</strong></a><br>Thiết kế theo dạng \"<strong>Giày Vớ</strong>\" <strong>cổ cao</strong>, có form dáng đi khá ôm chân bởi chi tiết thun co giãn phần cổ giày. Trong khi đó, phần đế trắng với những đường rãnh cắt to có nhiệm vụ làm cho đế giày linh hoạt khi bẻ cong và cũng là điểm nhấn ấn tượng khiến đôi giày trong bắt mắt từ xa. Đầu giày thon và gọn tôn lên vẻ đẹp tinh tế nhưng không kém phần năng động so với chính dòng giày sneaker vốn có.Thiết kế&nbsp;<strong>giày balenciaga đen trắng</strong>&nbsp;là mẫu giày khiến cả nam lẫn nữ say mê. \"Con cưng\" của giám đốc sáng tạo Demna Gvasalia nhà Balenciaga có dáng vẻ độc đáo và mạnh mẽ. Thiết kế kết hợp giày thể thao, tất cao cổ và bộ giảm xóc. Balenciaga Speed Trainers có ba phiên bản: đen, trắng và đỏ, nặng 240 gram.<br><br>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-103776340823.jpeg\"></figure>',4,3,1,3,'2024-07-26 15:57:01','2024-07-30 11:43:00',3500.00),(160412,'CLASSIC SK8-HI BLACK/WHITE','A7EC2F',600000.00,4500.00,1,NULL,'<p><i><strong>VANS&nbsp;</strong></i><a href=\"https://vans-news.com/vans-sk8\"><strong>SK8</strong>&nbsp;</a><br>xuất hiện lần đầu năm 1978 với tên gọi <i>\"Style 38\"</i> với thiết kế cao qua mắt cá chân, bảo vệ phần quan trọng nơi mà các vận động viên trượt ván lạm dụng nhiều để có những&nbsp;<i>Tricks</i> độc đáo, và đồng thời&nbsp;<strong>Sk8</strong> cũng mang lại phong cách thời trang đặc biệt điểm màu cho công viên thời bấy giờ.&nbsp;</p><p>Phiên bản <i><strong>VANS&nbsp;Classic Sk8 Black/White</strong></i> là một trong style kinh điển của <strong>VANS</strong> và đã mang lại lợi nhuận khổng lồ cho hãng khi luôn&nbsp;nằm trong mục <i>Best Seller</i> của <strong>VANS</strong>. Tông màu đen đơn giản dễ phối đồ cùng cổ cao kinh điển sẽ là sản phẩm tuyệt vời cho các fan yêu thời trang.<br><br>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-101069823872.png\"></figure><p><br>&nbsp;</p>',3,2,2,6,'2024-07-26 16:24:44','2024-07-30 11:43:09',4500.00),(169105,'Bigball Chunky Pastel \"Hồng\" - chính hãng ','C32CE1',1500000.00,5000.00,1,NULL,'<h2><br><strong>Bigball Chunky Pastel \"Hồng\" - chính hãng&nbsp;</strong><br><br>Đắm chìm trong sự ngọt ngào và cá tính cùng đôi giày sneakers Bigball Chunky Pastel đến từ MLB. Với thiết kế phom dáng đặc trưng nhưng được biến tấu đầy ngọt ngào cùng các gam màu pastel tinh tế, item này sẵn sàng cùng bạn tự tin thể hiện cá tính và phong cách riêng.</h2><p>Thương hiệu: MLB<br>Xuất xứ: Hàn Quốc<br>Giới tính: Unisex<br>Kiểu dáng: Giày sneakers cổ thấp<br>Màu sắc: Pink, Purple<br>Chất liệu: Da tổng hợp<br>Đế: EVA<br>Thiết kế:</p><ul><li>Kiểu dáng giày sneaker đế cao thời trang</li><li>Thiết kế lấy cảm hứng từ hiệp hội bóng chày MLB</li><li>Cộng hưởng cùng chi tiết chữ logo bóng chày nổi bật ở má ngoài</li><li>Đế cao su với độ bền cao, chắc chắn mang lại độ ma sát tốt</li><li>Gam màu hiện đại dễ dàng phối với nhiều trang phục và phụ kiện</li></ul><p>Logo: Được in trên lót trong &nbsp;<br>Mũi giày: Tròn<br>Dây quai: Dây buộc tròn, có thể điều chỉnh dễ dàng &nbsp;&nbsp;<br>Thoáng khí: Có lớp lót thoáng khí &nbsp;<br>Thích hợp dùng trong các dịp: Đi làm, đi chơi,...<br>Xu hướng theo mùa: Sử dụng được tất cả các mùa trong năm<br>&nbsp;</p><p>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-103409143762.png\"></figure><p><br>&nbsp;</p>',7,1,4,1,'2024-07-26 15:34:00','2024-07-30 11:43:17',5000.00),(180334,'J Balvin x Air Jordan 1 High','95E13F',8000000.00,5500.00,1,NULL,'<h2><strong>J Balvin x Air Jordan 1 High</strong><br><br>Ban đầu được ra mắt trong một buổi biểu diễn giữa giờ trên sân khấu lớn nhất của giải bóng bầu dục Mỹ, đôi AJ1 độc quyền này sử dụng sự kết hợp chiết trung của màu sắc, họa tiết và đồ họa để tái hiện hình bóng cổ điển theo hình ảnh của nghệ sĩ thu âm người Colombia J Balvin. Các lớp phủ được may thô làm mờ các đường nét thiết kế sắc nét thường thấy của thiết kế, trong khi quang phổ màu neon thổi vào diện mạo một luồng năng lượng mạnh mẽ. Đồ họa có thể tùy chỉnh (bao gồm cả khuôn mặt cười đặc trưng của Balvin) tạo nên nét độc đáo cho lưỡi gà, với hình ảnh tương tự trang trí đế giày và gót giày. Buộc dây giày và tiến bước theo nhịp trống của riêng bạn trong bộ sưu tập đầy màu sắc và được mong đợi từ lâu này.</h2><p>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-101206975497.png\"></figure><p>&nbsp;</p>',10,3,5,2,'2024-07-26 15:21:08','2024-07-30 11:43:28',5500.00),(185894,'Nike Pegasus 41 Electric ','888555',2000000.00,1500.00,1,NULL,'<h2><br><strong>Nike Pegasus 41 Electric</strong><br><br>Đệm phản hồi trong Pegasus mang đến một chuyến đi tràn đầy năng lượng cho việc chạy bộ trên đường hàng ngày. Trải nghiệm khả năng phục hồi năng lượng nhẹ hơn với hai bộ phận Air Zoom và đế giữa bằng bọt ReactX. Thêm vào đó, lưới kỹ thuật cải tiến ở phần trên giúp giảm trọng lượng và tăng khả năng thoáng khí.</h2><p>Các tính năng chính<br>Phần trên bằng lưới kỹ thuật thoáng khí được nâng cấp<br>Đế giữa bằng bọt ReactX bao quanh các bộ phận Air Zoom ở bàn chân trước và gót chân để mang đến một chuyến đi tràn đầy năng lượng.<br>Đế ngoài bằng cao su lấy cảm hứng từ bánh quế đặc trưng để tạo lực kéo và độ linh hoạt<br>Cổ áo, lưỡi giày và lót giày sang trọng để vừa vặn và thoải mái<br>Có gì mới? Đế giữa bằng bọt ReactX hoàn toàn mới phản hồi nhanh hơn 13% so với công nghệ React trước đây.<br>Được chế tạo để mang lại hiệu suất và bảo vệ môi trường, bọt ReactX được thiết kế để giảm lượng khí thải carbon ít nhất 43% trong một đôi đế giữa do giảm năng lượng trong quá trình sản xuất so với bọt React trước đây. Lượng khí thải carbon của ReactX dựa trên đánh giá từ lúc bắt đầu đến khi ra mắt do PRé Sustainability B.V. và Intertek China xem xét. Các thành phần đế giữa khác như túi khí, tấm đế hoặc các công thức bọt khác không được xem xét.<br>Chi tiết sản phẩm<br>Trọng lượng: Xấp xỉ 297g (cỡ nam 9)<br>Độ chênh lệch từ gót chân đến mũi chân: 10mm<br>MR-10 cuối cùng—vừa vặn nhất và nhất quán nhất của chúng tôi (giống như Pegasus 40)<br>Không dùng làm thiết bị bảo vệ cá nhân (PPE)<br>Chi tiết sản phẩm<br>Màu sắc hiển thị: Nhiều màu/Nhiều màu<br>Kiểu dáng: FV2229-900<br>Quốc gia/Khu vực xuất xứ: Trung Quốc<br><br>&nbsp;</p><figure class=\"image\"><img src=\"http://localhost:5500/public/Uploads/image-102635987475.png\"></figure><p>&nbsp;</p>',10,1,1,2,'2024-07-26 15:28:41','2024-07-30 11:43:37',1500.00);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -537,7 +543,7 @@ CREATE TABLE `promotions` (
   PRIMARY KEY (`promotionId`),
   KEY `productId` (`productId`),
   CONSTRAINT `promotions_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -546,7 +552,40 @@ CREATE TABLE `promotions` (
 
 LOCK TABLES `promotions` WRITE;
 /*!40000 ALTER TABLE `promotions` DISABLE KEYS */;
+INSERT INTO `promotions` VALUES (6,'2024-09-09 00:00:00','2024-09-10 00:00:00','2024-09-09 09:04:48','2024-09-09 11:46:01',1000.00,'ACTIVE',111141),(7,'2024-09-09 00:00:00','2024-09-09 00:00:00','2024-09-09 09:11:22','2024-09-09 11:46:00',10000.00,'EXPIRED',108523);
 /*!40000 ALTER TABLE `promotions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `return_requests`
+--
+
+DROP TABLE IF EXISTS `return_requests`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `return_requests` (
+  `returnRequestId` int NOT NULL AUTO_INCREMENT,
+  `orderId` int DEFAULT NULL,
+  `productId` int DEFAULT NULL,
+  `quantity` int DEFAULT NULL,
+  `reason` text,
+  `status` varchar(255) DEFAULT 'PENDING',
+  `requestDate` datetime DEFAULT NULL,
+  `processDate` datetime DEFAULT NULL,
+  `userId` int DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`returnRequestId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `return_requests`
+--
+
+LOCK TABLES `return_requests` WRITE;
+/*!40000 ALTER TABLE `return_requests` DISABLE KEYS */;
+/*!40000 ALTER TABLE `return_requests` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -655,7 +694,7 @@ CREATE TABLE `shopping_carts` (
   PRIMARY KEY (`cartId`),
   KEY `userId` (`userId`),
   CONSTRAINT `shopping_carts_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -664,6 +703,7 @@ CREATE TABLE `shopping_carts` (
 
 LOCK TABLES `shopping_carts` WRITE;
 /*!40000 ALTER TABLE `shopping_carts` DISABLE KEYS */;
+INSERT INTO `shopping_carts` VALUES (30,0,0,1861694536,'2024-09-09 15:13:52','2024-09-09 15:13:54');
 /*!40000 ALTER TABLE `shopping_carts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -738,9 +778,9 @@ CREATE TABLE `user_vouchers` (
   PRIMARY KEY (`id`),
   KEY `userId` (`userId`),
   KEY `voucherId` (`voucherId`),
-  CONSTRAINT `user_vouchers_ibfk_5` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_vouchers_ibfk_6` FOREIGN KEY (`voucherId`) REFERENCES `vouchers` (`voucherId`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `user_vouchers_ibfk_85` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_vouchers_ibfk_86` FOREIGN KEY (`voucherId`) REFERENCES `vouchers` (`voucherId`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -749,6 +789,7 @@ CREATE TABLE `user_vouchers` (
 
 LOCK TABLES `user_vouchers` WRITE;
 /*!40000 ALTER TABLE `user_vouchers` DISABLE KEYS */;
+INSERT INTO `user_vouchers` VALUES (1,1861694536,5,'2024-09-09 11:49:00',NULL,NULL,'2024-09-09 11:49:00','2024-09-09 11:49:00'),(2,1861694536,5,NULL,NULL,'UNUSED','2024-09-09 13:39:19','2024-09-09 13:39:19'),(3,1861694536,5,NULL,NULL,'UNUSED','2024-09-09 13:39:55','2024-09-09 13:39:55'),(4,1861694536,5,NULL,NULL,'UNUSED','2024-09-09 13:40:34','2024-09-09 13:40:34'),(5,1861694536,5,NULL,NULL,'UNUSED','2024-09-09 13:40:59','2024-09-09 13:40:59'),(6,1861694536,5,NULL,NULL,'UNUSED','2024-09-09 14:20:32','2024-09-09 14:20:32'),(7,1861694536,5,NULL,NULL,'UNUSED','2024-09-09 14:20:55','2024-09-09 14:20:55');
 /*!40000 ALTER TABLE `user_vouchers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -806,15 +847,13 @@ CREATE TABLE `vouchers` (
   `typeValue` varchar(255) DEFAULT 'MONEY',
   `ruleType` varchar(255) DEFAULT NULL,
   `minOrderValue` decimal(16,2) DEFAULT NULL,
-  `validProducts` json DEFAULT NULL,
-  `userLevel` varchar(255) DEFAULT NULL,
   `minOrderCount` int DEFAULT NULL,
   `maxOrderCount` int DEFAULT NULL,
-  `productId` int DEFAULT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
+  `discountValue` decimal(16,2) DEFAULT NULL,
   PRIMARY KEY (`voucherId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -823,6 +862,7 @@ CREATE TABLE `vouchers` (
 
 LOCK TABLES `vouchers` WRITE;
 /*!40000 ALTER TABLE `vouchers` DISABLE KEYS */;
+INSERT INTO `vouchers` VALUES (5,'VOUCHER001','adfasdfa',1000.00,1000.00,'2024-09-09 10:12:24','2024-09-09 23:00:00',993,'ISACTIVE','MONEY','MIN_ORDER_VALUE',1000.00,NULL,NULL,'2024-09-09 10:12:34','2024-09-09 14:20:55',1000.00);
 /*!40000 ALTER TABLE `vouchers` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -835,4 +875,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-08-12 21:23:33
+-- Dump completed on 2024-09-09 16:13:01
