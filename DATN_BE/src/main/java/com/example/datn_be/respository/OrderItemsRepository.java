@@ -14,7 +14,7 @@ public interface OrderItemsRepository extends JpaRepository<OrderItems, Integer>
 
     // Lấy danh sách OrderItems theo trạng thái
     List<OrderItems> findByStatus(OrderItems.ORDER_STATUS status);
-
+    OrderItems findByOrderItemId(Integer orderItemId);
     // Thống kê số lượng đơn hàng các tháng theo năm
     @Query(value = "SELECT MONTH(createdAt) as month, COUNT(orderItemId) as total FROM order_items " +
             "WHERE YEAR(createdAt) = :year " +

@@ -44,7 +44,7 @@ public class OrderItems {
     private ORDER_STATUS status = ORDER_STATUS.CHO_THANH_TOAN;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "returnStatus",nullable = false)
+    @Column(name = "returnStatus")
     private RETURN_STATUS returnStatus;
 
     @Column(name = "price")

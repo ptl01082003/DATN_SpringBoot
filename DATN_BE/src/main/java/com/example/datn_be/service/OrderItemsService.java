@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface OrderItemsService {
     List<OrderItemsDTO> getOrdersByStatus(String status);
-
+    boolean updateOrderStatus(Integer orderItemId, String newStatus);
 //    List<OrderItemsDTO> getOrderItemsByStatus(String status);
 //
 //    List<Object[]> countOrderByYear(int year);

@@ -38,7 +38,7 @@ public class CartItems {
     private Integer quantity;
 
     @Column(name = "amount")
-    private BigDecimal amount;
+    private Integer amount;
 
     @CreatedDate
     @Column(name = "createdAt", updatable = false)

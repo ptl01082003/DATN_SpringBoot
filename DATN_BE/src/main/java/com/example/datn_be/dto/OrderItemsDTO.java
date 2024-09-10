@@ -13,22 +13,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class OrderItemsDTO {
-
-//    private Integer orderItemId;
-//    private Integer amount;
-//    private String status;
-//    private String returnStatus;
-//    private BigDecimal price;
-//    private BigDecimal priceDiscount;
-//    private Integer userId;
-//    private Boolean isReview;
-//    private Integer quantity;
-//    private Integer productDetailId;
-//    private Integer orderDetailId;
-//    private LocalDateTime createdAt;
-//    private LocalDateTime updatedAt;
-
     private Integer orderItemId;
+    private String name;
     private int amount;
     private String status;
     private String returnStatus;
@@ -39,14 +25,21 @@ public class OrderItemsDTO {
     private Integer quanity;
     private Integer productDetailId;
     private Integer orderDetailId;
+    private String code;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // Thêm thuộc tính mới
+    private Integer productId;
+    private String path;
+    private Integer sizeName;
+    private Integer quanityLimit;
 
     // Constructor
     public OrderItemsDTO(Integer orderItemId, int amount, String status, String returnStatus, BigDecimal price,
                          BigDecimal priceDiscount, Integer userId, Boolean isReview, Integer quanity,
                          Integer productDetailId, Integer orderDetailId, LocalDateTime createdAt,
-                         LocalDateTime updatedAt) {
+                         LocalDateTime updatedAt, Integer productId, String path, Integer sizeName, Integer quanityLimit,String code,String name) {
         this.orderItemId = orderItemId;
         this.amount = amount;
         this.status = status;
@@ -60,8 +53,12 @@ public class OrderItemsDTO {
         this.orderDetailId = orderDetailId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.productId = productId;
+        this.path = path;
+        this.sizeName = sizeName;
+        this.quanityLimit = quanityLimit;
+        this.code = code;
+        this.name = name;
     }
-
-
-
 }
+

@@ -116,4 +116,6 @@ public class Products {
     private String generateProductCode() {
         return java.util.UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
+
+
 }

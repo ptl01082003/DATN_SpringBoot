@@ -11,67 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderItemsServiceImpl implements OrderItemsService {
-//@Autowired
-//private OrderItemsRepository orderItemsRepository;
-//
-//    @Autowired
-//    private PaymentDetailsRepository paymentDetailsRepository;
-//
-//    @Override
-//    public List<OrderItemsDTO> getOrdersByStatus(String status) {
-//        // Lọc đơn hàng theo trạng thái
-//        List<OrderItems> orderItems = (status != null) ?
-//                orderItemsRepository.findByStatus(status) : orderItemsRepository.findAll();
-//
-//        List<OrderItemsDTO> response = new ArrayList<>();
-//
-//        for (OrderItems orders : orderItems) {
-//            // Tìm thông tin thanh toán cho đơn hàng
-//            PaymentDetails payment = paymentDetailsRepository.findByOrderDetails_OrderDetailId(orders.getOrderDetails().getOrderDetailId());
-//
-//            boolean isPaid = payment != null && PaymentDetails.PAYMENT_STATUS.SUCCESS.equals(payment.getStatus());
-//
-//            // Kiểm tra giá trị null trước khi sử dụng
-//
-//            BigDecimal priceDiscount = orders.getProductDetails() != null && orders.getProductDetails().getProducts() != null ?
-//                    orders.getProductDetails().getProducts().getPriceDiscount() : BigDecimal.ZERO;
-//            BigDecimal productPrice = isPaid ? BigDecimal.valueOf(orders.getPrice() != null ? orders.getPrice() : 0) :
-//                    (orders.getProductDetails() != null && orders.getProductDetails().getProducts() != null ?
-//                            orders.getProductDetails().getProducts().getPrice() : BigDecimal.ZERO);
-//
-//            // Đảm bảo các thuộc tính không null trước khi gọi phương thức
-//            String statusName = orders.getStatus() != null ? orders.getStatus().name() : "UNKNOWN";
-//            String returnStatusName = orders.getReturnStatus() != null ? orders.getReturnStatus().name() : "UNKNOWN";
-//
-//            // Tạo DTO cho từng đơn hàng
-//            OrderItemsDTO dto = new OrderItemsDTO(
-//                    orders.getOrderItemId(),
-//                    orders.getAmount() != null ? orders.getAmount().intValue() : 0,
-//                    statusName,
-//                    returnStatusName,
-//                    productPrice,
-//                    isPaid ? BigDecimal.valueOf(orders.getPriceDiscount() != null ? orders.getPriceDiscount() : 0) : priceDiscount,
-//                    orders.getUserId(),
-//                    orders.getIsReview() != null ? orders.getIsReview() : false,
-//                    orders.getQuanity(),
-//                    orders.getProductDetails() != null ? orders.getProductDetails().getProductDetailId() : null,
-//                    orders.getOrderDetails() != null ? orders.getOrderDetails().getOrderDetailId() : null,
-//                    orders.getCreatedAt(),
-//                    orders.getUpdatedAt()
-//            );
-//
-//            response.add(dto);
-//        }
-//
-//        return response;
-//    }
-//}
+
 
     @Autowired
     private OrderItemsRepository orderItemsRepository;
@@ -137,7 +85,13 @@ public class OrderItemsServiceImpl implements OrderItemsService {
                     orders.getProductDetails() != null ? orders.getProductDetails().getProductDetailId() : null,
                     orders.getOrderDetails() != null ? orders.getOrderDetails().getOrderDetailId() : null,
                     orders.getCreatedAt(),
-                    orders.getUpdatedAt()
+                    orders.getUpdatedAt(),
+                    orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getProductId() : null,
+                    orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getName() : null,
+                    orders.getProductDetails() != null ? Integer.valueOf(orders.getProductDetails().getSizes().getName()) : null,
+                    orders.getProductDetails() != null ? orders.getProductDetails().getSellQuanity(): null,
+                    orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getCode() : null,
+                    orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getName() : null
             );
 
             response.add(dto);
@@ -146,5 +100,20 @@ public class OrderItemsServiceImpl implements OrderItemsService {
         return response;
     }
 
+    @Override
+    @Transactional
+    public boolean updateOrderStatus(Integer orderItemId, String status) {
+        try {
+            OrderItems orderItem = orderItemsRepository.findById(orderItemId)
+                    .orElseThrow(() -> new RuntimeException("Order item not found"));
 
+            orderItem.setStatus(OrderItems.ORDER_STATUS.valueOf(status));
+            orderItemsRepository.save(orderItem);
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
