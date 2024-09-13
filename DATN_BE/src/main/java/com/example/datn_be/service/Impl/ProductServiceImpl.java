@@ -1,32 +1,26 @@
 package com.example.datn_be.service.Impl;
 
-import com.example.datn_be.dto.ImagesDTO;
-import com.example.datn_be.dto.ProductDetailsDTO;
 import com.example.datn_be.dto.ProductsDTO;
-import com.example.datn_be.entity.*;
+import com.example.datn_be.dto.ProductDetailsDTO;
+import com.example.datn_be.entity.Images;
+import com.example.datn_be.entity.ProductDetails;
+import com.example.datn_be.entity.Products;
 import com.example.datn_be.respository.*;
 import com.example.datn_be.service.ProductService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
-
     @Autowired
-    private ProductsRepository productRepository;
-
-    @Autowired
-    private ProductDetailsRepository productDetailRepository;
-
-    @Autowired
-    private ImagesRepository imageRepository;
+    private ProductsRepository productsRepository;
 
     @Autowired
     private OriginsRepository originsRepository;
@@ -41,162 +35,193 @@ public class ProductServiceImpl implements ProductService {
     private BrandsRepository brandsRepository;
 
     @Autowired
+    private ProductDetailsRepository productDetailsRepository;
+
+    @Autowired
+    private ImagesRepository imagesRepository;
+
+    @Autowired
     private SizesRepository sizesRepository;
 
     @Override
+    @Transactional
     public Products addProduct(ProductsDTO productDTO) {
-        logger.info("Adding product: {}", productDTO);
-
         Products product = new Products();
         product.setName(productDTO.getName());
         product.setCode(productDTO.getCode());
         product.setImportPrice(productDTO.getImportPrice());
         product.setPrice(productDTO.getPrice());
-        product.setPriceDiscount(productDTO.getPriceDiscount());
         product.setStatus(productDTO.getStatus());
-        product.setDisplay(productDTO.getDisplay());
         product.setDescription(productDTO.getDescription());
+        product.setPriceDiscount(productDTO.getPriceDiscount());
 
-        Origins origin = originsRepository.findById(productDTO.getOriginId()).orElse(null);
-        Styles style = stylesRepository.findById(productDTO.getStyleId()).orElse(null);
-        Materials material = materialsRepository.findById(productDTO.getMaterialId()).orElse(null);
-        Brands brand = brandsRepository.findById(productDTO.getBrandId()).orElse(null);
+        // Set các thuộc tính quan hệ từ ID
+        product.setOrigins(originsRepository.findById(productDTO.getOriginId())
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ origin ID: " + productDTO.getOriginId())));
+        product.setStyles(stylesRepository.findById(productDTO.getStyleId())
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ style ID: " + productDTO.getStyleId())));
+        product.setMaterials(materialsRepository.findById(productDTO.getMaterialId())
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ material ID: " + productDTO.getMaterialId())));
+        product.setBrands(brandsRepository.findById(productDTO.getBrandId())
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ brand ID: " + productDTO.getBrandId())));
 
-        product.setOrigin(origin);
-        product.setStyle(style);
-        product.setMaterial(material);
-        product.setBrand(brand);
-
-        product = productRepository.save(product);
-        logger.info("Product saved: {}", product);
+        Products savedProduct = productsRepository.save(product);
 
         if (productDTO.getProductDetails() != null) {
             for (ProductDetailsDTO detailDTO : productDTO.getProductDetails()) {
                 ProductDetails detail = new ProductDetails();
-                detail.setProducts(product);
-
-                Sizes size = sizesRepository.findById(detailDTO.getSizeId()).orElse(null);
-                detail.setSizes(size);
-
+                detail.setProducts(savedProduct);  // Thiết lập quan hệ giữa ProductDetails và Product
+                detail.setSizes(sizesRepository.findById(detailDTO.getSizeId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ size ID: " + detailDTO.getSizeId())));
                 detail.setQuantity(detailDTO.getQuantity());
-                productDetailRepository.save(detail);
-                logger.info("Product detail added: {}", detail);
+                productDetailsRepository.save(detail);
             }
         }
 
         if (productDTO.getGallery() != null) {
-            for (ImagesDTO imageDTO : productDTO.getGallery()) {
+            for (String path : productDTO.getGallery()) {
                 Images image = new Images();
-                image.setProducts(product);
-                image.setPath(imageDTO.getPath());
-                imageRepository.save(image);
-                logger.info("Product image added: {}", image);
+                image.setPath(path);
+                image.setProducts(savedProduct);  // Thiết lập quan hệ giữa Images và Product
+                imagesRepository.save(image);
             }
         }
 
-        return product;
+        return savedProduct;
     }
 
     @Override
     public List<Products> getProducts() {
-        List<Products> products = productRepository.findAll();
-        logger.info("Retrieved products: {}", products);
-        return products;
-    }
-
-    @Override
-    public Products getProductById(Integer productId) {
-        Products product = productRepository.findById(productId).orElse(null);
-        logger.info("Retrieved product by ID {}: {}", productId, product);
-        return product;
+        return productsRepository.findAll();
     }
 
     @Override
     public Products getProductDetails(String code) {
-        Products product = productRepository.findByCode(code);
-        logger.info("Retrieved product by code {}: {}", code, product);
+        return productsRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+    @Override
+    public List<Products> getLstProducts(Map<String, Object> request) {
+        try {
+            // Xử lý và lọc danh sách sản phẩm dựa trên điều kiện trong request
+            String name = (String) request.get("name");
+            String code = (String) request.get("code");
+            BigDecimal minPrice = (BigDecimal) request.get("minPrice");
+            BigDecimal maxPrice = (BigDecimal) request.get("maxPrice");
+            Boolean status = (Boolean) request.get("status");
+
+            List<Products> products = productsRepository.findAll();
+
+            if (name != null && !name.isEmpty()) {
+                products = products.stream()
+                        .filter(p -> p.getName().contains(name))
+                        .collect(Collectors.toList());
+            }
+
+            if (code != null && !code.isEmpty()) {
+                products = products.stream()
+                        .filter(p -> p.getCode().equals(code))
+                        .collect(Collectors.toList());
+            }
+
+            if (minPrice != null) {
+                products = products.stream()
+                        .filter(p -> p.getPrice().compareTo(minPrice) >= 0)
+                        .collect(Collectors.toList());
+            }
+
+            if (maxPrice != null) {
+                products = products.stream()
+                        .filter(p -> p.getPrice().compareTo(maxPrice) <= 0)
+                        .collect(Collectors.toList());
+            }
+
+            if (status != null) {
+                products = products.stream()
+                        .filter(p -> p.getStatus().equals(status))
+                        .collect(Collectors.toList());
+            }
+
+            return products;
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lấy danh sách sản phẩm theo điều kiện: " + e.getMessage());
+        }
+    }
+
+
+    @Override
+    @Transactional
+    public Products updateProduct(ProductsDTO productDTO) {
+        Products product = productsRepository.findById(productDTO.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        product.setName(productDTO.getName());
+        product.setImportPrice(productDTO.getImportPrice());
+        product.setPrice(productDTO.getPrice());
+        product.setStatus(productDTO.getStatus());
+        product.setDescription(productDTO.getDescription());
+        product.setPriceDiscount(productDTO.getPriceDiscount());
+
+        // Cập nhật các thuộc tính quan hệ
+        product.setOrigins(originsRepository.findById(productDTO.getOriginId())
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ origin ID: " + productDTO.getOriginId())));
+        product.setStyles(stylesRepository.findById(productDTO.getStyleId())
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ style ID: " + productDTO.getStyleId())));
+        product.setMaterials(materialsRepository.findById(productDTO.getMaterialId())
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ material ID: " + productDTO.getMaterialId())));
+        product.setBrands(brandsRepository.findById(productDTO.getBrandId())
+                .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ brand ID: " + productDTO.getBrandId())));
+
+        productsRepository.save(product);
+
+        // Cập nhật chi tiết sản phẩm
+        if (productDTO.getProductDetails() != null) {
+            for (ProductDetailsDTO detailDTO : productDTO.getProductDetails()) {
+                ProductDetails detail = productDetailsRepository.findByProducts_ProductIdAndSizes_SizeId(
+                        productDTO.getProductId(), detailDTO.getSizeId());
+                if (detail != null) {
+                    detail.setQuantity(detailDTO.getQuantity());
+                    productDetailsRepository.save(detail);
+                } else {
+                    detail = new ProductDetails();
+                    detail.setProducts(product);  // Thiết lập quan hệ giữa ProductDetails và Product
+                    detail.setSizes(sizesRepository.findById(detailDTO.getSizeId())
+                            .orElseThrow(() -> new IllegalArgumentException("Không hợp lệ size ID: " + detailDTO.getSizeId())));
+                    detail.setQuantity(detailDTO.getQuantity());
+                    productDetailsRepository.save(detail);
+                }
+            }
+        }
+
+
+        imagesRepository.deleteByProducts_ProductId(productDTO.getProductId());
+
+        if (productDTO.getGallery() != null) {
+            for (String path : productDTO.getGallery()) {
+                Images image = new Images();
+                image.setPath(path);
+                image.setProducts(product);
+                imagesRepository.save(image);
+            }
+        }
+
         return product;
     }
 
     @Override
-    public Products updateProduct(ProductsDTO productDTO) {
-        Optional<Products> existingProductOpt = productRepository.findById(productDTO.getProductId());
-
-        if (existingProductOpt.isPresent()) {
-            Products existingProduct = existingProductOpt.get();
-            existingProduct.setName(productDTO.getName());
-            existingProduct.setCode(productDTO.getCode());
-            existingProduct.setImportPrice(productDTO.getImportPrice());
-            existingProduct.setPrice(productDTO.getPrice());
-            existingProduct.setPriceDiscount(productDTO.getPriceDiscount());
-            existingProduct.setStatus(productDTO.getStatus());
-            existingProduct.setDisplay(productDTO.getDisplay());
-            existingProduct.setDescription(productDTO.getDescription());
-
-            Origins origin = originsRepository.findById(productDTO.getOriginId()).orElse(null);
-            Styles style = stylesRepository.findById(productDTO.getStyleId()).orElse(null);
-            Materials material = materialsRepository.findById(productDTO.getMaterialId()).orElse(null);
-            Brands brand = brandsRepository.findById(productDTO.getBrandId()).orElse(null);
-
-            existingProduct.setOrigin(origin);
-            existingProduct.setStyle(style);
-            existingProduct.setMaterial(material);
-            existingProduct.setBrand(brand);
-
-            if (productDTO.getProductDetails() != null) {
-                productDetailRepository.deleteByProducts_ProductId(existingProduct.getProductId());
-
-                for (ProductDetailsDTO detailDTO : productDTO.getProductDetails()) {
-                    ProductDetails detail = new ProductDetails();
-                    detail.setProducts(existingProduct);
-
-                    Sizes size = sizesRepository.findById(detailDTO.getSizeId()).orElse(null);
-                    detail.setSizes(size);
-
-                    detail.setQuantity(detailDTO.getQuantity());
-                    productDetailRepository.save(detail);
-                    logger.info("Updated product detail: {}", detail);
-                }
-            }
-
-            if (productDTO.getGallery() != null) {
-                imageRepository.deleteByProducts_ProductId(existingProduct.getProductId());
-
-                for (ImagesDTO imageDTO : productDTO.getGallery()) {
-                    Images image = new Images();
-                    image.setProducts(existingProduct);
-                    image.setPath(imageDTO.getPath());
-                    imageRepository.save(image);
-                    logger.info("Updated product image: {}", image);
-                }
-            }
-
-            Products updatedProduct = productRepository.save(existingProduct);
-            logger.info("Product updated: {}", updatedProduct);
-            return updatedProduct;
-        }
-
-        logger.warn("Product with ID {} not found for update", productDTO.getProductId());
-        return null;
-    }
-
-    @Override
+    @Transactional
     public boolean deleteProduct(Integer productId) {
-        if (productRepository.existsById(productId)) {
-            productDetailRepository.deleteByProducts_ProductId(productId);
-            imageRepository.deleteByProducts_ProductId(productId);
-            productRepository.deleteById(productId);
-            logger.info("Product with ID {} deleted successfully", productId);
-            return true;
-        }
-        logger.warn("Product with ID {} not found for deletion", productId);
+        imagesRepository.deleteByProducts_ProductId(productId);
+        productDetailsRepository.deleteByProducts_ProductId(productId);
+        productsRepository.deleteById(productId);
         return false;
     }
 
     @Override
     public List<Products> getDiscountedProducts() {
-        List<Products> discountedProducts = productRepository.findByPriceDiscountGreaterThan(0);
-        logger.info("Retrieved discounted products: {}", discountedProducts);
-        return discountedProducts;
+        return productsRepository.findAll().stream()
+                .filter(product -> product.getPriceDiscount() != null && product.getPriceDiscount().compareTo(BigDecimal.ZERO) > 0)
+                .collect(Collectors.toList());
     }
 }

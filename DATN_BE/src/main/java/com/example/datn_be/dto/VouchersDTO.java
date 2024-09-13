@@ -1,5 +1,7 @@
 package com.example.datn_be.dto;
 
+import com.example.datn_be.entity.Vouchers;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,11 +9,12 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-@AllArgsConstructor
-@NoArgsConstructor
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class VouchersDTO {
 
     private Integer voucherId;
@@ -19,17 +22,20 @@ public class VouchersDTO {
     private String description;
     private BigDecimal valueOrder;
     private BigDecimal discountMax;
-    private LocalDate startDay;
-    private LocalDate endDay;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime startDay;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime endDay;
     private BigDecimal discountValue;
     private Integer quantity;
-    private String status;
-    private String typeValue;
-    private String ruleType;
+    private Vouchers.VouchersStatus status;
+    private Vouchers.VouchersType typeValue;
+    private Vouchers.VoucherRule ruleType;
     private BigDecimal minOrderValue;
     private Integer minOrderCount;
     private Integer maxOrderCount;
-    private List<UserVouchersDTO> userVouchers;
-    private List<OrderDetailsDTO> orderDetails;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
 }

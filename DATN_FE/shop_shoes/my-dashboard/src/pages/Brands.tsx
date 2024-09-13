@@ -93,7 +93,10 @@ export default function BrandsPage() {
   useEffect(() => {
     (async () => {
       const getBrands = await BrandService.getBrands();
+
+          console.log("Fetched origins:", getBrands.data);
       setLstBrands(getBrands?.data || []);
+      
     })();
   }, [shouldRender]);
 

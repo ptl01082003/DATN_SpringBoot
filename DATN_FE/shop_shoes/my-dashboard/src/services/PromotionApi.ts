@@ -2,12 +2,24 @@
 
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
+import { KEY_STORAGE } from "../constants";
+
 const API_URL = "/promotions";
 
 const PromotionService = {
+  // Lấy danh sách tất cả các promotions
   getPromotions: async () => {
     try {
-      const response = await AxiosClient.post<any, Response<any>>(API_URL);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(
+        API_URL,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response;
     } catch (error) {
       console.error("Error fetching promotions", error);
@@ -15,24 +27,38 @@ const PromotionService = {
     }
   },
 
+  // Lấy thông tin promotion theo ID
   getPromotionById: async (promotionId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}`,
-        promotionId
+        `${API_URL}/get-by-id`,
+        { promotionId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      return response;
+      return response; // Sử dụng response.data để trả về dữ liệu chính xác
     } catch (error) {
       console.error(`Error fetching promotion ${promotionId}`, error);
       throw error;
     }
   },
 
+  // Tạo một promotion mới
   createPromotion: async (promotionData: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/create`,
-        promotionData
+        promotionData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -41,25 +67,38 @@ const PromotionService = {
     }
   },
 
-  updatePromotion: async (params: any) => {
+  // Cập nhật thông tin promotion
+  updatePromotion: async (promotionData: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/edit`,
-        params
+        promotionData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-
       return response;
     } catch (error) {
+      console.error("Error updating promotion", error);
       throw error;
     }
   },
 
+  // Xóa promotion theo ID
   deletePromotion: async (promotionId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/remove`,
+        null,
         {
-          promotionId,
+          params: { promotionId },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       return response;

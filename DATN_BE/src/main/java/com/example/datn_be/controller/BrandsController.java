@@ -6,6 +6,7 @@ import com.example.datn_be.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,9 @@ public class BrandsController {
     @Autowired
     private BrandService brandService;
 
-    // Thêm thương hiệu mới
+
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> addBrand(@RequestBody BrandsDTO brandDTO) {
         try {
             Brands brand = brandService.addBrand(brandDTO);
@@ -35,8 +37,8 @@ public class BrandsController {
         }
     }
 
-    // Lấy tất cả thương hiệu
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getBrands() {
         try {
             List<Brands> brands = brandService.getBrands();
@@ -52,8 +54,8 @@ public class BrandsController {
         }
     }
 
-    // Lấy thương hiệu theo ID
     @PostMapping("/getById")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getById(@RequestBody Map<String, Integer> request) {
         try {
             Integer brandId = request.get("brandId");
@@ -77,8 +79,9 @@ public class BrandsController {
         }
     }
 
-    // Cập nhật thương hiệu
+
     @PostMapping("/edit")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> updateBrand(@RequestBody BrandsDTO brandDTO) {
         try {
             Brands updatedBrand = brandService.updateBrand(brandDTO);
@@ -102,6 +105,7 @@ public class BrandsController {
     }
 
     @PostMapping("/remove")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<Map<String, Object>> deleteBrand(@RequestParam("brandId") Integer brandId) {
         if (brandId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "brandId không được để trống"));

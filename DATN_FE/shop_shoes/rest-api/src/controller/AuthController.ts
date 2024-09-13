@@ -22,13 +22,13 @@ const authCtrl = {
           })
         );
       }
-      const hashPassword = await bcrypt.hash(password, 10);
+        
       const newUser = await Users.create({
         fullName,
         phone,
         email,
         userName,
-        password: hashPassword,
+        password: password.hashPassword,
       });
 
       return res.json(

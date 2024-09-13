@@ -1,5 +1,6 @@
 package com.example.datn_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +21,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "order_details")
+@EntityListeners(AuditingEntityListener.class)
 public class OrderDetails {
      public enum REFUND_STATUS {
         PENDING ,
@@ -26,47 +32,50 @@ public class OrderDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer orderDetailId;
 
-    @Column(nullable = false)
+    @Column(name = "totals",nullable = false)
     private Double totals;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "orderCode",nullable = false, unique = true)
     private String orderCode;
 
-    @Column(nullable = false)
+    @Column(name = "amount",nullable = false)
     private Double amount;
 
-    @Column(nullable = false)
+    @Column(name = "name",nullable = false)
     private String name;
 
-    @Column(length = 500)
+    @Column(name = "address",length = 500)
     private String address;
 
     @ManyToOne
     @JoinColumn(name = "voucherId")
-    private Vouchers voucher;
+    private Vouchers vouchers;
 
-    @Column(nullable = false)
+    @Column(name = "phone",nullable = false)
     private String phone;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
-    private Users user;
+    private Users users;
 
-    @OneToMany(mappedBy = "orderDetails")
+    @OneToMany(mappedBy = "orderDetails", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItems> orderItems;
+
 
     @Enumerated(EnumType.STRING)
     private REFUND_STATUS refundStatus;
 
-    @Column
+    @Column(name = "refundAmount")
     private Double refundAmount;
 
-    @CreationTimestamp
-    @Column(updatable = false)
+    @CreatedDate
+    @Column(name = "createdAt", updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column
+    @LastModifiedDate
+    @Column(name = "updatedAt")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
     @PrePersist

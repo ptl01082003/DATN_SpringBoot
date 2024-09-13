@@ -1,10 +1,14 @@
 package com.example.datn_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 @AllArgsConstructor
@@ -13,6 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "user_vouchers")
+@EntityListeners(AuditingEntityListener.class)
 public class UserVouchers {
 
     @Id
@@ -21,20 +26,32 @@ public class UserVouchers {
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
-    private Users user;
+    private Users users;
 
     @ManyToOne
     @JoinColumn(name = "voucherId", nullable = false)
-    private Vouchers voucher;
+    private Vouchers vouchers;
 
-    @Column(name = "received_at")
+    @Column(name = "receivedAt")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime receivedAt;
 
-    @Column(name = "used_at")
+    @Column(name = "usedAt")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime usedAt;
 
-    @Column
+    @Column(name = "status")
     private String status;
+
+    @CreatedDate
+    @Column(name = "createdAt", updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updatedAt")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
 
 
 }

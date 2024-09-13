@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -15,5 +17,6 @@ public class ImagesDTO {
     private String path;
     private Integer productId;
 
-
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

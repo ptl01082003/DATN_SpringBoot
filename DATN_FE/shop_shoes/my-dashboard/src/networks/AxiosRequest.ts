@@ -2,7 +2,7 @@ import Axios from "axios";
 import { KEY_STORAGE, RESPONSE_CODE } from "../constants/constants";
 
 export const AxiosConfig = {
-  baseURL: "http://localhost:5500/api/v1",
+  baseURL: "http://localhost:8080/api/v1",
   timeout: 15000,
   withCredentials: true,
   headers: {
@@ -10,9 +10,9 @@ export const AxiosConfig = {
   },
 };
 
-const AxiosClient = Axios.create(AxiosConfig);
+const AxiosRequest = Axios.create(AxiosConfig);
 
-AxiosClient.interceptors.request.use(
+AxiosRequest.interceptors.request.use(
   function (config) {
     const token = localStorage.getItem(KEY_STORAGE.TOKEN);
     config.data = { ...config.data };
@@ -26,10 +26,10 @@ AxiosClient.interceptors.request.use(
   }
 );
 
-AxiosClient.interceptors.response.use(
+AxiosRequest.interceptors.response.use(
   async function (response) {
     const { code } = response.data;
-    
+
     if (code == RESPONSE_CODE.NOT_AUTHOR) {
       return window.location.replace("/sign-in");
     }
@@ -67,4 +67,4 @@ AxiosClient.interceptors.response.use(
   }
 );
 
-export default AxiosClient;
+export default AxiosRequest;

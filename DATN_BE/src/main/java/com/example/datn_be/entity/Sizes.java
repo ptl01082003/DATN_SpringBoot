@@ -1,40 +1,46 @@
 package com.example.datn_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "sizes")
+
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity
-@Table(name = "sizes")
+
 public class Sizes {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sizeId")
     private Integer sizeId;
 
-    @Column(nullable = false)
+    @Column(name = "name")
     private String name;
 
-    // Getters và setters
-    public Integer getSizeId() {
-        return sizeId;
-    }
+    @CreatedDate
+    @Column(name = "createdAt", updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
-    public void setSizeId(Integer sizeId) {
-        this.sizeId = sizeId;
-    }
+    @LastModifiedDate
+    @Column(name = "updatedAt")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 }

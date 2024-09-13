@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,5 +20,7 @@ public class ReviewersDTO {
     private Integer productDetailId;
     private Integer userId;
     private List<ReviewerPhotoDTO> reviewerPhoto;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }

@@ -1,105 +1,188 @@
 package com.example.datn_be.service.Impl;
 
-import com.example.datn_be.dto.LoginRequest;
-import com.example.datn_be.dto.RegisterRequest;
-import com.example.datn_be.dto.TokenResponse;
+import com.example.datn_be.dto.AuthRequest;
+import com.example.datn_be.dto.AuthResponse;
 import com.example.datn_be.entity.Roles;
 import com.example.datn_be.entity.Users;
 import com.example.datn_be.respository.UsersRepository;
-
 import com.example.datn_be.service.AuthService;
+import com.example.datn_be.utils.ApiResponse;
 import com.example.datn_be.utils.JwtTokenProvider;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
     @Autowired
-    private UsersRepository userRepository;
+    private UsersRepository userRepository; // Inject repository để tương tác với bảng Users
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
+    private JwtTokenProvider jwtTokenProvider; // Inject JwtTokenProvider để xử lý token JWT
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisServiceImpl redisServiceImpl;
 
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    @Transactional
     @Override
-    public void register(RegisterRequest registerRequest) {
-        String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
-        Users newUser = new Users();
-        newUser.setUserName(registerRequest.getUserName());
-        newUser.setPassword(encodedPassword);
-        newUser.setFullName(registerRequest.getFullName());
-        newUser.setPhone(registerRequest.getPhone());
-        newUser.setEmail(registerRequest.getEmail());
+    public ResponseEntity<ApiResponse> register(AuthRequest request) {
 
-        Roles defaultRole = new Roles();
-        defaultRole.setType(Roles.RoleTypes.USER);
-        newUser.setRoles(defaultRole);
+        Optional<Users> existingUser = userRepository.findByUserName(request.getUserName());
+        if (existingUser.isPresent()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Username đã tồn tại"));
+        }
+
+
+        Users newUser = new Users();
+        newUser.setFullName(request.getFullName());
+        newUser.setPhone(request.getPhone());
+        newUser.setEmail(request.getEmail());
+        newUser.setUserName(request.getUserName());
+        newUser.setPassword(jwtTokenProvider.encodePassword(request.getPassword())); // Mã hóa mật khẩu
         userRepository.save(newUser);
+
+        return ResponseEntity.ok(ApiResponse.success(null, "Đăng ký tài khoản thành công"));
     }
 
+
+    @Transactional
     @Override
-    public TokenResponse login(LoginRequest loginRequest) {
-        Optional<Users> userOpt = userRepository.findByUserName(loginRequest.getUserName());
+    public ResponseEntity<ApiResponse> loginWeb(AuthRequest request) {
+        // Tìm người dùng theo tên người dùng
+        Optional<Users> userOpt = userRepository.findByUserName(request.getUserName());
         if (userOpt.isPresent()) {
             Users user = userOpt.get();
-            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                String accessToken = jwtTokenProvider.generateAccessToken(user);
-                String refreshToken = jwtTokenProvider.generateRefreshToken(user);
-
-                // Lưu thông tin vào Redis
-                redisTemplate.opsForValue().set("roles-" + user.getUserId(), user.getRole());
-                redisTemplate.opsForValue().set("accessToken-" + user.getUserId(), accessToken);
-                redisTemplate.opsForValue().set("refreshToken-" + user.getUserId(), refreshToken);
-
-                return new TokenResponse(accessToken, refreshToken, user.getRole());
+            // Kiểm tra mật khẩu
+            if (jwtTokenProvider.checkPassword(request.getPassword(), user.getPassword())) {
+                AuthResponse response = new AuthResponse();
+                response.setAccessToken(jwtTokenProvider.generateAccessToken(user)); // Tạo token truy cập
+                response.setRefreshToken(jwtTokenProvider.generateRefreshToken(user)); // Tạo token làm mới
+                return ResponseEntity.ok(ApiResponse.success(response, "Thực hiện thành công"));
             } else {
-                throw new RuntimeException("Tài khoản hoặc mật khẩu không đúng");
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Tài khoản hoặc mật khẩu không đúng"));
             }
         } else {
-            throw new RuntimeException("Tài khoản không tồn tại");
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Tài khoản không tồn tại"));
         }
     }
 
+    @Transactional
     @Override
-    public void logout(Integer userId) {
-        redisTemplate.delete("roles-" + userId);
-        redisTemplate.delete("accessToken-" + userId);
-        redisTemplate.delete("refreshToken-" + userId);
-    }
+    public ResponseEntity<ApiResponse> loginDashboard(AuthRequest request) {
+        // Find user by username
+        Optional<Users> userOpt = userRepository.findByUserName(request.getUserName());
+        if (userOpt.isPresent()) {
+            Users user = userOpt.get();
+            // Check password
+            if (jwtTokenProvider.checkPassword(request.getPassword(), user.getPassword())) {
+                // Check user role
+                if (user.getRoles().getType() == Roles.RoleTypes.USER) {
+                    return ResponseEntity.badRequest()
+                            .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Không có quyền truy cập"));
+                }
 
-    @Override
-    public TokenResponse refreshToken(String refreshToken) {
-        if (jwtTokenProvider.validateToken(refreshToken)) {
-            Claims claims = jwtTokenProvider.getClaims(refreshToken, jwtTokenProvider.getRefreshSecret());
-            Integer userId = Integer.parseInt(claims.getSubject());
+                // Generate access and refresh tokens
+                String accessToken = jwtTokenProvider.generateAccessToken(user);
+                String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
-            // Lấy thông tin token refresh từ Redis
-            String rfTokenInRedis = redisTemplate.opsForValue().get("refreshToken-" + userId);
+                // Get the role name
+                String roleName = user.getRoles().getName();
 
-            if (refreshToken.equals(rfTokenInRedis)) {
-                // Lấy người dùng từ repository
-                Users user = userRepository.findById(userId).orElseThrow();
-                String newAccessToken = jwtTokenProvider.generateAccessToken(user);
+                // Save user roles to Redis
+                redisServiceImpl.saveUserRoles(user.getUserId(), Collections.singleton(roleName));
 
-                // Cập nhật token mới vào Redis
-                redisTemplate.opsForValue().set("accessToken-" + userId, newAccessToken);
+                // Create response
+                AuthResponse response = new AuthResponse();
+                response.setAccessToken(accessToken);
+                response.setRefreshToken(refreshToken);
+                response.setUserId(user.getUserId());
 
-                return new TokenResponse(newAccessToken, refreshToken, user.getRole());
+                return ResponseEntity.ok(ApiResponse.success(response, "Thực hiện thành công"));
             } else {
-                throw new RuntimeException("Refresh Token không hợp lệ");
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Tài khoản hoặc mật khẩu không đúng"));
             }
         } else {
-            throw new RuntimeException("Hết hạn refresh token vui lòng đăng nhập lại");
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Tài khoản không tồn tại"));
+        }
+    }
+
+//    @Transactional
+//    @Override
+//    public ResponseEntity<ApiResponse> loginDashboard(AuthRequest request) {
+//        // Tìm người dùng theo tên người dùng
+//        Optional<Users> userOpt = userRepository.findByUserName(request.getUserName());
+//        if (userOpt.isPresent()) {
+//            Users user = userOpt.get();
+//            // Kiểm tra mật khẩu
+//            if (jwtTokenProvider.checkPassword(request.getPassword(), user.getPassword())) {
+//                // Kiểm tra vai trò người dùng
+//                if (user.getRoles().getType() == Roles.RoleTypes.USER) {
+//                    return ResponseEntity.badRequest()
+//                            .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Không có quyền truy cập"));
+//                }
+//                AuthResponse response = new AuthResponse();
+//                response.setAccessToken(jwtTokenProvider.generateAccessToken(user)); // Tạo token truy cập
+//                response.setRefreshToken(jwtTokenProvider.generateRefreshToken(user)); // Tạo token làm mới
+//                response.setUserId(user.getUserId());
+//                return ResponseEntity.ok(ApiResponse.success(response, "Thực hiện thành công"));
+//            } else {
+//                return ResponseEntity.badRequest()
+//                        .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Tài khoản hoặc mật khẩu không đúng"));
+//            }
+//        } else {
+//            return ResponseEntity.badRequest()
+//                    .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Tài khoản không tồn tại"));
+//        }
+//    }
+
+
+    @Transactional
+    @Override
+    public ResponseEntity<ApiResponse> logout(Integer userId) {
+        // Xóa các token khỏi Redis hoặc cơ sở dữ liệu nếu có triển khai
+        return ResponseEntity.ok(ApiResponse.success(null, "Thực hiện thành công"));
+    }
+
+
+    @Transactional
+    @Override
+    public ResponseEntity<ApiResponse> requestRefreshToken(String refreshToken) {
+        // Kiểm tra xem refresh token có hợp lệ không
+        if (jwtTokenProvider.validateRefreshToken(refreshToken)) {
+            // Lấy ID của người dùng từ refresh token
+            Integer userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
+
+            // Lấy đối tượng Users từ userId
+            Optional<Users> userOpt = userRepository.findById(userId);
+            if (userOpt.isPresent()) {
+                Users user = userOpt.get();
+
+                // Tạo phản hồi mới chứa access token mới
+                AuthResponse response = new AuthResponse();
+
+                response.setAccessToken(jwtTokenProvider.generateAccessToken(user));
+
+                // Trả về phản hồi thành công với token mới
+                return ResponseEntity.ok(ApiResponse.success(response, "Thực hiện thành công"));
+            } else {
+
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Người dùng không tồn tại"));
+            }
+        } else {
+
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(ApiResponse.ResponseCode.INCORRECT, "Refresh Token không hợp lệ"));
         }
     }
 }

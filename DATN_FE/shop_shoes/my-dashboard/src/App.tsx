@@ -18,6 +18,7 @@ import BrandsPage from "./pages/Brands";
 import StylesPage from "./pages/Styles";
 import MaterialsPage from "./pages/Materials";
 import OriginsPage from "./pages/Origins";
+import DeliveredOrders from "./pages/OderDetails";
 import SizePage from "./pages/Sizes";
 import PromotionsPage from "./pages/Promotions";
 import ProductPage from "./pages/Products";
@@ -28,12 +29,14 @@ import { useAppDispatch } from "./app/hooks";
 import { useEffect } from "react";
 import { changelstOnlineUsers } from "./app/slice/userSlice";
 import { fetchGetUserInfo } from "./app/thunks/UserThunk";
+import OrderDetails from "./pages/OderDetails";
+import UserPage from "./pages/UsersPage";
 
-export const socket = io.connect("http://localhost:6500", {
-  auth: {
-    token: localStorage.getItem(KEY_STORAGE.TOKEN),
-  },
-});
+// export const socket = io.connect("http://localhost:6500", {
+//   auth: {
+//     token: localStorage.getItem(KEY_STORAGE.TOKEN),
+//   },
+// });
 
 function App() {
   const dispatch = useAppDispatch();
@@ -45,11 +48,11 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-    socket.on("changelstOnlineUsers", (data) => {
-      dispatch(changelstOnlineUsers(data));
-    });
-  }, []);
+  // useEffect(() => {
+  //   socket.on("changelstOnlineUsers", (data) => {
+  //     dispatch(changelstOnlineUsers(data));
+  //   });
+  // }, []);
 
   return (
     <div className="App">
@@ -85,6 +88,8 @@ function App() {
             <Route path={"products"} element={<ProductPage />} />
             <Route path={"vouchers"} element={<VouchersPage />} />
             <Route path={"supports"} element={<SupporterPage />} />
+            <Route path={"order"} element={<OrderDetails/>} />
+            <Route path={"users"} element={<UserPage/>} />
             {/* <Route path={"product-details"} element={<ProductDetailsPage />} /> */}
           </Route>
         </Routes>

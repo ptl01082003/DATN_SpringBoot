@@ -21,6 +21,7 @@ import {
   Voucher_RULE,
 } from "../constants/constants";
 import { FormProps } from "antd/lib";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -158,8 +159,7 @@ export default function VouchersPage() {
       open: true,
       data: {
         ...record,
-        startDay: moment(record.startDay),
-        endDay: moment(record.endDay),
+    
       },
     });
   };
@@ -170,8 +170,8 @@ export default function VouchersPage() {
     try {
       const res = await VoucherService.createVoucher({
         ...values,
-        startDay: values.startDay?.format("YYYY-MM-DD"),
-        endDay: values.endDay?.format("YYYY-MM-DD"),
+        startDay: values.startDay?.format("YYYY-MM-DD HH:mm:ss"),
+        endDay: values.endDay?.format("YYYY-MM-DD HH:mm:ss"),
       });
       if (res.code === 0) {
         message.success("Voucher created successfully");
@@ -192,8 +192,8 @@ export default function VouchersPage() {
       const res = await VoucherService.updateVoucher({
         ...values,
         voucherId: openEditModal?.data?.voucherId,
-        startDay: values.startDay?.format("YYYY-MM-DD"),
-        endDay: values.endDay?.format("YYYY-MM-DD"),
+        startDay: values.startDay?.format("YYYY-MM-DD HH:mm:ss"),
+        endDay: values.endDay?.format("YYYY-MM-DD HH:mm:ss"),
       });
       if (res.code === 0) {
         message.success("Voucher updated successfully");
@@ -302,7 +302,11 @@ export default function VouchersPage() {
             name="startDay"
             rules={[{ required: true, message: "Ngày bắt đầu là bắt buộc!" }]}
           >
-            <DatePicker style={{ width: "100%" }} format="DD-MM-YYYY" />
+             <DatePicker
+              style={{ width: "100%" }}
+              format="YYYY-MM-DD HH:mm:ss"
+              showTime={{ defaultValue: dayjs("00:00:00", "HH:mm:ss") }}
+            />
           </Form.Item>
 
           <Form.Item<FieldType>
@@ -310,7 +314,11 @@ export default function VouchersPage() {
             name="endDay"
             rules={[{ required: true, message: "Ngày kết thúc là bắt buộc!" }]}
           >
-            <DatePicker style={{ width: "100%" }} format="DD-MM-YYYY" />
+             <DatePicker
+              style={{ width: "100%" }}
+              format="YYYY-MM-DD HH:mm:ss"
+              showTime={{ defaultValue: dayjs("00:00:00", "HH:mm:ss") }}
+            />
           </Form.Item>
 
           <Form.Item<FieldType>
@@ -492,7 +500,11 @@ export default function VouchersPage() {
             name="startDay"
             rules={[{ required: true, message: "Ngày bắt đầu là bắt buộc!" }]}
           >
-            <DatePicker style={{ width: "100%" }} format="DD-MM-YYYY" />
+             <DatePicker
+              style={{ width: "100%" }}
+              format="YYYY-MM-DD HH:mm:ss"
+              showTime={{ defaultValue: dayjs("00:00:00", "HH:mm:ss") }}
+            />
           </Form.Item>
 
           <Form.Item<FieldType>
@@ -500,7 +512,11 @@ export default function VouchersPage() {
             name="endDay"
             rules={[{ required: true, message: "Ngày kết thúc là bắt buộc!" }]}
           >
-            <DatePicker style={{ width: "100%" }} format="DD-MM-YYYY" />
+             <DatePicker
+              style={{ width: "100%" }}
+              format="YYYY-MM-DD HH:mm:ss"
+              showTime={{ defaultValue: dayjs("00:00:00", "HH:mm:ss") }}
+            />
           </Form.Item>
 
           <Form.Item<FieldType>

@@ -1,5 +1,3 @@
-/**@jsxImportSource @emotion/react */
-
 import {
   DeleteOutlined,
   EditOutlined,
@@ -69,7 +67,7 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       const productResponse = await ProductService.getProducts();
-
+    console.log("Fetched product:", productResponse.data);
       setProducts(productResponse.data || []);
     })();
   }, []);
@@ -582,3 +580,4 @@ const ProductPage: React.FC = () => {
 };
 
 export default ProductPage;
+

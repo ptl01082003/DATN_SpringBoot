@@ -2,13 +2,24 @@
 
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
-const API_URL = "/styles"; // Đảm bảo rằng URL này phù hợp với địa chỉ API của bạn
+import { KEY_STORAGE } from "../constants";
+
+const API_URL = "/styles"; 
 
 const StyleService = {
   // Lấy danh sách tất cả màu sắc
   getStyles: async () => {
     try {
-      const response = await AxiosClient.post<any, Response<any>>(API_URL);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(
+        API_URL,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response;
     } catch (error) {
       console.error("Lỗi khi lấy danh sách màu sắc", error);
@@ -19,8 +30,15 @@ const StyleService = {
   // Lấy một màu sắc dựa trên ID
   getStyleById: async (styleID: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/${styleID}`
+        `${API_URL}/${styleID}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -32,9 +50,15 @@ const StyleService = {
   // Tạo mới một màu sắc
   createStyle: async (styleData: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/create`,
-        styleData
+        styleData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -43,29 +67,43 @@ const StyleService = {
     }
   },
 
-  // Cập nhật thông tin một màu sắc đã có
-  updateStyle: async (styleID: number, styleData: any) => {
+  // Cập nhật thông tin màu sắc
+  updateStyle: async (params: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/edit/${styleID}`,
-        styleData
+        `${API_URL}/edit`,
+        params,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
-      console.error(`Lỗi khi cập nhật màu sắc ${styleID}`, error);
+      console.error("Lỗi khi cập nhật màu sắc", error);
       throw error;
     }
   },
 
   // Xóa một màu sắc dựa trên ID
-  deleteStyle: async (styleID: number) => {
+  deleteStyle: async (styleId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/remove/${styleID}`
+        `${API_URL}/remove`,
+        null,
+        {
+          params: { styleId },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
-      console.error(`Lỗi khi xóa màu sắc ${styleID}`, error);
+      console.error(`Lỗi khi xóa màu sắc ${styleId}`, error);
       throw error;
     }
   },

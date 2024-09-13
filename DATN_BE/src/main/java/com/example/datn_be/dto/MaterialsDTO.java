@@ -1,18 +1,19 @@
 package com.example.datn_be.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Data
 public class MaterialsDTO {
 
     private Integer materialId;
     private String name;
-
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }

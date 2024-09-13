@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,5 +20,6 @@ public class ShoppingCartsDTO {
     private Integer userId;
     private List<CartItemsDTO> cartItems;
 
-
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
