@@ -12,7 +12,6 @@
 
     import java.time.LocalDate;
     import java.time.LocalDateTime;
-    import java.util.Optional;
     import java.util.Random;
 
     @AllArgsConstructor
@@ -24,6 +23,11 @@
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @EntityListeners(AuditingEntityListener.class)
     public class Users {
+
+        public enum UserStatus {
+            LAM_VIEC,
+            NGHI_VIEC,
+        }
 
 
         @Id
@@ -48,6 +52,9 @@
 
         @Column(name = "fullName", nullable = false)
         private String fullName;
+
+        @Column(name = "status", nullable = false)
+        private UserStatus status;
 
         @Column(name = "createdAt")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

@@ -10,9 +10,9 @@ export const AxiosConfig = {
   },
 };
 
-const AxiosClient = Axios.create(AxiosConfig);
+const AxiosRequest = Axios.create(AxiosConfig);
 
-AxiosClient.interceptors.request.use(
+AxiosRequest.interceptors.request.use(
   function (config) {
     const token = localStorage.getItem(KEY_STORAGE.TOKEN);
     config.data = { ...config.data };
@@ -26,7 +26,7 @@ AxiosClient.interceptors.request.use(
   }
 );
 
-AxiosClient.interceptors.response.use(
+AxiosRequest.interceptors.response.use(
   async function (response) {
     const { code } = response.data;
 
@@ -67,4 +67,4 @@ AxiosClient.interceptors.response.use(
   }
 );
 
-export default AxiosClient;
+export default AxiosRequest;

@@ -72,11 +72,15 @@ public class UserController {
         }
     }
 
+
     @PostMapping("/update")
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<UsersDTO> updateUser(@RequestParam Integer id, @RequestBody UsersDTO userDto) {
+    public ResponseEntity<UsersDTO> updateUser(
+            @RequestParam("id") Integer id,
+            @RequestBody UsersDTO userDTO) {
+        System.out.println("Received ID: " + id);
+        System.out.println("Received UserDTO: " + userDTO);
         try {
-            UsersDTO updatedUser = userService.updateUser(id, userDto);
+            UsersDTO updatedUser = userService.updateUser(id, userDTO);
             return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
             log.error("Error updating user: ", e);

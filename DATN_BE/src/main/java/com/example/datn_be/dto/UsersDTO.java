@@ -23,6 +23,7 @@ public class UsersDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birth;
     private String fullName;
+    private String status;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

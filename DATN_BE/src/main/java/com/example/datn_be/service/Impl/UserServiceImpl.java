@@ -110,6 +110,7 @@ public class UserServiceImpl implements UserService {
         user.setPhone(userDto.getPhone());
         user.setPassword(passwordEncoder.encode(userDto.getPassword())); // Mã hóa mật khẩu
         user.setFullName(userDto.getFullName());
+        user.setFullName(userDto.getStatus());
         user.setBirth(userDto.getBirth());
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
@@ -145,6 +146,7 @@ public class UserServiceImpl implements UserService {
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
         user.setFullName(userDto.getFullName());
+        user.setFullName(userDto.getStatus());
         user.setBirth(userDto.getBirth());
         user.setUpdatedAt(LocalDateTime.now());
 
@@ -175,6 +177,7 @@ public class UserServiceImpl implements UserService {
         userDto.setPhone(user.getPhone());
         userDto.setPassword(user.getPassword());
         userDto.setFullName(user.getFullName());
+        userDto.setStatus(String.valueOf(user.getStatus()));
         userDto.setBirth(user.getBirth());
         userDto.setCreatedAt(user.getCreatedAt());
         userDto.setUpdatedAt(user.getUpdatedAt());
