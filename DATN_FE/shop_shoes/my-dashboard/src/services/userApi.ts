@@ -13,6 +13,7 @@ const UserService = {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log(response);  
       return response;
     } catch (error) {
       console.error("Error fetching users", error);
@@ -60,13 +61,12 @@ const UserService = {
     }
   },
 
-  // Cập nhật thông tin người dùng
   updateUser: async (userId: number, userData: any) => {
     try {
       const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/update`,
-        { id: userId, ...userData }, // Truyền id và dữ liệu cập nhật
+        `${API_URL}/update?id=${userId}`, 
+        userData, 
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -79,8 +79,6 @@ const UserService = {
       throw error;
     }
   },
-
-
   // Xóa người dùng
   deleteUser: async (userId: number) => {
     try {

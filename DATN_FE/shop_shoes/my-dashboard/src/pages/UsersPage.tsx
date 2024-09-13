@@ -1,21 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  FileAddTwoTone,
-} from "@ant-design/icons";
-import {
-  Button,
-  Drawer,
-  Form,
-  Input,
-  Select,
-  Space,
-  Switch,
-  Table,
-  message,
-  DatePicker,
-} from "antd";
+import { DeleteOutlined, EditOutlined, FileAddTwoTone } from "@ant-design/icons";
+import { Button, Drawer, Form, Input, Select, Space, Switch, Table, message, DatePicker } from "antd";
 import { toast } from "react-toastify";
 import UserService from "../services/userApi";
 import dayjs from "dayjs";
@@ -49,8 +34,16 @@ const UserPage: React.FC = () => {
     (async () => {
       try {
         const userResponse = await UserService.getUsers();
-        setUsers(userResponse.data || []);
+        console.log('Full Response:', userResponse);  // Log toàn bộ phản hồi
+  
+        // Xử lý phản hồi trực tiếp nếu đó là mảng
+        if (Array.isArray(userResponse)) {
+          setUsers(userResponse);
+        } else {
+          console.error("Dữ liệu phản hồi không phải là mảng", userResponse);
+        }
       } catch (error) {
+        console.error("Có lỗi xảy ra khi tải người dùng", error);
         toast.error("Có lỗi xảy ra khi tải người dùng.");
       }
     })();
@@ -59,11 +52,8 @@ const UserPage: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
       let response;
-      // Convert date to string before sending
       const birth = values.birth?.format('YYYY-MM-DD');
       const data = { ...values, birth };
-
-      // Remove empty password field if updating
       if (!data.password) delete data.password;
 
       if (modalInfo.mode === "create") {
@@ -79,7 +69,7 @@ const UserPage: React.FC = () => {
         }
       }
 
-      if (response) {
+      if (response && response.data) {
         setModalInfo({ open: false, mode: modalInfo.mode });
         setUsers((prev) =>
           modalInfo.mode === "create"
@@ -107,22 +97,25 @@ const UserPage: React.FC = () => {
   };
 
   const handleEditUser = (user: User) => {
-    setModalInfo({
-      open: true,
-      mode: "edit",
-      data: user,
-    });
-    form.setFieldsValue({
-      userName: user.userName,
-      email: user.email,
-      phone: user.phone,
-      fullName: user.fullName,
-      birth: user.birth ? dayjs(user.birth) : null,
-      roles: user.roles,
-      status: user.status,
-      // Don't set the password if editing
-      password: undefined,
-    });
+    if (user && user.userId !== undefined) {
+      setModalInfo({
+        open: true,
+        mode: "edit",
+        data: user,
+      });
+      form.setFieldsValue({
+        userName: user.userName,
+        email: user.email,
+        phone: user.phone,
+        fullName: user.fullName,
+        birth: user.birth ? dayjs(user.birth) : null,
+        roles: user.roles,
+        status: user.status,  
+        password: '',  
+      }); 
+    } else {
+      console.error("Invalid user data:", user);
+    }
   };
 
   const columns = [
@@ -130,6 +123,7 @@ const UserPage: React.FC = () => {
       title: "Mã người dùng",
       dataIndex: "userId",
       key: "userId",
+      render: (userId: number) => userId || 'N/A', // Safeguard
     },
     {
       title: "Tên người dùng",
@@ -155,6 +149,7 @@ const UserPage: React.FC = () => {
       title: "Ngày sinh",
       dataIndex: "birth",
       key: "birth",
+      render: (birth: string) => dayjs(birth).format('DD-MM-YYYY'),
     },
     {
       title: "Vai trò",
@@ -166,7 +161,7 @@ const UserPage: React.FC = () => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status: boolean) => (status ? "Kích hoạt" : "Ngừng hoạt động"),
+      render: (status: boolean) => (status ? "Làm việc" : "Nghỉ việc"),
     },
     {
       title: "Hành động",
@@ -253,8 +248,8 @@ const UserPage: React.FC = () => {
             rules={[{ required: true, message: "Vai trò không được để trống" }]}
           >
             <Select placeholder="Chọn vai trò" mode="multiple">
-              <Option value="admin">Quản trị viên</Option>
-              <Option value="user">Người dùng</Option>
+              <Option value="ADMIN">Quản trị viên</Option>
+              <Option value="MEMBERSHIP">Nhân Viên</Option>
             </Select>
           </Form.Item>
           <Form.Item
