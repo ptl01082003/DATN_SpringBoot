@@ -15,7 +15,6 @@ public class RolesDTO {
 
     private Integer roleId;
     private String type;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

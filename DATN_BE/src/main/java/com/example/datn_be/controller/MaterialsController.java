@@ -6,6 +6,7 @@ import com.example.datn_be.service.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class MaterialsController {
     MaterialService materialService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> createMaterial(@RequestBody MaterialsDTO materialsDTO){
         try {
             Materials materials=materialService.addMaterials(materialsDTO);
@@ -35,6 +37,7 @@ public class MaterialsController {
     }
 
         @PostMapping("")
+        @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
         public ResponseEntity<?> getMaterials() {
             try {
                 List<Materials> materials = materialService.getMaterials();
@@ -51,6 +54,7 @@ public class MaterialsController {
         }
 
     @PostMapping("/getById")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getById(@RequestBody Map<String, Integer> request) {
         try {
             Integer material = request.get("materialId");
@@ -74,6 +78,7 @@ public class MaterialsController {
         }
     }
     @PostMapping("/edit")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> updateMaterial(@RequestBody MaterialsDTO materialsDTO) {
         try {
             Materials updateMaterial = materialService.updateMaterial(materialsDTO);
@@ -97,6 +102,7 @@ public class MaterialsController {
     }
 
     @PostMapping("/remove")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<Map<String, Object>> deleteMaterial(@RequestParam("materialId") Integer materialId) {
         if (materialId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "brandId không được để trống"));

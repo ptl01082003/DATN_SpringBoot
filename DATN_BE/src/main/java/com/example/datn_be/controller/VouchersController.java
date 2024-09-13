@@ -24,7 +24,7 @@ public class VouchersController {
     private VouchersService voucherService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> addVoucher(@RequestBody VouchersDTO voucherDTO) {
         try {
             VouchersDTO voucher = voucherService.createVoucher(voucherDTO);
@@ -41,6 +41,7 @@ public class VouchersController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getVouchers() {
         try {
             List<VouchersDTO> vouchers = voucherService.getAllVouchers();
@@ -57,7 +58,7 @@ public class VouchersController {
     }
 
     @PostMapping("/getById")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getById(@RequestBody Map<String, Integer> request) {
         try {
             Integer voucherId = request.get("voucherId");
@@ -82,7 +83,7 @@ public class VouchersController {
     }
 
     @PostMapping("/edit")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> updateVoucher(@RequestBody VouchersDTO voucherDTO) {
         try {
             // Lấy ID từ đối tượng voucherDTO
@@ -108,8 +109,9 @@ public class VouchersController {
         }
     }
     private static final Logger logger = LoggerFactory.getLogger(VouchersController.class);
-    @PreAuthorize("hasRole('ADMIN')")
+
     @PostMapping("/remove")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<Map<String, Object>> deleteVoucher(@RequestParam("voucherId") Integer voucherId) {
         logger.info("Attempting to delete voucher with ID: " + voucherId);
         if (voucherId == null) {

@@ -10,6 +10,7 @@ import com.example.datn_be.service.StyleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class StyleController {
     StyleService styleService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> createStyle(@RequestBody StylesDTO stylesDTO){
         try {
             Styles styles=styleService.addStyles(stylesDTO);
@@ -38,6 +40,7 @@ public class StyleController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getStyle() {
         try {
             List<Styles> styles = styleService.getStyle();
@@ -54,6 +57,7 @@ public class StyleController {
     }
 
     @PostMapping("/getById")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getById(@RequestBody Map<String, Integer> request) {
         try {
             Integer style = request.get("styleId");
@@ -78,6 +82,7 @@ public class StyleController {
     }
 
     @PostMapping("/edit")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> updateStyle(@RequestBody StylesDTO stylesDTO) {
         try {
             Styles updatedStyle = styleService.updateStyle(stylesDTO);
@@ -102,6 +107,7 @@ public class StyleController {
 
 
     @PostMapping("/remove")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<Map<String, Object>> deleteMaterial(@RequestParam("styleId") Integer styleId) {
         if (styleId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "styleId không được để trống"));

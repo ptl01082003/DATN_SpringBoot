@@ -6,6 +6,7 @@ import com.example.datn_be.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ProductController {
 
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> addProduct(@RequestBody ProductsDTO productDTO) {
         try {
             Products product = productService.addProduct(productDTO);
@@ -37,6 +39,7 @@ public class ProductController {
 
 
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getProducts() {
         try {
             List<Products> products = productService.getProducts();
@@ -54,6 +57,7 @@ public class ProductController {
 
 
     @PostMapping("/list")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getLstProducts(@RequestBody Map<String, Object> request) {
         try {
             List<Products> products = productService.getLstProducts(request);
@@ -71,6 +75,7 @@ public class ProductController {
 
     // Lấy chi tiết sản phẩm theo mã sản phẩm (sử dụng POST theo yêu cầu)
     @PostMapping("/details")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getProductDetails(@RequestBody Map<String, String> request) {
         try {
             String code = request.get("code");
@@ -96,6 +101,7 @@ public class ProductController {
 
     // Cập nhật sản phẩm (sử dụng POST theo yêu cầu)
     @PostMapping("/update")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> updateProduct(@RequestBody ProductsDTO productDTO) {
         try {
             Products updatedProduct = productService.updateProduct(productDTO);
@@ -120,6 +126,7 @@ public class ProductController {
 
 
     @PostMapping("/remove")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> deleteProduct(@RequestBody Map<String, Integer> request) {
         try {
             Integer productId = request.get("productId");
@@ -145,6 +152,7 @@ public class ProductController {
 
     // Lấy sản phẩm có khuyến mãi (sử dụng POST theo yêu cầu)
     @PostMapping("/discounted")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getDiscountedProducts() {
         try {
             List<Products> products = productService.getDiscountedProducts();

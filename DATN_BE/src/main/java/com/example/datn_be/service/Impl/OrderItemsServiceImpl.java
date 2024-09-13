@@ -6,16 +6,12 @@ import com.example.datn_be.entity.PaymentDetails;
 import com.example.datn_be.respository.OrderItemsRepository;
 import com.example.datn_be.respository.PaymentDetailsRepository;
 import com.example.datn_be.service.OrderItemsService;
-import com.example.datn_be.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderItemsServiceImpl implements OrderItemsService {
@@ -44,8 +40,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
                 orderItems = orderItemsRepository.findAll();
             }
         } catch (Exception e) {
-            // Xử lý lỗi nếu có
-            e.printStackTrace(); // In lỗi để kiểm tra
+            e.printStackTrace();
             return new ArrayList<>();
         }
 
@@ -74,7 +69,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
             // Tạo DTO cho từng đơn hàng
             OrderItemsDTO dto = new OrderItemsDTO(
                     orders.getOrderItemId(),
-                    orders.getAmount() != null ? orders.getAmount().intValue() : 0,
+                    (double) (orders.getAmount() != null ? orders.getAmount().intValue() : 0),
                     statusName,
                     returnStatusName,
                     productPrice,
@@ -96,7 +91,6 @@ public class OrderItemsServiceImpl implements OrderItemsService {
 
             response.add(dto);
         }
-
         return response;
     }
 
@@ -116,4 +110,54 @@ public class OrderItemsServiceImpl implements OrderItemsService {
             return false;
         }
     }
+    @Override
+    public List<Object[]> countOrderByYear(int year) {
+        return orderItemsRepository.countOrderByYear(year);
+    }
+
+    @Override
+    public List<Object[]> turnoverByYear(int year) {
+        return orderItemsRepository.turnoverByYear(year);
+    }
+
+    @Override
+    public List<Object[]> countOrderByTime(String begin, String end) {
+        return orderItemsRepository.countOrderByTime(begin, end);
+    }
+
+    @Override
+    public long countByWaitingForConfirmation() {
+        return orderItemsRepository.countByWaitingForConfirmation();
+    }
+
+    @Override
+    public long countByDelivered() {
+        return orderItemsRepository.countByDelivered();
+    }
+
+    @Override
+    public long countByCanceled() {
+        return orderItemsRepository.countByCanceled();
+    }
+
+    @Override
+    public Long countSoldItems() {
+        return orderItemsRepository.countSoldItems();
+    }
+
+    @Override
+    public List<OrderItems> findByTime(String beginDate, String endDate) {
+        return orderItemsRepository.findByTime(beginDate, endDate);
+    }
+
+    @Override
+    public List<OrderItems> getOrderByTotalMoney(double totalBegin, double totalEnd) {
+        return orderItemsRepository.getOrderByTotalMoney(totalBegin, totalEnd);
+    }
+
+    @Override
+    public List<Object[]> countOrdersByDay(int month, int year) {
+        return orderItemsRepository.countOrdersByDay(month, year);
+    }
+
 }

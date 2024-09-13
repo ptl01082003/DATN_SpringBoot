@@ -2,19 +2,24 @@
 
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
+import { KEY_STORAGE } from "../constants";
 const API_URL = "/brands"; // Đảm bảo rằng URL tương ứng với API của bạn
 
 const BrandService = {
   getBrands: async () => {
     try {
-      const response = await AxiosClient.post<any, Response<any>>(API_URL);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(API_URL, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Gửi token lên backend
+        },
+      });
       return response;
     } catch (error) {
       console.error("Error fetching brands", error);
       throw error;
     }
   },
-
   getBrandById: async (brandId: number) => {
     try {
       const response = await AxiosClient.post<any, Response<any>>(

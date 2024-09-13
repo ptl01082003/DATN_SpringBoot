@@ -1,18 +1,24 @@
 package com.example.datn_be.utils;
 
 import com.example.datn_be.entity.Users;
+import com.example.datn_be.service.RedisService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
 
@@ -24,6 +30,12 @@ public class JwtTokenProvider {
 
     @Value("${app.jwtRefreshSecret}")
     private String jwtRefreshSecret;
+
+    private final RedisService redisService;
+
+    public JwtTokenProvider(RedisService redisService) {
+        this.redisService = redisService;
+    }
 
     private Key getKeyForAccessToken() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
@@ -37,8 +49,11 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getUserId());
+
         return Jwts.builder()
-                .setSubject(Integer.toString(user.getUserId()))
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getKeyForAccessToken(), SignatureAlgorithm.HS512)
@@ -49,8 +64,11 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs * 2);
 
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getUserId());
+
         return Jwts.builder()
-                .setSubject(Integer.toString(user.getUserId()))
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getKeyForRefreshToken(), SignatureAlgorithm.HS512)
@@ -62,33 +80,22 @@ public class JwtTokenProvider {
             Jwts.parserBuilder().setSigningKey(getKeyForAccessToken()).build().parseClaimsJws(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
-            // Log error details if needed
+            log.error("Invalid JWT token: {}", ex.getMessage());
             return false;
         }
-    }
-
-    public boolean validateRefreshToken(String refreshToken) {
-        try {
-            Jwts.parserBuilder().setSigningKey(getKeyForRefreshToken()).build().parseClaimsJws(refreshToken);
-            return true;
-        } catch (JwtException | IllegalArgumentException ex) {
-            // Log error details if needed
-            return false;
-        }
-    }
-
-    private Claims getClaims(String token, Key key) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
     public Integer getUserIdFromToken(String token) {
-        Claims claims = getClaims(token, getKeyForAccessToken());
-        return Integer.parseInt(claims.getSubject());
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getKeyForAccessToken())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return (Integer) claims.get("userId");
     }
 
-    public Integer getUserIdFromRefreshToken(String token) {
-        Claims claims = getClaims(token, getKeyForRefreshToken());
-        return Integer.parseInt(claims.getSubject());
+    public void saveUserRoles(Users user, Set<String> roles) {
+        redisService.saveUserRoles(user.getUserId(), roles);
     }
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -99,5 +106,15 @@ public class JwtTokenProvider {
 
     public boolean checkPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            Jwts.parserBuilder().setSigningKey(getKeyForRefreshToken()).build().parseClaimsJws(refreshToken);
+            return true;
+        } catch (JwtException | IllegalArgumentException ex) {
+            log.error("Invalid refresh JWT token: {}", ex.getMessage());
+            return false;
+        }
     }
 }

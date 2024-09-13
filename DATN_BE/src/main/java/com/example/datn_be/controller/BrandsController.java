@@ -6,6 +6,7 @@ import com.example.datn_be.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class BrandsController {
 
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> addBrand(@RequestBody BrandsDTO brandDTO) {
         try {
             Brands brand = brandService.addBrand(brandDTO);
@@ -35,15 +37,14 @@ public class BrandsController {
         }
     }
 
-
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getBrands() {
         try {
             List<Brands> brands = brandService.getBrands();
             return new ResponseEntity<>(
                     Map.of("message", "Thực hiện thành công", "data", brands),
                     HttpStatus.OK
-
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -53,8 +54,8 @@ public class BrandsController {
         }
     }
 
-
     @PostMapping("/getById")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getById(@RequestBody Map<String, Integer> request) {
         try {
             Integer brandId = request.get("brandId");
@@ -80,6 +81,7 @@ public class BrandsController {
 
 
     @PostMapping("/edit")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> updateBrand(@RequestBody BrandsDTO brandDTO) {
         try {
             Brands updatedBrand = brandService.updateBrand(brandDTO);
@@ -103,6 +105,7 @@ public class BrandsController {
     }
 
     @PostMapping("/remove")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<Map<String, Object>> deleteBrand(@RequestParam("brandId") Integer brandId) {
         if (brandId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "brandId không được để trống"));

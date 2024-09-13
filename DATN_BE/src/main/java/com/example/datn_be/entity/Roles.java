@@ -45,4 +45,8 @@ public class Roles {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
+    public String getName() {
+        return type != null ? type.name() : null;
+    }
+
 }

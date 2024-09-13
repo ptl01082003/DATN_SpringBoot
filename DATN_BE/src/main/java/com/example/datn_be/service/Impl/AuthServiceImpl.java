@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -23,6 +24,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider; // Inject JwtTokenProvider để xử lý token JWT
+    @Autowired
+    private RedisServiceImpl redisServiceImpl;
 
 
     @Transactional
@@ -71,24 +74,37 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-
     @Transactional
     @Override
     public ResponseEntity<ApiResponse> loginDashboard(AuthRequest request) {
-        // Tìm người dùng theo tên người dùng
+        // Find user by username
         Optional<Users> userOpt = userRepository.findByUserName(request.getUserName());
         if (userOpt.isPresent()) {
             Users user = userOpt.get();
-            // Kiểm tra mật khẩu
+            // Check password
             if (jwtTokenProvider.checkPassword(request.getPassword(), user.getPassword())) {
-                // Kiểm tra vai trò người dùng
+                // Check user role
                 if (user.getRoles().getType() == Roles.RoleTypes.USER) {
                     return ResponseEntity.badRequest()
                             .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Không có quyền truy cập"));
                 }
+
+                // Generate access and refresh tokens
+                String accessToken = jwtTokenProvider.generateAccessToken(user);
+                String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+
+                // Get the role name
+                String roleName = user.getRoles().getName();
+
+                // Save user roles to Redis
+                redisServiceImpl.saveUserRoles(user.getUserId(), Collections.singleton(roleName));
+
+                // Create response
                 AuthResponse response = new AuthResponse();
-                response.setAccessToken(jwtTokenProvider.generateAccessToken(user)); // Tạo token truy cập
-                response.setRefreshToken(jwtTokenProvider.generateRefreshToken(user)); // Tạo token làm mới
+                response.setAccessToken(accessToken);
+                response.setRefreshToken(refreshToken);
+                response.setUserId(user.getUserId());
+
                 return ResponseEntity.ok(ApiResponse.success(response, "Thực hiện thành công"));
             } else {
                 return ResponseEntity.badRequest()
@@ -99,6 +115,35 @@ public class AuthServiceImpl implements AuthService {
                     .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Tài khoản không tồn tại"));
         }
     }
+
+//    @Transactional
+//    @Override
+//    public ResponseEntity<ApiResponse> loginDashboard(AuthRequest request) {
+//        // Tìm người dùng theo tên người dùng
+//        Optional<Users> userOpt = userRepository.findByUserName(request.getUserName());
+//        if (userOpt.isPresent()) {
+//            Users user = userOpt.get();
+//            // Kiểm tra mật khẩu
+//            if (jwtTokenProvider.checkPassword(request.getPassword(), user.getPassword())) {
+//                // Kiểm tra vai trò người dùng
+//                if (user.getRoles().getType() == Roles.RoleTypes.USER) {
+//                    return ResponseEntity.badRequest()
+//                            .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Không có quyền truy cập"));
+//                }
+//                AuthResponse response = new AuthResponse();
+//                response.setAccessToken(jwtTokenProvider.generateAccessToken(user)); // Tạo token truy cập
+//                response.setRefreshToken(jwtTokenProvider.generateRefreshToken(user)); // Tạo token làm mới
+//                response.setUserId(user.getUserId());
+//                return ResponseEntity.ok(ApiResponse.success(response, "Thực hiện thành công"));
+//            } else {
+//                return ResponseEntity.badRequest()
+//                        .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Tài khoản hoặc mật khẩu không đúng"));
+//            }
+//        } else {
+//            return ResponseEntity.badRequest()
+//                    .body(ApiResponse.error(ApiResponse.ResponseCode.ERRORS, "Tài khoản không tồn tại"));
+//        }
+//    }
 
 
     @Transactional

@@ -180,7 +180,7 @@ const DeliveredOrders: React.FC<DeliveredOrdersProps> = ({ orders, setShouldRend
           <svg width="25px" height="25px" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* SVG path */}
           </svg>
-          <span>Chuyển sang CHỜ GIAO HÀNG</span>
+          <span>Xác nhận</span>
         </button>
         {previewImage && (
           <Image
@@ -207,7 +207,7 @@ const DeliveredOrders: React.FC<DeliveredOrdersProps> = ({ orders, setShouldRend
     amount: number;
     priceDiscount: number;
     price: number;
-    quantity: number;
+    quanity: number;
     sizeName: string;
   }
   
@@ -220,6 +220,7 @@ const DeliveredOrders: React.FC<DeliveredOrdersProps> = ({ orders, setShouldRend
       (async () => {
         try {
           const url = `/orders/lst-orders?status=${encodeURIComponent(orderStatus)}`;
+          // const url = `/orders/lst-orders?status=${encodeURIComponent(orderStatus)}`;
           const response = await AxiosRequest.post(url);
   
           if (Array.isArray(response)) {
@@ -262,10 +263,7 @@ const DeliveredOrders: React.FC<DeliveredOrdersProps> = ({ orders, setShouldRend
     };
     const renderActionByOrderStatus = (order: Order) => {
       switch (orderStatus) {
-        case ODER_STATUS.DA_GIAO:
-          return (
-            <DeliveredOrders orders={order} setShouldRender={setShouldRender} />
-          );
+        
         case ODER_STATUS.CHO_XAC_NHAN:
           return (
             <button
@@ -273,10 +271,38 @@ const DeliveredOrders: React.FC<DeliveredOrdersProps> = ({ orders, setShouldRend
               className="flex space-x-2 mt-8 items-center px-5 hover:bg-slate-100 py-2 rounded-lg border border-[#344054]"
             >
               <svg width="25px" height="25px" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* SVG path */}
+                
               </svg>
-              <span>Chuyển sang CHỜ GIAO HÀNG</span>
+              <span>Xác nhận</span>
             </button>
+          );
+          case ODER_STATUS.CHO_LAY_HANG:
+          return (
+            <button
+              onClick={() => updateOrderStatus(order.orderItemId, ODER_STATUS.CHO_GIAO_HANG)}
+              className="flex space-x-2 mt-8 items-center px-5 hover:bg-slate-100 py-2 rounded-lg border border-[#344054]"
+            >
+              <svg width="25px" height="25px" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+           
+              </svg>
+              <span>Xác nhận</span>
+            </button>
+          );
+          case ODER_STATUS.CHO_GIAO_HANG:
+            return (
+              <button
+                onClick={() => updateOrderStatus(order.orderItemId, ODER_STATUS.DA_GIAO)}
+                className="flex space-x-2 mt-8 items-center px-5 hover:bg-slate-100 py-2 rounded-lg border border-[#344054]"
+              >
+                <svg width="25px" height="25px" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+             
+                </svg>
+                <span>Xác nhận</span>
+              </button>
+            );
+            case ODER_STATUS.DA_GIAO:
+          return (
+            <DeliveredOrders orders={order} setShouldRender={setShouldRender} />
           );
         default:
           return null;
@@ -309,13 +335,13 @@ const DeliveredOrders: React.FC<DeliveredOrdersProps> = ({ orders, setShouldRend
                     </div>
                     {order.priceDiscount === order.price ? (
                       <h1 className="mb-2 text-xl">
-                        <span>{order.quantity} x </span>
+                        <span>{order.quanity} x </span>
                         {TRANSFER_PRICE(order.price)}
                       </h1>
                     ) : (
                       <div className="flex items-center mb-2 space-x-4">
                         <h1 className="text-xl">
-                          <span>{order.quantity} x </span>
+                          <span>{order.quanity} x </span>
                           {TRANSFER_PRICE(order.priceDiscount)}
                         </h1>
                         <h1 className="text-lg line-through">

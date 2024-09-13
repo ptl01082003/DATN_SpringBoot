@@ -1,72 +1,147 @@
-package com.example.datn_be.config;
-
-import com.example.datn_be.config.security.JwtAuthenticationFilter;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
-
+//
+//package com.example.datn_be.config;
+//
+//import com.example.datn_be.config.security.JwtAuthenticationFilter;
+//import com.example.datn_be.entity.Roles;
+//import com.example.datn_be.service.UserService;
+//import com.example.datn_be.utils.JwtTokenProvider;
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.context.annotation.Configuration;
+//import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+//import org.springframework.security.config.annotation.web.builders.WebSecurity;
+//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+//import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+//import org.springframework.security.config.http.SessionCreationPolicy;
+//import org.springframework.security.web.SecurityFilterChain;
+//import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+//import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+//import org.springframework.security.crypto.password.PasswordEncoder;
+//
+//@Configuration
+//@EnableWebSecurity
+//@EnableMethodSecurity
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
+//public class SecurityConfig {
+//
+//    private final JwtTokenProvider jwtTokenProvider;
+//    private final UserService userService;
+//
+//    public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserService userService) {
+//        this.jwtTokenProvider = jwtTokenProvider;
+//        this.userService = userService;
+//    }
+//
+//    @Bean
+//    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+//        return new JwtAuthenticationFilter(jwtTokenProvider, userService);
+//    }
+//
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //        http
-//                .csrf(csrf -> csrf.disable()) // Tắt CSRF (nếu không cần thiết)
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/api/v1/**", "/api/vouchers/remove").permitAll()// Cho phép tất cả các yêu cầu tới /api/v1/**
-//                        .anyRequest().authenticated() // Các yêu cầu khác cần xác thực
+//                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+//                                .requestMatchers("/api/v1/auth/[**").permitAll()
+////                        .requestMatchers("/users/get-info").authenticated()
+////                                .requestMatchers("/api/v1/brands/[**").hasAnyRole("ADMIN")
+//                                .requestMatchers("/api/v1/brands/**").authenticated()
+//                                .requestMatchers("/**").permitAll()
+////
+////                              .requestMatchers("/api/v1/orders/[**").hasAnyRole("ADMIN", "MEMBERSHIP")
+////                                .requestMatchers("/api/v1/products/[**").hasAnyRole("ADMIN", "MEMBERSHIP")
+////                                .requestMatchers("/api/v1/brands/[**").hasAnyRole("ADMIN", "MEMBERSHIP")
+////                                .requestMatchers("/api/v1/materials/[**").hasAnyRole("ADMIN", "MEMBERSHIP")
+////                                .requestMatchers("/api/v1/origins/[**").hasAnyRole("ADMIN", "MEMBERSHIP")
+////                                .requestMatchers("/api/v1/promotions/[**").hasAnyRole("ADMIN", "MEMBERSHIP")
+////                                .requestMatchers("/api/v1/sizes/[**").hasAnyRole("ADMIN", "MEMBERSHIP")
+////                                .requestMatchers("/api/v1/styles/[**").hasAnyRole("ADMIN", "MEMBERSHIP")
+////                                .requestMatchers("/api/v1/vouchers/[**").hasAnyRole("ADMIN", "MEMBERSHIP")
+////                                .requestMatchers("/api/v1/users/[**").hasAnyRole("ADMIN")
+////                        .requestMatchers("/api/v1/users/get-info").permitAll()
+//
+//                                .anyRequest().authenticated()
 //                )
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Không sử dụng session
+//                .csrf(csrf -> csrf.disable())
+//                .sessionManagement(sessionManagement -> sessionManagement
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                )
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 //
 //        return http.build();
 //    }
+//
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+//}
 
 
-        @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-            http
-                    .cors(Customizer.withDefaults())
-                    .csrf(csrf -> csrf.disable())
-                    .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/v1/**").permitAll()
-                            .anyRequest().authenticated()
-                    )
-                    .sessionManagement(session -> session
-                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    )
-                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+package com.example.datn_be.config;
 
-            return http.build();
-        }
+import com.example.datn_be.config.security.JwtAuthenticationFilter;
+import com.example.datn_be.service.RedisService;
+import com.example.datn_be.service.UserService;
+import com.example.datn_be.utils.JwtTokenProvider;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SecurityConfig {
+
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
+    private final RedisService redisService;
+
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserService userService, RedisService redisService) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userService = userService;
+        this.redisService = redisService;
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider, userService, redisService);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                                .requestMatchers("/api/v1/auth/**").permitAll() // Public endpoints
+                                .requestMatchers("/api/v1/promotions/**").hasRole("ADMIN") // Requires ADMIN role
+                                .requestMatchers("/api/v1/brands/**").hasAnyRole("ADMIN", "MEMBERSHIP") // Requires ADMIN or MEMBERSHIP role // Requires authentication
+
+//                        .requestMatchers("/api/v1/brands/**").hasRole("ADMIN")
+//                        .requestMatchers("/api/v1/products/**").hasRole("ADMIN")
 
 
+                )
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Sử dụng bcrypt để mã hóa mật khẩu
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+        return new BCryptPasswordEncoder();
     }
 }
+

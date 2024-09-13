@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class OrderItemsDTO {
     private Integer orderItemId;
     private String name;
-    private int amount;
+    private Double amount;
     private String status;
     private String returnStatus;
     private BigDecimal price;
@@ -36,7 +36,7 @@ public class OrderItemsDTO {
     private Integer quanityLimit;
 
     // Constructor
-    public OrderItemsDTO(Integer orderItemId, int amount, String status, String returnStatus, BigDecimal price,
+    public OrderItemsDTO(Integer orderItemId, Double amount, String status, String returnStatus, BigDecimal price,
                          BigDecimal priceDiscount, Integer userId, Boolean isReview, Integer quanity,
                          Integer productDetailId, Integer orderDetailId, LocalDateTime createdAt,
                          LocalDateTime updatedAt, Integer productId, String path, Integer sizeName, Integer quanityLimit,String code,String name) {

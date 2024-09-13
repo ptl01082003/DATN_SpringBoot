@@ -27,6 +27,7 @@ public class AuthController {
     @PostMapping("/login-dashboard")
     public ResponseEntity<ApiResponse> loginDashboard(@RequestBody AuthRequest request) {
         return authService.loginDashboard(request);
+
     }
 
     @PostMapping("/logout")

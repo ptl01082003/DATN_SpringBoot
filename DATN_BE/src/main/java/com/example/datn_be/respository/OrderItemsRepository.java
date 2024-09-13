@@ -1,6 +1,5 @@
 package com.example.datn_be.respository;
 
-
 import com.example.datn_be.entity.OrderItems;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +13,9 @@ public interface OrderItemsRepository extends JpaRepository<OrderItems, Integer>
 
     // Lấy danh sách OrderItems theo trạng thái
     List<OrderItems> findByStatus(OrderItems.ORDER_STATUS status);
+
     OrderItems findByOrderItemId(Integer orderItemId);
+
     // Thống kê số lượng đơn hàng các tháng theo năm
     @Query(value = "SELECT MONTH(createdAt) as month, COUNT(orderItemId) as total FROM order_items " +
             "WHERE YEAR(createdAt) = :year " +
@@ -23,7 +24,7 @@ public interface OrderItemsRepository extends JpaRepository<OrderItems, Integer>
     List<Object[]> countOrderByYear(@Param("year") int year);
 
     // Thống kê doanh thu các tháng
-    @Query(value = "SELECT MONTH(o.createdAt) as month, SUM(oi.amount * oi.price) as total " +
+    @Query(value = "SELECT MONTH(o.createdAt) as month, SUM(oi.quanity * oi.price) as total " +
             "FROM order_items oi " +
             "JOIN order_details o ON oi.orderDetailId = o.orderDetailId " +
             "WHERE YEAR(o.createdAt) = :year " +
@@ -40,21 +41,23 @@ public interface OrderItemsRepository extends JpaRepository<OrderItems, Integer>
             "ORDER BY MONTH(o.createdAt) ASC", nativeQuery = true)
     List<Object[]> countOrderByTime(@Param("begin") String begin, @Param("end") String end);
 
-    // Thống kê số lượng đơn hàng theo trạng thái
+    // Thống kê số lượng đơn hàng theo trạng thái "Chờ xác nhận"
     @Query("SELECT COUNT(e.orderItemId) FROM OrderItems e WHERE e.status = 'CHO_XAC_NHAN'")
     long countByWaitingForConfirmation();
 
+    // Thống kê số lượng đơn hàng theo trạng thái "Đã giao"
     @Query("SELECT COUNT(e.orderItemId) FROM OrderItems e WHERE e.status = 'DA_GIAO'")
     long countByDelivered();
 
+    // Thống kê số lượng đơn hàng theo trạng thái "Đã hủy"
     @Query("SELECT COUNT(e.orderItemId) FROM OrderItems e WHERE e.status = 'DA_HUY'")
-    long countByConfirmed();
+    long countByCanceled();
 
-    // Thống kê số lượng đơn hàng đã bán
+    // Thống kê số lượng sản phẩm đã bán
     @Query(value = "SELECT SUM(oi.quanity) " +
             "FROM order_items oi " +
             "JOIN order_details o ON oi.orderDetailId = o.orderDetailId " +
-            "WHERE o.status = 'DELIVERED'", nativeQuery = true)
+            "WHERE o.refundStatus != 'COMPLETED'", nativeQuery = true)
     Long countSoldItems();
 
     // Tìm đơn hàng theo khoảng thời gian
@@ -66,7 +69,7 @@ public interface OrderItemsRepository extends JpaRepository<OrderItems, Integer>
     // Tìm đơn hàng theo tổng tiền
     @Query(value = "SELECT oi.* FROM order_items oi " +
             "JOIN order_details o ON oi.orderDetailId = o.orderDetailId " +
-            "WHERE (SELECT SUM(oi.amount * oi.price) FROM order_items oi WHERE oi.orderDetailId = o.orderDetailId) " +
+            "WHERE (SELECT SUM(oi.quanity * oi.price) FROM order_items oi WHERE oi.orderDetailId = o.orderDetailId) " +
             "BETWEEN :totalBegin AND :totalEnd", nativeQuery = true)
     List<OrderItems> getOrderByTotalMoney(@Param("totalBegin") double totalBegin, @Param("totalEnd") double totalEnd);
 

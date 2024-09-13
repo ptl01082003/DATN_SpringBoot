@@ -21,6 +21,7 @@ public class PromotionController {
 
     // Tạo khuyến mãi mới
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> addPromotion(@RequestBody PromotionsDTO promotionsDTO) {
         try {
             PromotionsDTO createdPromotion = promotionService.createPromotion(promotionsDTO);
@@ -38,6 +39,7 @@ public class PromotionController {
 
     // Lấy tất cả các khuyến mãi
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getAllPromotions() {
         try {
             List<PromotionsDTO> promotions = promotionService.getAllPromotions();
@@ -55,6 +57,7 @@ public class PromotionController {
 
     // Lấy khuyến mãi theo ID
     @PostMapping("/getById")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getPromotionById(@RequestBody Map<String, Integer> request) {
         try {
             Integer promotionId = request.get("promotionId");
@@ -79,8 +82,9 @@ public class PromotionController {
     }
 
     // Cập nhật khuyến mãi
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+
     @PostMapping("/edit")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> updatePromotion(@RequestBody PromotionsDTO promotionsDTO) {
         try {
             PromotionsDTO updatedPromotion = promotionService.updatePromotion(promotionsDTO.getPromotionId(), promotionsDTO);
@@ -105,6 +109,7 @@ public class PromotionController {
 
     // Xóa khuyến mãi
     @PostMapping("/remove")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<Map<String, Object>> deletePromotion(@RequestParam Integer promotionId) {
         if (promotionId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "promotionId không được để trống"));

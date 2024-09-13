@@ -6,6 +6,7 @@ import com.example.datn_be.service.OriginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ public class OriginController {
 
 
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getOrigins(){
         try{
             List<Origins> listOrigin = originService.getOriginsList();
@@ -40,6 +42,7 @@ public class OriginController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> addOrigin(@RequestBody OriginsDTO originsDTO){
         try{
             Origins origins = originService.addOrigin(originsDTO);
@@ -57,6 +60,7 @@ public class OriginController {
 
 
     @PostMapping("/getById")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getOriginById(@RequestBody  Map<String, Integer> request){
         try{
             Integer originId = request.get("originId");
@@ -82,6 +86,7 @@ public class OriginController {
 
 
     @PostMapping("/edit")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> updateOrigin(@RequestBody OriginsDTO originsDTO) {
         try {
             Origins origin = originService.updateOrigin(originsDTO);
@@ -106,6 +111,7 @@ public class OriginController {
 
 
     @PostMapping("/remove")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<Map<String, Object>> deleteOrigin(@RequestParam("originId") Integer originId) {
         if (originId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "originId không được để trống"));

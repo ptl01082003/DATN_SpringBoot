@@ -6,6 +6,7 @@ import com.example.datn_be.service.SizeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ public class SizeController {
 
 
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getSizes(){
         try{
             List<Sizes> listSize = sizeService.getSizeList();
@@ -41,6 +43,7 @@ public class SizeController {
 
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> addSize(@RequestBody SizesDTO sizesDTO){
         try{
             Sizes size = sizeService.addSize(sizesDTO);
@@ -58,6 +61,7 @@ public class SizeController {
 
 
     @PostMapping("/getById")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> getSizeById(@RequestBody  Map<String, Integer> request){
         try{
             Integer sizeId = request.get("sizeId");
@@ -83,6 +87,7 @@ public class SizeController {
 
 
     @PostMapping("/edit")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> updateSize(@RequestBody SizesDTO sizesDTO) {
         try {
             Sizes size = sizeService.updateSize(sizesDTO);
@@ -107,6 +112,7 @@ public class SizeController {
 
 
     @PostMapping("/remove")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<Map<String, Object>> deleteSize(@RequestParam("sizeId") Integer sizeId) {
         if (sizeId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "sizeId không được để trống"));

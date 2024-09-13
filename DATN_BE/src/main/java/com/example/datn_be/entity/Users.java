@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -53,4 +54,5 @@ public class Users {
     public String getRole() {
         return this.roles != null ? this.roles.getType().name() : null;
     }
+
 }
