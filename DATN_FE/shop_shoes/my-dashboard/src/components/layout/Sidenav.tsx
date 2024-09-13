@@ -73,6 +73,11 @@ function Sidenav({ color }: { color: string }) {
       icon: <PieChartOutlined />,
     },
     {
+      key: "/users",
+      label: "User",
+      icon: <PieChartOutlined />,
+    },
+    {
       key: "/supports",
       label: "Hỗ trợ Khách Hàng",
       icon: <MessageOutlined />,

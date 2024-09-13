@@ -33,9 +33,11 @@ public class UserVouchers {
     private Vouchers vouchers;
 
     @Column(name = "receivedAt")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime receivedAt;
 
     @Column(name = "usedAt")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime usedAt;
 
     @Column(name = "status")

@@ -1,5 +1,9 @@
+// src/services/ProductDetailsService.ts
+
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
+import { KEY_STORAGE } from "../constants";
+
 const API_URL = "/product-details";
 
 export interface ProductDetail {
@@ -14,9 +18,19 @@ export interface ProductDetail {
 }
 
 const ProductDetailsService = {
+  // Lấy danh sách tất cả chi tiết sản phẩm
   getAllProductDetails: async () => {
     try {
-      const response = await AxiosClient.post<any, Response<any>>(API_URL);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(
+        API_URL,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response;
     } catch (error) {
       console.error("Error fetching product details", error);
@@ -24,10 +38,18 @@ const ProductDetailsService = {
     }
   },
 
+  // Lấy chi tiết sản phẩm dựa trên ID
   getProductDetailById: async (productDetailId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/${productDetailId}`
+        `${API_URL}/${productDetailId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -36,13 +58,20 @@ const ProductDetailsService = {
     }
   },
 
+  // Tạo mới một chi tiết sản phẩm
   createProductDetail: async (
     productDetailData: Omit<ProductDetail, "productDetailId">
   ) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/create`,
-        productDetailData
+        productDetailData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -51,14 +80,21 @@ const ProductDetailsService = {
     }
   },
 
+  // Cập nhật chi tiết sản phẩm
   updateProductDetail: async (
     productDetailId: number,
     productDetailData: Partial<ProductDetail>
   ) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/edit/${productDetailId}`,
-        productDetailData
+        productDetailData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -67,10 +103,18 @@ const ProductDetailsService = {
     }
   },
 
+  // Xóa chi tiết sản phẩm
   deleteProductDetail: async (productDetailId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/remove/${productDetailId}`
+        `${API_URL}/remove/${productDetailId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -79,18 +123,25 @@ const ProductDetailsService = {
     }
   },
 
+  // Thêm số lượng vào chi tiết sản phẩm
   addQuantity: async (
     productDetailId: number,
     sizeId: number,
     quantity: number
   ) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/add-quantity`,
         {
           productDetailId,
           sizeId,
           quantity,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       return response;
@@ -103,18 +154,25 @@ const ProductDetailsService = {
     }
   },
 
+  // Cập nhật số lượng trong chi tiết sản phẩm
   updateQuantity: async (
     productDetailId: number,
     sizeId: number,
     quantity: number
   ) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/update-quantity`,
         {
           productDetailId,
           sizeId,
           quantity,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       return response;
@@ -127,10 +185,18 @@ const ProductDetailsService = {
     }
   },
 
+  // Xóa số lượng trong chi tiết sản phẩm
   deleteQuantity: async (productDetailId: number, sizeId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/delete-quantity/${productDetailId}/${sizeId}`
+        `${API_URL}/delete-quantity/${productDetailId}/${sizeId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {

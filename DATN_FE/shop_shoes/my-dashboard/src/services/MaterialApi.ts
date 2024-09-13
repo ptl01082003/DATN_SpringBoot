@@ -2,14 +2,24 @@
 
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
+import { KEY_STORAGE } from "../constants";
 const API_URL = "/materials"; // Đảm bảo rằng URL này phù hợp với địa chỉ API của bạn
 
 
 const MaterialService = {
-  // Lấy danh sách tất cả màu sắc
+  // Lấy danh sách tất cả chất liệu
   getMaterials: async () => {
     try {
-      const response = await AxiosClient.post<any, Response<any>>(API_URL);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(
+        API_URL,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response;
     } catch (error) {
       console.error("Lỗi khi lấy danh sách chất liệu", error);
@@ -17,12 +27,18 @@ const MaterialService = {
     }
   },
 
-  // Lấy một màu sắc dựa trên ID
+  // Lấy một chất liệu dựa trên ID
   getMaterialById: async (materialId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}`,
-        materialId
+        { materialId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -31,46 +47,63 @@ const MaterialService = {
     }
   },
 
-  // Tạo mới một màu sắc
-  createMaterial: async (styleData: any) => {
+  // Tạo mới một chất liệu
+  createMaterial: async (materialData: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/create`,
-        styleData
+        materialData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
-      console.error("Lỗi khi tạo mới màu sắc", error);
+      console.error("Lỗi khi tạo mới chất liệu", error);
       throw error;
     }
   },
 
+  // Cập nhật một chất liệu
   updateMaterial: async (params: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/edit`,
-        params
+        params,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
-      console.error(`Lỗi khi cập nhật style`, error);
+      console.error("Lỗi khi cập nhật chất liệu", error);
       throw error;
     }
   },
 
-  // Xóa một màu sắc dựa trên ID
+  // Xóa một chất liệu dựa trên ID
   deleteMaterial: async (materialId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/remove`,
         null,
         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           params: { materialId },
         }
       );
       return response;
     } catch (error) {
-      console.error(`Lỗi khi xóa style ${materialId}`, error);
+      console.error(`Lỗi khi xóa chất liệu ${materialId}`, error);
       throw error;
     }
   },

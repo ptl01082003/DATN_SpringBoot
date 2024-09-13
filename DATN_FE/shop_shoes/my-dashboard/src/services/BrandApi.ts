@@ -11,7 +11,7 @@ const BrandService = {
       const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(API_URL, {}, {
         headers: {
-          Authorization: `Bearer ${token}`, // Gửi token lên backend
+          Authorization: `Bearer ${token}`, 
         },
       });
       return response;
@@ -22,6 +22,7 @@ const BrandService = {
   },
   getBrandById: async (brandId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}`,
         brandId
@@ -35,9 +36,15 @@ const BrandService = {
 
   createBrand: async (brandData: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/create`,
-        brandData
+        brandData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -46,24 +53,37 @@ const BrandService = {
     }
   },
 
-  updateBrand: async (params: any) => {
+
+  updateBrand: async (brandData: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/edit`,
-        params
+        brandData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
+      console.error("Error updating brand", error);
       throw error;
     }
   },
 
+   // Xóa một thương hiệu dựa trên ID
   deleteBrand: async (brandId: number) => {
     try {
-      const response = await AxiosClient.post<any, Response<any>>(
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<Response<any>>(
         `${API_URL}/remove`,
         null,
         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           params: { brandId },
         }
       );
@@ -74,5 +94,4 @@ const BrandService = {
     }
   },
 };
-
 export default BrandService;

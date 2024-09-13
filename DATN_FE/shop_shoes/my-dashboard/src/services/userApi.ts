@@ -1,54 +1,103 @@
 import AxiosClient from "../networks/AxiosRequest";
-
-const API_URL = "/users"; // Đường dẫn API cho tài nguyên User
+import { Response } from "../constants/constants";
+import { KEY_STORAGE } from "../constants";
+const API_URL = "/users"; // Đảm bảo rằng URL tương ứng với API của bạn
 
 const UserService = {
-  // Lấy danh sách người dùng
+  // Lấy tất cả người dùng
   getUsers: async () => {
     try {
-      const response = await AxiosClient.get(API_URL);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(API_URL, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response;
     } catch (error) {
+      console.error("Error fetching users", error);
       throw error;
     }
   },
 
-  // Lấy chi tiết người dùng theo ID
+  // Lấy thông tin người dùng theo ID
   getUserById: async (userId: number) => {
     try {
-      const response = await AxiosClient.get(`${API_URL}/${userId}`);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(
+        `${API_URL}/get`,
+        { userId }, // Truyền userId trong request body
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response;
     } catch (error) {
+      console.error(`Error fetching user ${userId}`, error);
       throw error;
     }
   },
 
-  // Tạo mới người dùng
+  // Tạo mới một người dùng
   createUser: async (userData: any) => {
     try {
-      const response = await AxiosClient.post(API_URL, userData);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(
+        `${API_URL}/create`,
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response;
     } catch (error) {
+      console.error("Error creating user", error);
       throw error;
     }
   },
 
-  // Cập nhật người dùng
+  // Cập nhật thông tin người dùng
   updateUser: async (userId: number, userData: any) => {
     try {
-      const response = await AxiosClient.put(`${API_URL}/${userId}`, userData);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(
+        `${API_URL}/update`,
+        { id: userId, ...userData }, // Truyền id và dữ liệu cập nhật
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response;
     } catch (error) {
+      console.error("Lỗi khi cập nhật người dùng", error);
       throw error;
     }
   },
+
 
   // Xóa người dùng
   deleteUser: async (userId: number) => {
     try {
-      const response = await AxiosClient.delete(`${API_URL}/${userId}`);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<Response<any>>(
+        `${API_URL}/delete`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: { id: userId }, // Truyền userId trong params
+        }
+      );
       return response;
     } catch (error) {
+      console.error(`Error deleting user ${userId}`, error);
       throw error;
     }
   },

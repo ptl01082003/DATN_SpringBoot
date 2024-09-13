@@ -30,6 +30,7 @@ import { useEffect } from "react";
 import { changelstOnlineUsers } from "./app/slice/userSlice";
 import { fetchGetUserInfo } from "./app/thunks/UserThunk";
 import OrderDetails from "./pages/OderDetails";
+import UserPage from "./pages/UsersPage";
 
 // export const socket = io.connect("http://localhost:6500", {
 //   auth: {
@@ -88,6 +89,7 @@ function App() {
             <Route path={"vouchers"} element={<VouchersPage />} />
             <Route path={"supports"} element={<SupporterPage />} />
             <Route path={"order"} element={<OrderDetails/>} />
+            <Route path={"users"} element={<UserPage/>} />
             {/* <Route path={"product-details"} element={<ProductDetailsPage />} /> */}
           </Route>
         </Routes>

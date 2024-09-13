@@ -121,23 +121,30 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                                .requestMatchers("/api/v1/auth/**").permitAll() // Public endpoints
-                                .requestMatchers("/api/v1/promotions/**").hasRole("ADMIN") // Requires ADMIN role
-                                .requestMatchers("/api/v1/brands/**").hasAnyRole("ADMIN", "MEMBERSHIP") // Requires ADMIN or MEMBERSHIP role // Requires authentication
+                        .requestMatchers("/api/v1/auth/**").permitAll() // Public endpoints
 
-//                        .requestMatchers("/api/v1/brands/**").hasRole("ADMIN")
-//                        .requestMatchers("/api/v1/products/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/orders/**",
+                                         "/api/v1/products/**",
+                                         "/api/v1/brands/**",
+                                        "/api/v1/materials/**",
+                                        "/api/v1/styles/**",
+                                        "/api/v1/origins/**",
+                                        "/api/v1/sizes/**",
+                                        "/api/v1/promotions/**",
+                                        "/api/v1/vouchers/**"
 
-
+                        ).hasAnyRole("ADMIN", "MEMBERSHIP") // Requires ADMIN or MEMBERSHIP role
+                        .anyRequest().authenticated() // All other requests require authentication
                 )
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless session management
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // Add JWT filter
 
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

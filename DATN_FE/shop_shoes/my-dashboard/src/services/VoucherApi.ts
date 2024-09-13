@@ -1,5 +1,8 @@
+// src/services/VoucherService.ts
+
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
+import { KEY_STORAGE } from "../constants";
 
 // Đảm bảo rằng URL này tương ứng với API của bạn
 const API_URL = "/vouchers";
@@ -8,7 +11,12 @@ const VoucherService = {
   // Lấy danh sách tất cả các vouchers
   getVouchers: async () => {
     try {
-      const response = await AxiosClient.post<any, Response<any>>(API_URL);
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+      const response = await AxiosClient.post<any, Response<any>>(API_URL, null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response;
     } catch (error) {
       console.error("Error fetching vouchers", error);
@@ -19,11 +27,17 @@ const VoucherService = {
   // Lấy thông tin voucher theo ID
   getVoucherById: async (voucherId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/get-by-id`,
-        { voucherId }
+        { voucherId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      return response; // Sử dụng response.data để trả về dữ liệu chính xác
+      return response;
     } catch (error) {
       console.error(`Error fetching voucher ${voucherId}`, error);
       throw error;
@@ -33,9 +47,15 @@ const VoucherService = {
   // Tạo một voucher mới
   createVoucher: async (voucherData: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/create`,
-        voucherData
+        voucherData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -47,9 +67,15 @@ const VoucherService = {
   // Cập nhật thông tin voucher
   updateVoucher: async (voucherData: any) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/edit`,
-        voucherData
+        voucherData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response;
     } catch (error) {
@@ -61,10 +87,14 @@ const VoucherService = {
   // Xóa voucher theo ID
   deleteVoucher: async (voucherId: number) => {
     try {
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
         `${API_URL}/remove`,
         null,
         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           params: { voucherId },
         }
       );

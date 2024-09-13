@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+
 @RestController
 @RequestMapping("/api/v1/users")
 @Slf4j
@@ -23,51 +24,75 @@ public class UserController {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-//    @PostMapping("/get-info")
-//    public ResponseEntity<UsersDTO> getUserInfo(@RequestHeader("Authorization") String token) {
-//        // Xử lý logic lấy userId từ token
-//        Integer userId = jwtTokenProvider.getUserIdFromToken(token);
-//        UsersDTO userInfo = userService.getUserInfo(userId);
-//        return ResponseEntity.ok(userInfo);
-//    }
-
-    // Lấy tất cả người dùng (POST)
-    @PostMapping("/list")
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<List<UsersDTO>> getAllUsers() {
-        List<UsersDTO> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+    @PostMapping("/get-info")
+    public ResponseEntity<UsersDTO> getUserInfo(@RequestHeader("Authorization") String token) {
+        try {
+            Integer userId = jwtTokenProvider.getUserIdFromToken(token);
+            UsersDTO userInfo = userService.getUserInfo(userId);
+            return ResponseEntity.ok(userInfo);
+        } catch (Exception e) {
+            log.error("Error fetching user info: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    // Lấy thông tin người dùng theo ID (POST)
+    @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<List<UsersDTO>> getAllUsers() {
+        try {
+            List<UsersDTO> users = userService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            log.error("Error fetching all users: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PostMapping("/get")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<UsersDTO> getUserById(@RequestParam Integer id) {
-        UsersDTO user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
+        try {
+            UsersDTO user = userService.getUserById(id);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            log.error("Error fetching user by id: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
-
 
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<UsersDTO> createUser(@RequestBody UsersDTO userDto) {
-        UsersDTO newUser = userService.createUser(userDto);
-        return ResponseEntity.ok(newUser);
+        try {
+            UsersDTO newUser = userService.createUser(userDto);
+            return ResponseEntity.ok(newUser);
+        } catch (Exception e) {
+            log.error("Error creating user: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    // Cập nhật thông tin người dùng (POST)
     @PostMapping("/update")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<UsersDTO> updateUser(@RequestParam Integer id, @RequestBody UsersDTO userDto) {
-        UsersDTO updatedUser = userService.updateUser(id, userDto);
-        return ResponseEntity.ok(updatedUser);
+        try {
+            UsersDTO updatedUser = userService.updateUser(id, userDto);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            log.error("Error updating user: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    // Xóa người dùng (POST)
     @PostMapping("/delete")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@RequestParam Integer id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Error deleting user: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

@@ -37,6 +37,61 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.redisService = redisService;
     }
 
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+//            throws ServletException, IOException {
+//
+//        String path = request.getRequestURI();
+//        log.debug("Processing request: {}", path);
+//
+//        // Bỏ qua xác thực cho các endpoint công khai
+//        if (path.startsWith("/api/v1/auth")) {
+//            log.debug("Skipping authentication for public endpoint: {}", path);
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//
+//        // Trích xuất token từ header
+//        String token = getJwtFromRequest(request);
+//        if (token != null && jwtTokenProvider.validateToken(token)) {
+//            try {
+//                Integer userId = jwtTokenProvider.getUserIdFromToken(token);
+//                UsersDTO user = userService.getUserInfo(userId);
+//
+//                if (user != null) {
+//                    Set<String> roles = redisService.getUserRoles(userId);
+//                    roles = roles != null ? roles : Collections.emptySet(); // Đảm bảo roles không null
+//
+//                    List<GrantedAuthority> authorities = roles.stream()
+//                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+//                            .collect(Collectors.toList());
+//
+//                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+//                            user.getUserName(), null, authorities
+//                    );
+//                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//                    SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//                    log.debug("Set authentication for user: {}", user.getUserName());
+//                } else {
+//                    log.warn("User not found for ID: {}", userId);
+//                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
+//                    return;
+//                }
+//            } catch (Exception e) {
+//                log.error("Error processing JWT token: {}", e.getMessage());
+//                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+//                return;
+//            }
+//        } else {
+//            log.warn("Token is either null or invalid.");
+//            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is missing or invalid");
+//            return;
+//        }
+//
+//        filterChain.doFilter(request, response);
+//    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -59,9 +114,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UsersDTO user = userService.getUserInfo(userId);
 
                 if (user != null) {
+//                    Set<String> roles = redisService.getUserRoles(userId);
+//                    roles = roles != null ? roles : Collections.emptySet(); // Đảm bảo roles không null
+//
+//                    List<GrantedAuthority> authorities = roles.stream()
+//                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+//                            .collect(Collectors.toList());
                     Set<String> roles = redisService.getUserRoles(userId);
                     roles = roles != null ? roles : Collections.emptySet(); // Đảm bảo roles không null
-
                     List<GrantedAuthority> authorities = roles.stream()
                             .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                             .collect(Collectors.toList());
@@ -92,11 +152,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+
     private String getJwtFromRequest(HttpServletRequest request) {
+        // Lấy giá trị của header Authorization
         String bearerToken = request.getHeader("Authorization");
+
+        // Log giá trị của header Authorization
+        log.debug("Authorization header: {}", bearerToken);
+
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7).trim();
+            // Cắt chuỗi để lấy token sau "Bearer "
+            String token = bearerToken.substring(7).trim();
+
+            // Log giá trị của token sau khi cắt
+            log.debug("Extracted token: {}", token);
+
+            return token;
         }
+
+        // Log khi không có token hợp lệ
+        log.warn("No Bearer token found in Authorization header.");
+
         return null;
     }
 }

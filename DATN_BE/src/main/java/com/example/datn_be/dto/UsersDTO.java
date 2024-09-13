@@ -1,6 +1,7 @@
 package com.example.datn_be.dto;
 
 import com.example.datn_be.entity.Roles;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -19,11 +20,14 @@ public class UsersDTO {
     private String email;
     private String phone;
     private String password;
-    private LocalDateTime birth;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birth;
     private String fullName;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
     private List<String> roles;
-
+    private Integer roleId;
 
 }

@@ -1,58 +1,81 @@
-package com.example.datn_be.entity;
+    package com.example.datn_be.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+    import com.fasterxml.jackson.annotation.JsonFormat;
+    import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+    import jakarta.persistence.*;
+    import lombok.AllArgsConstructor;
+    import lombok.Getter;
+    import lombok.NoArgsConstructor;
+    import lombok.Setter;
+    import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@Entity
-@Table(name = "users")
-public class Users {
+    import java.time.LocalDate;
+    import java.time.LocalDateTime;
+    import java.util.Optional;
+    import java.util.Random;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userId",nullable = false)
-    private Integer userId;
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    @Entity
+    @Table(name = "users")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @EntityListeners(AuditingEntityListener.class)
+    public class Users {
 
-    @Column(name = "userName",nullable = false)
-    private String userName;
 
-    @Column(name = "email",nullable = false, unique = true)
-    private String email;
+        @Id
+        @Column(name = "userId", nullable = false)
+        private Integer userId;
 
-    @Column(name = "phone")
-    private String phone;
+        @Column(name = "userName", nullable = false)
+        private String userName;
 
-    @Column(name = "password",nullable = false)
-    private String password;
+        @Column(name = "email", nullable = false, unique = true)
+        private String email;
 
-    @Column(name = "birth")
-    private LocalDate birth;
+        @Column(name = "phone")
+        private String phone;
 
-    @Column(name = "fullName",nullable = false)
-    private String fullName;
+        @Column(name = "password", nullable = false)
+        private String password;
 
-    @Column(name = "createdAt")
-    private LocalDateTime createdAt;
+        @Column(name = "birth")
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        private LocalDate birth;  // Changed from LocalDateTime to LocalDate
 
-    @Column(name = "updatedAt")
-    private LocalDateTime updatedAt;
+        @Column(name = "fullName", nullable = false)
+        private String fullName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "roleId")
-    private Roles roles;
+        @Column(name = "createdAt")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime createdAt;
 
-    public String getRole() {
-        return this.roles != null ? this.roles.getType().name() : null;
+        @Column(name = "updatedAt")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime updatedAt;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "roleId")
+        private Roles roles;
+
+        @PrePersist
+        public void prePersist() {
+            if (this.userId == null) {
+                this.userId = generateUserId();
+            }
+        }
+
+        private Integer generateUserId() {
+            Random random = new Random();
+            return 1031500000 + random.nextInt(10000000);
+        }
+
+        public Integer getRoleId() {
+            return this.roles != null ? this.roles.getRoleId() : null;
+        }
     }
 
-}
+

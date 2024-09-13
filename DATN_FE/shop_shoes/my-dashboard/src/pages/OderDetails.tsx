@@ -4,7 +4,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Divider, Empty, Image, Input, Modal, Rate, Tabs, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import AxiosRequest from "../../src/networks/AxiosRequest";
-import { ODER_STATUS, ODER_STATUS_STRING, TRANSFER_PRICE, URL_IMAGE } from "../../src/constants";
+import { KEY_STORAGE, ODER_STATUS, ODER_STATUS_STRING, TRANSFER_PRICE, URL_IMAGE } from "../../src/constants";
 
 const desc = ["Tệ", "Không hài lòng", "Bình thường", "Hài lòng", "Tuyệt vời"];
 
@@ -219,10 +219,15 @@ const DeliveredOrders: React.FC<DeliveredOrdersProps> = ({ orders, setShouldRend
     useEffect(() => {
       (async () => {
         try {
+          const token = localStorage.getItem(KEY_STORAGE.TOKEN); // Lấy token từ localStorage
           const url = `/orders/lst-orders?status=${encodeURIComponent(orderStatus)}`;
-          // const url = `/orders/lst-orders?status=${encodeURIComponent(orderStatus)}`;
-          const response = await AxiosRequest.post(url);
-  
+          
+          const response = await AxiosRequest.post(url, null, {
+            headers: {
+              Authorization: `Bearer ${token}`, // Gắn token vào header
+            },
+          });
+    
           if (Array.isArray(response)) {
             setLstOrders(response);
           } else {
@@ -241,12 +246,15 @@ const DeliveredOrders: React.FC<DeliveredOrdersProps> = ({ orders, setShouldRend
   
     const updateOrderStatus = async (orderItemId: string, newStatus: string) => {
       try {
+        const token = localStorage.getItem(KEY_STORAGE.TOKEN); // Lấy token từ localStorage
+    
         const response = await AxiosRequest.post(
           `/orders/update-status?status=${encodeURIComponent(newStatus)}&orderItemId=${encodeURIComponent(orderItemId)}`, 
           {}, // Không cần gửi body cho yêu cầu này
           {
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` // Gắn token vào header
             }
           }
         );
