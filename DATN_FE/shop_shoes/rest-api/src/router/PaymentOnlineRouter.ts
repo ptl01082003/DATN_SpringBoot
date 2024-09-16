@@ -15,6 +15,7 @@ paymentRouter.post("/lst-orders", PaymentOnlineController.getLstOders);
 paymentRouter.post("/lst-payments", PaymentOnlineController.getLstPayments);
 paymentRouter.post("/create-order", PaymentOnlineController.createOrder);
 paymentRouter.post("/repayment", PaymentOnlineController.repayment);
+paymentRouter.post("/refund", PaymentOnlineController.transactionRefund);
 
 
 export default paymentRouter;

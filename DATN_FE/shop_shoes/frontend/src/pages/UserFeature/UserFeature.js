@@ -101,42 +101,7 @@ const navItems = [
       </svg>
     ),
   },
-  {
-    key: Math.floor(Math.random() * 200000000) + 2000000,
-    label: "Trả hàng",
-    path: "return-request",
-    icon: (
-      <svg
-        width="26"
-        height="26"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M10.7146 19.5C10.7146 20.3284 10.0239 21 9.17176 21C8.31967 21 7.62891 20.3284 7.62891 19.5"
-          stroke="currentColor"
-          stroke-width="null"
-          stroke-linecap="round"
-          class="my-path"
-        ></path>
-        <path
-          d="M16.8865 19.5C16.8865 20.3284 16.1957 21 15.3436 21C14.4915 21 13.8008 20.3284 13.8008 19.5"
-          stroke="currentColor"
-          stroke-width="null"
-          stroke-linecap="round"
-          class="my-path"
-        ></path>
-        <path
-          d="M3.51429 6L4.96114 13.7354C5.25319 15.2968 5.39921 16.0775 5.95475 16.5387C6.51029 17 7.30451 17 8.89296 17H15.6218C17.2103 17 18.0046 17 18.5601 16.5387C19.1157 16.0774 19.2617 15.2967 19.5537 13.7352L20.1146 10.7352C20.5248 8.54152 20.7299 7.44469 20.1301 6.72234C19.5303 6 18.4144 6 16.1827 6H3.51429ZM3.51429 6L3 3"
-          stroke="currentColor"
-          stroke-width="null"
-          stroke-linecap="round"
-          class="my-path"
-        ></path>
-      </svg>
-    ),
-  },
+
   {
     key: Math.floor(Math.random() * 200000000) + 2000000,
     label: "Nhắn tin",

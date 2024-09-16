@@ -232,6 +232,7 @@ const VouchersController = {
           discountValue: userVoucher.vouchers.discountValue,
           ruleType: userVoucher.vouchers.ruleType,
           typeValue: userVoucher.vouchers.typeValue,
+          endDay: userVoucher.vouchers.endDay,
         },
       }));
 

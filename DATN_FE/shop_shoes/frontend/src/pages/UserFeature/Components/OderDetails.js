@@ -9,6 +9,7 @@ import {
   URL_IMAGE,
 } from "../../../constants";
 import AxiosClient from "../../../networks/AxiosClient";
+import { toast } from "react-toastify";
 
 const desc = ["Tệ", "Không hài lòng", "Bình thường", "Hài lòng", "Tuyệt vời"];
 
@@ -182,7 +183,7 @@ export default function OderDetails() {
   const [lstOders, setLstOders] = useState();
   const [orderStatus, setOrderStatus] = useState(ODER_STATUS.CHO_XAC_NHAN);
   const [shouldRender, setShouldRender] = useState(false);
-  
+
   useEffect(() => {
     (async () => {
       const lstOders = await AxiosClient.post("/orders/lst-orders", {
@@ -192,8 +193,19 @@ export default function OderDetails() {
     })();
   }, [orderStatus, shouldRender]);
 
-  const onChange = (status) => {
+  const onChange = async (status) => {
     setOrderStatus(status);
+  };
+
+  const orderRefund = async (order) => {
+    const item = await AxiosClient.post("/payment-orders/refund", {
+      orderItemId: order?.orderItemId,
+    });
+    if (item.code == 0) {
+      setShouldRender(true);
+    } else {
+      toast.error(item?.message);
+    }
   };
 
   const renderActionByOrderStatus = (orders) => {
@@ -201,6 +213,18 @@ export default function OderDetails() {
       case ODER_STATUS.DA_GIAO:
         return (
           <DeliveredOrders orders={orders} setShouldRender={setShouldRender} />
+        );
+      case ODER_STATUS.CHO_XAC_NHAN:
+      case ODER_STATUS.CHO_LAY_HANG:
+        return (
+          <button
+            onClick={() => {
+              orderRefund(orders);
+            }}
+            className="min-w-[136px] py-3 rounded-lg bg-red-600 text-white font-bold"
+          >
+            HỦY
+          </button>
         );
       default:
         return <></>;

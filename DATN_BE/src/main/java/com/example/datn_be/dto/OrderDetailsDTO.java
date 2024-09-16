@@ -16,7 +16,7 @@ import java.util.List;
 public class OrderDetailsDTO {
 
     private Integer orderDetailId;
-    private BigDecimal totals;
+    private Integer totals;
     private String orderCode;
     private BigDecimal amount;
     private String name;

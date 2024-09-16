@@ -4,6 +4,7 @@ import {
   BelongsTo,
   Column,
   DataType,
+  Default,
   ForeignKey,
   HasMany,
   Model,
@@ -38,8 +39,12 @@ export class OrderDetails extends Model {
   @Column
   public orderCode!: string;
 
-  @Column
+  @Column(DataType.DECIMAL(16,2))
   public amount!: number;
+  
+  @Default(0)
+  @Column(DataType.DECIMAL(16,2))
+  public revenue!: number;
 
   @Column
   public name!: string;
@@ -53,6 +58,9 @@ export class OrderDetails extends Model {
 
   @BelongsTo(() => Vouchers)
   public voucher?: Vouchers;
+
+  @Column
+  public transId!: string;
 
   @Column
   public phone!: string;
@@ -70,7 +78,7 @@ export class OrderDetails extends Model {
   @Column
   public refundStatus?: REFUND_STATUS;
  
-  @Column
+  @Column(DataType.DECIMAL(16,2))
   public refundAmount?: number;
 
   @BeforeCreate

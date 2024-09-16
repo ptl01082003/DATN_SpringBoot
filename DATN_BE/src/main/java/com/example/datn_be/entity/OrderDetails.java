@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -33,19 +34,26 @@ public class OrderDetails {
     private Integer orderDetailId;
 
     @Column(name = "totals",nullable = false)
-    private Double totals;
+    private Integer totals;
 
     @Column(name = "orderCode",nullable = false, unique = true)
     private String orderCode;
 
-    @Column(name = "amount",nullable = false)
-    private Double amount;
+    @Column(name = "amount", precision = 16, scale = 2)
+    private BigDecimal amount;
 
     @Column(name = "name",nullable = false)
     private String name;
 
     @Column(name = "address",length = 500)
     private String address;
+
+
+    @Column(name = "revenue",nullable = false, precision = 16, scale = 2)
+    private BigDecimal revenue;
+
+    @Column(name = "transId",nullable = false)
+    private String transId;
 
     @ManyToOne
     @JoinColumn(name = "voucherId")

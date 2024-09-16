@@ -5,7 +5,44 @@ import { OrderDetails } from "../models/OrderDetails";
 import { Voucher_RULE, Vouchers_STATUS } from "../models/Vouchers";
 import { UserVouchers } from "../models/UserVouchers";
 import { startOfDay, endOfDay } from "date-fns";
+import sequelize from "sequelize";
 
+// Hàm xóa voucher bị trùng
+// Hàm xóa voucher bị trùng
+async function removeDuplicateVouchers() {
+  try {
+    // Lấy danh sách tất cả các bản ghi trùng dựa trên userId và voucherId
+    const duplicates = await UserVouchers.findAll({
+      attributes: ['userId', 'voucherId'],
+      group: ['userId', 'voucherId'],
+      having: sequelize.literal('COUNT(*) > 1'),  // Tìm những bản ghi bị trùng
+    });
+
+    console.log(`Số lượng voucher bị trùng: ${duplicates.length}`);
+
+    // Duyệt qua danh sách trùng và xóa các bản ghi ngoài bản ghi đầu tiên
+    for (const duplicate of duplicates) {
+      const { userId, voucherId } = duplicate;
+
+      // Lấy tất cả các bản ghi voucher của user này, sắp xếp theo thời gian nhận
+      const userVoucherRecords = await UserVouchers.findAll({
+        where: {
+          userId: userId,
+          voucherId: voucherId,
+        },
+        order: [['receivedAt', 'ASC']], // Sắp xếp theo thời gian nhận
+      });
+
+      // Xóa tất cả các bản ghi sau bản ghi đầu tiên
+      for (let i = 1; i < userVoucherRecords.length; i++) {
+        await userVoucherRecords[i].destroy();
+        console.log(`Đã xóa voucher trùng với userId: ${userId}, voucherId: ${voucherId}`);
+      }
+    }
+  } catch (error) {
+    console.error("Lỗi khi xóa voucher bị trùng:", error);
+  }
+}
 async function checkVoucherEligibility(
   voucherCode: string,
   userId: number,
@@ -25,22 +62,15 @@ async function checkVoucherEligibility(
     });
 
     if (!voucher) {
-      console.log(
-        `Voucher ${voucherCode} không tìm thấy hoặc không hoạt động.`
-      );
+      console.log(`Voucher ${voucherCode} không tìm thấy hoặc không hoạt động.`);
       return false;
     }
 
-    console.log(`Tìm thấy voucher: ${JSON.stringify(voucher)}`);
-
     const user = await Users.findByPk(userId);
-
     if (!user) {
       console.log(`Người dùng với ID ${userId} không tìm thấy.`);
       return false;
     }
-
-    console.log(`Tìm thấy người dùng: ${JSON.stringify(user)}`);
 
     const orderCount = await OrderDetails.count({
       where: {
@@ -51,54 +81,43 @@ async function checkVoucherEligibility(
       },
     });
 
-    console.log(`Số lượng đơn hàng của người dùng ${userId}: ${orderCount}`);
-
+    // Kiểm tra điều kiện voucher
     switch (voucher.ruleType) {
       case Voucher_RULE.MIN_ORDER_VALUE:
         if (orderValue < (voucher.minOrderValue || 0)) {
-          console.log(
-            `Giá trị đơn hàng ${orderValue} nhỏ hơn giá trị tối thiểu ${voucher.minOrderValue}`
-          );
+          console.log(`Giá trị đơn hàng ${orderValue} nhỏ hơn ${voucher.minOrderValue}`);
           return false;
         }
         break;
       case Voucher_RULE.NEW_ACCOUNT:
         const accountCreatedWithin30Days =
-          now.getTime() - new Date(user.createdAt).getTime() <=
-          30 * 24 * 60 * 60 * 1000;
-
+          now.getTime() - new Date(user.createdAt).getTime() <= 30 * 24 * 60 * 60 * 1000;
         if (!accountCreatedWithin30Days) {
-          console.log(
-            `Tài khoản người dùng với ID ${user.userId} không đủ điều kiện cho voucher ${voucher.code} vì không phải tài khoản mới.`
-          );
+          console.log(`Tài khoản ${user.userId} không đủ điều kiện vì không phải tài khoản mới.`);
           return false;
         }
         break;
       case Voucher_RULE.ORDER_COUNT:
         if (
-          (voucher.minOrderCount !== undefined &&
-            orderCount < voucher.minOrderCount) ||
-          (voucher.maxOrderCount !== undefined &&
-            orderCount > voucher.maxOrderCount)
+          (voucher.minOrderCount !== undefined && orderCount < voucher.minOrderCount) ||
+          (voucher.maxOrderCount !== undefined && orderCount > voucher.maxOrderCount)
         ) {
-          console.log(
-            `Số lượng đơn hàng ${orderCount} không nằm trong phạm vi (${voucher.minOrderCount} - ${voucher.maxOrderCount})`
-          );
+          console.log(`Số lượng đơn hàng ${orderCount} không nằm trong phạm vi cho phép.`);
           return false;
         }
         break;
       default:
-        console.log(`Loại quy tắc voucher không xác định: ${voucher.ruleType}`);
+        console.log(`Quy tắc voucher không xác định: ${voucher.ruleType}`);
         return false;
     }
 
-    console.log(`Voucher ${voucherCode} đủ điều kiện cho người dùng ${userId}`);
     return true;
   } catch (error) {
     console.error("Lỗi khi kiểm tra điều kiện voucher:", error);
     return false;
   }
 }
+
 export async function distributeVouchers() {
   try {
     const now = new Date();
@@ -112,91 +131,84 @@ export async function distributeVouchers() {
       },
     });
 
-    console.log(`Các voucher có sẵn để phân phối: ${JSON.stringify(vouchers)}`);
-
     if (!vouchers.length) {
-      console.log("Không có voucher nào sẵn có để phân phối.");
+      console.log("Không có voucher nào sẵn để phân phối.");
       return;
     }
 
     const users = await Users.findAll();
+    if (!users.length) {
+      console.log("Không tìm thấy người dùng để phân phối voucher.");
+      return;
+    }
 
-    console.log(`Tổng số người dùng được tìm thấy: ${users.length}`);
-
-    for (const user of users) {
-      const orders = await OrderDetails.findAll({
-        where: {
-          userId: user.userId,
-          createdAt: {
-            [Op.gte]: startOfDay(now),
+    await Promise.all(
+      users.map(async (user) => {
+        const orders = await OrderDetails.findAll({
+          where: {
+            userId: user.userId,
+            createdAt: {
+              [Op.gte]: startOfDay(now),
+            },
           },
-        },
-      });
+        });
 
-      if (orders.length === 0) {
-        console.log(`Người dùng ${user.userId} không có đơn hàng mới.`);
-        continue;
-      }
+        if (orders.length === 0) {
+          console.log(`Người dùng ${user.userId} không có đơn hàng mới.`);
+          return;
+        }
 
-      for (const order of orders) {
-        const orderValue = order.amount;
+        for (const order of orders) {
+          const orderValue = order.amount;
 
-        for (const voucher of vouchers) {
-          const isEligible = await checkVoucherEligibility(
-            voucher.code,
-            user.userId,
-            orderValue
-          );
+          await Promise.all(
+            vouchers.map(async (voucher) => {
+              const isEligible = await checkVoucherEligibility(voucher.code, user.userId, orderValue);
 
-          console.log(
-            `Kiểm tra điều kiện cho voucher ${voucher.code} và người dùng ${user.userId}: ${isEligible}`
-          );
-
-          if (isEligible) {
-            const existingVoucher = await UserVouchers.findOne({
-              where: {
-                userId: user.userId,
-                voucherId: voucher.voucherId,
-              },
-            });
-
-            if (existingVoucher) {
-              console.log(
-                `Voucher ${voucher.code} đã được phân phối cho người dùng ${user.userId} rồi.`
-              );
-              continue;
-            }
-
-            // Phân phối voucher cho người dùng
-            try {
-              if (voucher.quantity > 0) {
-                // Kiểm tra số lượng voucher còn lại
-                await UserVouchers.create({
-                  userId: user.userId,
-                  voucherId: voucher.voucherId,
-                  receivedAt: new Date(),
+              if (isEligible) {
+                const existingVoucher = await UserVouchers.findOne({
+                  where: {
+                    userId: user.userId,
+                    voucherId: voucher.voucherId,
+                  },
                 });
 
-                // Cập nhật số lượng voucher sau khi phân phối
-                voucher.quantity -= 1;
-                await voucher.save();
+                if (existingVoucher) {
+                  console.log(`Voucher ${voucher.code} đã được phân phối cho người dùng ${user.userId} rồi.`);
+                  return;
+                }
 
-                console.log(
-                  `Voucher ${voucher.code} đã được phân phối cho người dùng ${user.userId}. Số lượng còn lại: ${voucher.quantity}`
-                );
-              } else {
-                console.log(`Voucher ${voucher.code} đã hết số lượng.`);
+                const voucherReloaded = await Vouchers.findOne({
+                  where: { voucherId: voucher.voucherId },
+                });
+
+                if (voucherReloaded && voucherReloaded.quantity && voucherReloaded.quantity > 0) {
+                  try {
+                    await UserVouchers.create({
+                      userId: user.userId,
+                      voucherId: voucher.voucherId,
+                      receivedAt: new Date(),
+                    });
+
+                    voucherReloaded.quantity -= 1;
+                    await voucherReloaded.save();
+
+                    console.log(`Voucher ${voucher.code} đã được phân phối cho người dùng ${user.userId}. Số lượng còn lại: ${voucherReloaded.quantity}`);
+                  } catch (error) {
+                    console.error(`Lỗi khi phân phối voucher ${voucher.code} cho người dùng ${user.userId}:`, error);
+                  }
+                } else {
+                  console.log(`Voucher ${voucher.code} đã hết số lượng hoặc không tồn tại.`);
+                }
               }
-            } catch (error) {
-              console.error(
-                `Lỗi khi phân phối voucher ${voucher.code} cho người dùng ${user.userId}:`,
-                error
-              );
-            }
-          }
+            })
+          );
         }
-      }
-    }
+      })
+    );
+
+    // Gọi hàm xóa voucher bị trùng sau khi phân phối
+    await removeDuplicateVouchers();
   } catch (error) {
     console.error("Lỗi khi phân phối voucher:", error);
   }

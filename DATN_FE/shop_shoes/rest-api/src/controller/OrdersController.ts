@@ -46,6 +46,7 @@ const OrdersController = {
             model: OrderDetails,
           }
         ],
+        order: [['createdAt', 'DESC']]
       });
       if (orderItems) {
         let transferData: any[] = [];
