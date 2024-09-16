@@ -12,7 +12,7 @@ import { Products } from "../models/Products";
 import { Sizes } from "../models/Sizes";
 import { Reviewers } from "../models/Reviewers";
 import { ReviewerPhoto } from "../models/ReviewerPhoto";
-
+import Decimal from 'decimal.js';
 const OrdersController = {
 
   getLstOders: async (req: Request, res: Response, next: NextFunction) => {
@@ -48,12 +48,13 @@ const OrdersController = {
         ],
         order: [['createdAt', 'DESC']]
       });
+  
       if (orderItems) {
         let transferData: any[] = [];
         for await (const orders of orderItems) {
           const payments = await PaymentDetails.findOne({
             where: { orderDetailId: orders.orderDetailId }
-          })
+          });
           const isPaid = payments?.status === PAYMENT_STATUS.SUCCESS;
           transferData.push({
             status: orders.status,
@@ -70,9 +71,9 @@ const OrdersController = {
             sizeName: orders?.productDetails?.sizes?.name,
             quanityLimit: orders?.productDetails?.quantity,
             path: orders?.productDetails?.products?.gallery?.[0]?.path,
-          })
+          });
         }
-
+  
         res.json(
           ResponseBody({
             code: RESPONSE_CODE.SUCCESS,
@@ -89,11 +90,92 @@ const OrdersController = {
           })
         );
       }
-
+  
     } catch (error) {
       next(error);
     }
   },
+  
+
+  // getLstOders: async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const { status } = req.body;
+  //     const userId = req.userId;
+  //     const where: any = { userId };
+  //     if (status) {
+  //       where["status"] = status;
+  //     }
+  //     const orderItems = await OrderItems.findAll({
+  //       where,
+  //       include: [
+  //         {
+  //           model: ProductDetails,
+  //           include: [
+  //             {
+  //               model: Products,
+  //               include: [
+  //                 {
+  //                   model: Images,
+  //                 },
+  //               ],
+  //             },
+  //             {
+  //               model: Sizes,
+  //             },
+  //           ],
+  //         },
+  //         {
+  //           model: OrderDetails,
+  //         }
+  //       ],
+  //       order: [['createdAt', 'DESC']]
+  //     });
+  //     if (orderItems) {
+  //       let transferData: any[] = [];
+  //       for await (const orders of orderItems) {
+  //         const payments = await PaymentDetails.findOne({
+  //           where: { orderDetailId: orders.orderDetailId }
+  //         })
+  //         const isPaid = payments?.status === PAYMENT_STATUS.SUCCESS;
+  //         transferData.push({
+  //           status: orders.status,
+  //           isReview: orders.isReview,
+  //           paymentStatus: payments?.status,
+  //           price: isPaid ? orders.price : orders.productDetails.products.price,
+  //           amount: isPaid ? orders?.amount : orders.quanity * Number(orders.productDetails.products.priceDiscount),
+  //           quanity: orders?.quanity,
+  //           priceDiscount: isPaid ? orders.priceDiscount : orders.productDetails.products.priceDiscount,
+  //           productId: orders?.productDetails?.productId,
+  //           productDetailId: orders?.productDetailId,
+  //           orderItemId: orders?.orderItemId,
+  //           name: orders?.productDetails?.products?.name,
+  //           sizeName: orders?.productDetails?.sizes?.name,
+  //           quanityLimit: orders?.productDetails?.quantity,
+  //           path: orders?.productDetails?.products?.gallery?.[0]?.path,
+  //         })
+  //       }
+
+  //       res.json(
+  //         ResponseBody({
+  //           code: RESPONSE_CODE.SUCCESS,
+  //           message: "Thực hiện thành công",
+  //           data: transferData,
+  //         })
+  //       );
+  //     } else {
+  //       res.json(
+  //         ResponseBody({
+  //           code: RESPONSE_CODE.SUCCESS,
+  //           message: "Bạn chưa mua sản phẩm",
+  //           data: [],
+  //         })
+  //       );
+  //     }
+
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // },
 
   createReview: async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.userId;
