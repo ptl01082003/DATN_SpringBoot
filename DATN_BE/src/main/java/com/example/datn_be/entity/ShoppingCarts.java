@@ -9,6 +9,8 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import javax.swing.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -25,10 +27,10 @@ public class ShoppingCarts {
     private Integer cartId;
 
     @Column(name = "totals",nullable = false)
-    private Double totals;
+    private Integer totals;
 
-    @Column(name = "amount",nullable = false)
-    private Double amount;
+    @Column(name = "amount",nullable = false, precision = 16, scale = 2)
+    private BigDecimal amount;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)

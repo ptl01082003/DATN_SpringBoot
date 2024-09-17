@@ -22,6 +22,7 @@ export enum ODER_STATUS {
   CHO_GIAO_HANG = "CHO_GIAO_HANG",
   CHO_THANH_TOAN = "CHO_THANH_TOAN",
   KHONG_DU_SO_LUONG = "KHONG_DU_SO_LUONG",
+  KHONG_THANH_CONG = "KHONG_THANH_CONG",
 }
 
 export enum RETURN_STATUS {
@@ -41,7 +42,7 @@ export class OrderItems extends Model {
   @Column
   public orderItemId!: number;
 
-  @Column
+  @Column(DataType.DECIMAL(16,2))
   public amount!: number;
 
   @Default(ODER_STATUS.CHO_THANH_TOAN)
@@ -51,9 +52,10 @@ export class OrderItems extends Model {
   @Column
   public returnStatus?: REFUND_STATUS;
 
-  @Column
+  @Column(DataType.DECIMAL(16,2))
   public price!: number;
-  @Column
+  
+  @Column(DataType.DECIMAL(16,2))
   public priceDiscount!: number;
 
   @Column

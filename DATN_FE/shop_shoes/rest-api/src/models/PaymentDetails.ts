@@ -2,6 +2,7 @@ import {
   AutoIncrement,
   BelongsTo,
   Column,
+  DataType,
   Default,
   ForeignKey,
   Model,
@@ -42,7 +43,7 @@ export class PaymentDetails extends Model {
   @Column
   public status!: string;
 
-  @Column
+  @Column(DataType.DECIMAL(16,2))
   public amount!: number;
 
   @Column

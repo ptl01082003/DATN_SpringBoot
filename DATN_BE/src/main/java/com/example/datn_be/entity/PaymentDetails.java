@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -40,8 +41,8 @@ public class PaymentDetails {
     @Column(name = "status",nullable = false)
     private PAYMENT_STATUS status = PAYMENT_STATUS.IDLE;
 
-    @Column(name = "amount",nullable = false)
-    private Double amount;
+    @Column(name = "amount",nullable = false, precision = 16, scale = 2)
+    private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "provider",nullable = false)

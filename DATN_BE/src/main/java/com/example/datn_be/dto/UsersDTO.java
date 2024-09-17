@@ -28,7 +28,7 @@ public class UsersDTO {
     private LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-    private List<String> roles;
+    private String roles;
     private Integer roleId;
 
 }

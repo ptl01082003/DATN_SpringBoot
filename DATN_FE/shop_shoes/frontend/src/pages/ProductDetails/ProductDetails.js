@@ -104,16 +104,36 @@ export default function ProductDetails() {
     setCurrentSize(size);
   };
 
+  // const addProductsToCart = async () => {
+  //   const newCarts = await AxiosClient.post("/carts/create", {
+  //     quanity: counterSize,
+  //     productDetailId: currentSize?.productDetailId,
+  //   });
+  //   if (newCarts?.code === 0) {
+  //     setCounterSize(newCarts.data?.quanity || 1);
+  //     dispatch(changeCarts(newCarts.data?.carts));
+  //   } else {
+  //     toast.error(newCarts?.messsage);
+  //   }
+  // };
+
+
   const addProductsToCart = async () => {
-    const newCarts = await AxiosClient.post("/carts/create", {
-      quanity: counterSize,
-      productDetailId: currentSize?.productDetailId,
-    });
-    if (newCarts?.code === 0) {
-      setCounterSize(newCarts.data?.quanity || 1);
-      dispatch(changeCarts(newCarts.data?.carts));
-    } else {
-      toast.error(newCarts?.messsage);
+    try {
+      const newCarts = await AxiosClient.post("/carts/create", {
+        quanity: counterSize,
+        productDetailId: currentSize?.productDetailId,
+      });
+  
+      if (newCarts?.code === 0) {
+        setCounterSize(newCarts.data?.quanity || 1);
+        dispatch(changeCarts(newCarts.data?.carts));
+        toast.success("Sản phẩm đã được thêm vào giỏ hàng thành công!"); 
+      } else {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng!"); 
+      }
+    } catch (error) {
+      toast.error("Có lỗi xảy ra, vui lòng thử lại!"); 
     }
   };
 

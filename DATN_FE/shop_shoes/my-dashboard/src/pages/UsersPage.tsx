@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { DeleteOutlined, EditOutlined, FileAddTwoTone } from "@ant-design/icons";
-import { Button, Drawer, Form, Input, Select, Space, Switch, Table, message, DatePicker } from "antd";
+import { Button, Drawer, Form, Input, Select, Table, message, DatePicker } from "antd";
 import { toast } from "react-toastify";
 import UserService from "../services/userApi";
 import dayjs from "dayjs";
 
 const { Option } = Select;
+
+enum UserStatus {
+  ACTIVE = "LAM_VIEC",
+  INACTIVE = "NGHI_VIEC",
+}
 
 interface User {
   userId: number;
@@ -14,9 +18,10 @@ interface User {
   phone: string;
   fullName: string;
   birth: string;
-  roles: string[];
-  status: boolean;
-  password?: string;  // Optional for editing existing users
+  roles: string; // Đảm bảo vai trò luôn là chuỗi
+  status: string;
+  password?: string;  // Tùy chọn cho việc chỉnh sửa người dùng hiện tại
+  roleId?: number; // Thêm roleId
 }
 
 interface ModalInfo {
@@ -34,17 +39,16 @@ const UserPage: React.FC = () => {
     (async () => {
       try {
         const userResponse = await UserService.getUsers();
-        console.log('Full Response:', userResponse);  // Log toàn bộ phản hồi
-  
-        // Xử lý phản hồi trực tiếp nếu đó là mảng
+        console.log('Phản hồi đầy đủ:', userResponse);
+
         if (Array.isArray(userResponse)) {
           setUsers(userResponse);
         } else {
-          console.error("Dữ liệu phản hồi không phải là mảng", userResponse);
+          console.error("Định dạng dữ liệu không hợp lệ:", userResponse);
         }
       } catch (error) {
-        console.error("Có lỗi xảy ra khi tải người dùng", error);
-        toast.error("Có lỗi xảy ra khi tải người dùng.");
+        console.error("Lỗi khi lấy người dùng:", error);
+        toast.error("Lỗi khi lấy người dùng.");
       }
     })();
   }, []);
@@ -53,7 +57,8 @@ const UserPage: React.FC = () => {
     try {
       let response;
       const birth = values.birth?.format('YYYY-MM-DD');
-      const data = { ...values, birth };
+      const data = { ...values, birth, roleId: values.roles }; // Sửa `roleId` từ `roles`
+
       if (!data.password) delete data.password;
 
       if (modalInfo.mode === "create") {
@@ -80,19 +85,7 @@ const UserPage: React.FC = () => {
         );
       }
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi xử lý dữ liệu.");
-    }
-  };
-
-  const handleDeleteUser = async (userId: number) => {
-    try {
-      await UserService.deleteUser(userId);
-      setUsers((prev) =>
-        prev.filter((item) => item.userId !== userId)
-      );
-      message.success("Xóa người dùng thành công!");
-    } catch (error) {
-      message.error("Có lỗi xảy ra khi xóa người dùng.");
+      toast.error("Lỗi khi xử lý dữ liệu.");
     }
   };
 
@@ -109,75 +102,73 @@ const UserPage: React.FC = () => {
         phone: user.phone,
         fullName: user.fullName,
         birth: user.birth ? dayjs(user.birth) : null,
-        roles: user.roles,
-        status: user.status,  
+        roles: user.roleId, // Đặt roleId khi chỉnh sửa
+        status: user.status,
         password: '',  
-      }); 
+      });
     } else {
-      console.error("Invalid user data:", user);
+      console.error("Dữ liệu người dùng không hợp lệ:", user);
     }
   };
 
   const columns = [
     {
-      title: "Mã người dùng",
-      dataIndex: "userId",
-      key: "userId",
-      render: (userId: number) => userId || 'N/A', // Safeguard
+      title: 'ID',
+      dataIndex: 'userId',
+      key: 'userId',
+      render: (text: string) => <span>{text}</span>,
     },
     {
-      title: "Tên người dùng",
-      dataIndex: "userName",
-      key: "userName",
+      title: 'Tên người dùng',
+      dataIndex: 'userName',
+      key: 'userName',
+      render: (text: string) => <span>{text}</span>,
     },
     {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      render: (text: string) => <span>{text}</span>,
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
-      key: "phone",
+      title: 'Số điện thoại',
+      dataIndex: 'phone',
+      key: 'phone',
+      render: (text: string) => <span>{text}</span>,
     },
     {
-      title: "Tên đầy đủ",
-      dataIndex: "fullName",
-      key: "fullName",
+      title: 'Tên đầy đủ',
+      dataIndex: 'fullName',
+      key: 'fullName',
+      render: (text: string) => <span>{text}</span>,
     },
     {
-      title: "Ngày sinh",
-      dataIndex: "birth",
-      key: "birth",
-      render: (birth: string) => dayjs(birth).format('DD-MM-YYYY'),
+      title: 'Ngày sinh',
+      dataIndex: 'birth',
+      key: 'birth',
+      render: (text: string) => <span>{dayjs(text).format('DD-MM-YYYY')}</span>,
     },
     {
-      title: "Vai trò",
-      dataIndex: "roles",
-      key: "roles",
-      render: (roles: string[]) => Array.isArray(roles) ? roles.join(", ") : "",
+      title: 'Vai trò',
+      dataIndex: 'roles',
+      key: 'roles',
+      render: (text: string) => <span>{text}</span>, // Bạn có thể thay đổi cách hiển thị vai trò nếu cần
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      render: (status: boolean) => (status ? "Làm việc" : "Nghỉ việc"),
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      render: (text: string) => <span>{text === UserStatus.ACTIVE ? 'Hoạt động' : 'Ngừng hoạt động'}</span>,
     },
     {
-      title: "Hành động",
-      key: "action",
-      render: (_: any, record: User) => (
-        <Space size="middle">
-          <Button icon={<EditOutlined />} onClick={() => handleEditUser(record)}>
-            Sửa
-          </Button>
-          <Button icon={<DeleteOutlined />} onClick={() => handleDeleteUser(record.userId)}>
-            Xóa
-          </Button>
-        </Space>
+      title: 'Thao tác',
+      key: 'action',
+      render: (text: string, record: User) => (
+        <Button onClick={() => handleEditUser(record)}>Sửa</Button>
       ),
     },
   ];
+  
 
   return (
     <>
@@ -213,14 +204,14 @@ const UserPage: React.FC = () => {
           <Form.Item
             name="userName"
             label="Tên người dùng"
-            rules={[{ required: true, message: "Tên người dùng không được để trống" }]}
+            rules={[{ required: true, message: "Tên người dùng là bắt buộc" }]}
           >
             <Input placeholder="Nhập tại đây" />
           </Form.Item>
           <Form.Item
             name="email"
             label="Email"
-            rules={[{ required: true, message: "Email không được để trống" }]}
+            rules={[{ required: true, message: "Email là bắt buộc" }]}
           >
             <Input placeholder="Nhập tại đây" />
           </Form.Item>
@@ -240,42 +231,37 @@ const UserPage: React.FC = () => {
             name="birth"
             label="Ngày sinh"
           >
-            <DatePicker format="YYYY-MM-DD" />
+            <DatePicker format="DD-MM-YYYY" />
           </Form.Item>
           <Form.Item
-            name="roles"
+            name="roles"  // Đảm bảo roleId được truyền đúng
             label="Vai trò"
-            rules={[{ required: true, message: "Vai trò không được để trống" }]}
+            rules={[{ required: true, message: "Vai trò là bắt buộc" }]}
           >
-            <Select placeholder="Chọn vai trò" mode="multiple">
-              <Option value="ADMIN">Quản trị viên</Option>
-              <Option value="MEMBERSHIP">Nhân Viên</Option>
+            <Select placeholder="Chọn vai trò">
+              <Option value={3}>Quản trị viên</Option>
+              <Option value={2}>Thành viên</Option>
             </Select>
           </Form.Item>
           <Form.Item
             name="status"
             label="Trạng thái"
-            valuePropName="checked"
           >
-            <Switch />
+            <Select placeholder="Chọn trạng thái">
+              <Option value={UserStatus.ACTIVE}>Hoạt động</Option>
+              <Option value={UserStatus.INACTIVE}>Ngừng hoạt động</Option>
+            </Select>
           </Form.Item>
-          {modalInfo.mode === "create" && (
-            <Form.Item
-              name="password"
-              label="Mật khẩu"
-              rules={[{ required: true, message: "Mật khẩu không được để trống" }]}
-            >
-              <Input.Password placeholder="Nhập mật khẩu" />
-            </Form.Item>
-          )}
+          <Form.Item
+            name="password"
+            label="Mật khẩu"
+            rules={[{ required: modalInfo.mode === "create", message: "Mật khẩu là bắt buộc" }]}
+          >
+            <Input.Password placeholder="Nhập mật khẩu" />
+          </Form.Item>
           <Form.Item>
-            <Button
-              type="primary"
-              shape="round"
-              icon={<FileAddTwoTone />}
-              htmlType="submit"
-            >
-              {modalInfo.mode === "create" ? "Thêm mới" : "Cập nhật"}
+            <Button type="primary" htmlType="submit" className="w-full">
+              {modalInfo.mode === "create" ? "Thêm" : "Cập nhật"}
             </Button>
           </Form.Item>
         </Form>
