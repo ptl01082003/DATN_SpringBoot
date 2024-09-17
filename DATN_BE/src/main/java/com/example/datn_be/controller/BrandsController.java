@@ -26,7 +26,7 @@ public class BrandsController {
         try {
             Brands brand = brandService.addBrand(brandDTO);
             return new ResponseEntity<>(
-                    Map.of("message", "Thực hiện thành công", "data", brand),
+                    Map.of("code",0,"message", "Thực hiện thành công", "data", brand),
                     HttpStatus.CREATED
             );
         } catch (Exception e) {
@@ -87,7 +87,7 @@ public class BrandsController {
             Brands updatedBrand = brandService.updateBrand(brandDTO);
             if (updatedBrand != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", updatedBrand),
+                        Map.of("code",0,"message", "Thực hiện thành công", "data", updatedBrand),
                         HttpStatus.OK
                 );
             } else {
@@ -113,7 +113,7 @@ public class BrandsController {
         try {
             boolean isDeleted = brandService.deleteBrand(brandId);
             if (isDeleted) {
-                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
+                return ResponseEntity.ok(Map.of("code",0,"message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("message", "Thương hiệu không tồn tại"));

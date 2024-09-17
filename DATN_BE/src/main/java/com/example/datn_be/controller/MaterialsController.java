@@ -110,7 +110,7 @@ public class MaterialsController {
         try {
             boolean isDeleted = materialService.deleteMaterial(materialId);
             if (isDeleted) {
-                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
+                return ResponseEntity.ok(Map.of("code",0,"message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("message", "Thương hiệu không tồn tại"));

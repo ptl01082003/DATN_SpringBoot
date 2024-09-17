@@ -52,7 +52,19 @@ const UserPage: React.FC = () => {
       }
     })();
   }, []);
-
+  const fetchUsers = async () => {
+    try {
+      const userResponse = await UserService.getUsers();
+      if (Array.isArray(userResponse)) {
+        setUsers(userResponse);
+      } else {
+        console.error("Dữ liệu phản hồi không phải là mảng", userResponse);
+      }
+    } catch (error) {
+      console.error("Có lỗi xảy ra khi tải người dùng", error);
+      toast.error("Có lỗi xảy ra khi tải người dùng.");
+    }
+  };
   const onFinish = async (values: any) => {
     try {
       let response;
@@ -64,10 +76,14 @@ const UserPage: React.FC = () => {
       if (modalInfo.mode === "create") {
         response = await UserService.createUser(data);
         toast.success("Thêm người dùng thành công!");
+        setModalInfo({ open: false, mode: modalInfo.mode });
+        fetchUsers();
       } else {
         if (modalInfo.data?.userId) {
           response = await UserService.updateUser(modalInfo.data.userId, data);
           toast.success("Cập nhật người dùng thành công!");
+          setModalInfo({ open: false, mode: modalInfo.mode });
+          fetchUsers();
         } else {
           toast.error("ID người dùng không hợp lệ.");
           return;
@@ -104,7 +120,7 @@ const UserPage: React.FC = () => {
         birth: user.birth ? dayjs(user.birth) : null,
         roles: user.roleId, // Đặt roleId khi chỉnh sửa
         status: user.status,
-        password: '',  
+        password: '',
       });
     } else {
       console.error("Dữ liệu người dùng không hợp lệ:", user);
@@ -168,7 +184,7 @@ const UserPage: React.FC = () => {
       ),
     },
   ];
-  
+
 
   return (
     <>
@@ -271,3 +287,4 @@ const UserPage: React.FC = () => {
 };
 
 export default UserPage;
+

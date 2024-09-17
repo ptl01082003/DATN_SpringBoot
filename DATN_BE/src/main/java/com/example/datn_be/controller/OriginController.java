@@ -47,7 +47,7 @@ public class OriginController {
         try{
             Origins origins = originService.addOrigin(originsDTO);
             return  new ResponseEntity<>(
-                    Map.of("message","Thực hiện thành công","data",origins),
+                    Map.of("code",0,"message","Thực hiện thành công","data",origins),
                     HttpStatus.OK
             );
         }catch (Exception e){
@@ -92,7 +92,7 @@ public class OriginController {
             Origins origin = originService.updateOrigin(originsDTO);
             if (origin != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", origin),
+                        Map.of("code",0,"message", "Thực hiện thành công", "data", origin),
                         HttpStatus.OK
                 );
             } else {
@@ -119,7 +119,7 @@ public class OriginController {
         try {
             boolean isDeleted = originService.deleteOrigin(originId);
             if (isDeleted) {
-                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
+                return ResponseEntity.ok(Map.of("code",0,"message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("message", "Thương hiệu không tồn tại"));

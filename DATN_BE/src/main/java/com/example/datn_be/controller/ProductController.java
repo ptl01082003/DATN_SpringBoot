@@ -26,7 +26,7 @@ public class ProductController {
         try {
             Products product = productService.addProduct(productDTO);
             return new ResponseEntity<>(
-                    Map.of("message", "Thực hiện thành công", "data", product),
+                    Map.of("code",0,"message", "Thực hiện thành công", "data", product),
                     HttpStatus.CREATED
             );
         } catch (Exception e) {
@@ -44,7 +44,7 @@ public class ProductController {
         try {
             List<Products> products = productService.getProducts();
             return new ResponseEntity<>(
-                    Map.of("message", "Thực hiện thành công", "data", products),
+                    Map.of("code",0,"message", "Thực hiện thành công", "data", products),
                     HttpStatus.OK
             );
         } catch (Exception e) {
@@ -107,7 +107,7 @@ public class ProductController {
             Products updatedProduct = productService.updateProduct(productDTO);
             if (updatedProduct != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", updatedProduct),
+                        Map.of("code",0,"message", "Thực hiện thành công", "data", updatedProduct),
                         HttpStatus.OK
                 );
             } else {

@@ -29,7 +29,7 @@ public class VouchersController {
         try {
             VouchersDTO voucher = voucherService.createVoucher(voucherDTO);
             return new ResponseEntity<>(
-                    Map.of("message", "Thực hiện thành công", "data", voucher),
+                    Map.of("code",0,"message", "Thực hiện thành công", "data", voucher),
                     HttpStatus.CREATED
             );
         } catch (Exception e) {
@@ -92,7 +92,7 @@ public class VouchersController {
             VouchersDTO updatedVoucherDTO = voucherService.updateVoucher(voucherId, voucherDTO);
             if (updatedVoucherDTO != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", updatedVoucherDTO),
+                        Map.of("code",0,"message", "Thực hiện thành công", "data", updatedVoucherDTO),
                         HttpStatus.OK
                 );
             } else {
@@ -120,7 +120,7 @@ public class VouchersController {
         try {
             boolean isDeleted = voucherService.deleteVoucher(voucherId);
             if (isDeleted) {
-                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
+                return ResponseEntity.ok(Map.of("code",0,"message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("message", "Voucher không tồn tại"));
