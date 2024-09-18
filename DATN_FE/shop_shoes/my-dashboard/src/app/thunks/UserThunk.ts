@@ -23,6 +23,7 @@ export const fetchGetUserInfo = createAsyncThunk(
           },
         }
       );
+      console.log("response", response)
       return response.data;
     }
   );

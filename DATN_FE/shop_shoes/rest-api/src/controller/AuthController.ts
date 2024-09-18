@@ -6,7 +6,6 @@ import { RESPONSE_CODE, ResponseBody } from "../constants";
 import { ROLE_TYPES, Roles } from "../models/Roles";
 import { Users } from "../models/Users";
 import { Vouchers, Vouchers_STATUS } from "../models/Vouchers";
-import { UserVouchers } from "../models/UserVouchers";
 
 const authCtrl = {
   register: async (req: Request, res: Response, next: NextFunction) => {
@@ -64,8 +63,8 @@ const authCtrl = {
             userId: user.userId,
           });
           await redis.set(`roles-${user.userId}`, user.roles.type);
-          await redis.set(`accessToken-${user.userId}`, accessToken);
-          await redis.set(`refreshToken-${user.userId}`, refreshToken);
+          await redis.set(`accessTokenNode-${user.userId}`, accessToken);
+          await redis.set(`refreshTokenNode-${user.userId}`, refreshToken);
           return res.json(
             ResponseBody({
               data: {
@@ -130,8 +129,8 @@ const authCtrl = {
             userId: user.userId,
           });
           await redis.set(`roles-${user.userId}`, user.roles.type);
-          await redis.set(`accessToken-${user.userId}`, accessToken);
-          await redis.set(`refreshToken-${user.userId}`, refreshToken);
+          await redis.set(`accessTokenNode-${user.userId}`, accessToken);
+          await redis.set(`refreshTokenNode-${user.userId}`, refreshToken);
           return res.json(
             ResponseBody({
               data: {
@@ -168,8 +167,8 @@ const authCtrl = {
     try {
       const userId = req.userId;
       await redis.del(`roles-${userId}`);
-      await redis.del(`accessToken-${userId}`);
-      await redis.del(`refreshToken-${userId}`);
+      await redis.del(`accessTokenNode-${userId}`);
+      await redis.del(`refreshTokenNode-${userId}`);
       return res.json(
         ResponseBody({
           data: null,
@@ -208,7 +207,7 @@ const authCtrl = {
             const accessToken = authCtrl.generateAccessToken({
               userId: decoded.userId,
             });
-            await redis.set(`accessToken-${decoded.userId}`, accessToken);
+            await redis.set(`accessTokenNode-${decoded.userId}`, accessToken);
             if (refreshToken === rfTokenInRedis) {
               return res.json(
                 ResponseBody({
