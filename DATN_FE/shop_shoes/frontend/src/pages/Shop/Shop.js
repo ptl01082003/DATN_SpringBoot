@@ -331,7 +331,7 @@
 //                 setFilterParams({});
 //                 setPriceRange([0, 1000000]);
 //               }}
-//               className="px-4 py-2 bg-blue-500 text-white rounded"
+//               className="px-4 py-2 text-white bg-blue-500 rounded"
 //           >
 //             Làm mới
 //           </button>
@@ -391,7 +391,7 @@
 //                 {/*    <button*/}
 //                 {/*        // onClick={() => handlePageChange(currentPage - 1)}*/}
 //                 {/*        // disabled={currentPage === 1}*/}
-//                 {/*        className="px-4 py-2 mx-2 bg-gray-300 text-white rounded"*/}
+//                 {/*        className="px-4 py-2 mx-2 text-white bg-gray-300 rounded"*/}
 //                 {/*    >*/}
 //                 {/*        Previous*/}
 //                 {/*    </button>*/}
@@ -401,7 +401,7 @@
 //                 {/*    <button*/}
 //                 {/*        // onClick={() => handlePageChange(currentPage + 1)}*/}
 //                 {/*        // disabled={currentPage === totalPages}*/}
-//                 {/*        className="px-4 py-2 mx-2 bg-gray-300 text-white rounded"*/}
+//                 {/*        className="px-4 py-2 mx-2 text-white bg-gray-300 rounded"*/}
 //                 {/*    >*/}
 //                 {/*        Next*/}
 //                 {/*    </button>*/}
@@ -773,9 +773,9 @@ const Shop = () => {
                         setFilterParams({});
                         setPriceRange([0, 5000]);
                     }}
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    className="px-4 py-2 text-white bg-blue-500 rounded"
                 >
-                    Làm mới
+                    Reset bộ lọc
                 </button>
             </div>
 
@@ -833,7 +833,7 @@ const Shop = () => {
                         {/*    <button*/}
                         {/*        // onClick={() => handlePageChange(currentPage - 1)}*/}
                         {/*        // disabled={currentPage === 1}*/}
-                        {/*        className="px-4 py-2 mx-2 bg-gray-300 text-white rounded"*/}
+                        {/*        className="px-4 py-2 mx-2 text-white bg-gray-300 rounded"*/}
                         {/*    >*/}
                         {/*        Previous*/}
                         {/*    </button>*/}
@@ -843,7 +843,7 @@ const Shop = () => {
                         {/*    <button*/}
                         {/*        // onClick={() => handlePageChange(currentPage + 1)}*/}
                         {/*        // disabled={currentPage === totalPages}*/}
-                        {/*        className="px-4 py-2 mx-2 bg-gray-300 text-white rounded"*/}
+                        {/*        className="px-4 py-2 mx-2 text-white bg-gray-300 rounded"*/}
                         {/*    >*/}
                         {/*        Next*/}
                         {/*    </button>*/}

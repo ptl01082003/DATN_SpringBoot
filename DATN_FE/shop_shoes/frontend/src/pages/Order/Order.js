@@ -102,11 +102,11 @@ const Oders = () => {
 
   // Handle voucher selection
   const handleVoucherSelect = (voucher) => {
-    const orderPrice = Number(voucher?.voucher?.valueOrder || 0);
-    if (orderPrice > discountedAmount) {
-      toast.error("Không đủ điều kiện sử dụng voucher");
-      return;
-    }
+    // const orderPrice = Number(voucher?.voucher?.valueOrder || 0);
+    // if (orderPrice > discountedAmount) {
+    //   toast.error("Không đủ điều kiện sử dụng voucher");
+    //   return;
+    // }
     setSelectedVoucher(voucher);
     setModalVisible(false);
   };
@@ -147,7 +147,7 @@ const Oders = () => {
                   <img
                     src={URL_IMAGE(items?.path)}
                     alt={items?.name}
-                    className="object-cover w-full h-full rounded-xl"
+                    className="w-full h-full object-cover rounded-xl"
                   />
                 </div>
                 <div className="flex-1">
@@ -188,7 +188,7 @@ const Oders = () => {
                 {...register("name")}
                 type="text"
                 placeholder="Nhập tại đây"
-                className="w-full px-4 py-3 text-sm text-gray-800 border border-gray-300 rounded-lg outline-blue-600"
+                className="w-full px-4 py-3 text-sm text-gray-800 rounded-lg border border-gray-300 outline-blue-600"
                 aria-invalid={errors.name ? "true" : "false"}
               />
               <svg
@@ -219,7 +219,7 @@ const Oders = () => {
                 {...register("phone")}
                 type="text"
                 placeholder="Nhập tại đây"
-                className="w-full px-4 py-3 text-sm text-gray-800 border border-gray-300 rounded-lg outline-blue-600"
+                className="w-full px-4 py-3 text-sm text-gray-800 rounded-lg border border-gray-300 outline-blue-600"
                 aria-invalid={errors.phone ? "true" : "false"}
               />
               <svg
@@ -249,7 +249,7 @@ const Oders = () => {
                 {...register("address")}
                 type="text"
                 placeholder="Nhập tại đây"
-                className="w-full px-4 py-3 text-sm text-gray-800 border border-gray-300 rounded-lg outline-blue-600"
+                className="w-full px-4 py-3 text-sm text-gray-800 rounded-lg border border-gray-300 outline-blue-600"
                 aria-invalid={errors.address ? "true" : "false"}
               />
               <svg
@@ -315,7 +315,7 @@ const Oders = () => {
           </div>
 
           <div className="flex flex-col space-y-4">
-            <button className="px-4 py-3 font-bold rounded-lg bg-orange-400 text-white" type="button" onClick={() => setModalVisible(true)}>
+            <button className="px-4 py-3 font-bold text-white bg-orange-400 rounded-lg" type="button" onClick={() => setModalVisible(true)}>
               Chọn voucher
             </button>
             {selectedVoucher && (
@@ -344,7 +344,7 @@ const Oders = () => {
                   {vouchers.map((voucher) => (
                     <div
                       key={voucher.voucherId}
-                      className="flex items-center justify-between mb-4"
+                      className="flex justify-between items-center mb-4"
                     >
                       <div>
                         <p>
@@ -519,7 +519,7 @@ export default Oders;
 //                 <div className="w-[160px] aspect-square flex-shrink-0">
 //                   <img
 //                     src={URL_IMAGE(items?.path)}
-//                     className="object-cover w-full h-full rounded-xl"
+//                     className="w-full h-full object-cover rounded-xl"
 //                   />
 //                 </div>
 //                 <div className="flex-1">
@@ -560,7 +560,7 @@ export default Oders;
 //                 {...register("name")}
 //                 type="text"
 //                 placeholder="Nhập tại đây"
-//                 className="w-full px-4 py-3 text-sm text-gray-800 border border-gray-300 rounded-lg outline-blue-600"
+//                 className="w-full px-4 py-3 text-sm text-gray-800 rounded-lg border border-gray-300 outline-blue-600"
 //               />
 //               <svg
 //                 xmlns="http://www.w3.org/2000/svg"
@@ -588,7 +588,7 @@ export default Oders;
 //                 {...register("phone")}
 //                 type="text"
 //                 placeholder="Nhập tại đây"
-//                 className="w-full px-4 py-3 text-sm text-gray-800 border border-gray-300 rounded-lg outline-blue-600"
+//                 className="w-full px-4 py-3 text-sm text-gray-800 rounded-lg border border-gray-300 outline-blue-600"
 //               />
 //               <svg
 //                 xmlns="http://www.w3.org/2000/svg"
@@ -615,7 +615,7 @@ export default Oders;
 //                 {...register("address")}
 //                 type="text"
 //                 placeholder="Nhập tại đây"
-//                 className="w-full px-4 py-3 text-sm text-gray-800 border border-gray-300 rounded-lg outline-blue-600"
+//                 className="w-full px-4 py-3 text-sm text-gray-800 rounded-lg border border-gray-300 outline-blue-600"
 //               />
 //               <svg
 //                 xmlns="http://www.w3.org/2000/svg"
@@ -700,7 +700,7 @@ export default Oders;
 //                   {vouchers.map((voucher) => (
 //                     <div
 //                       key={voucher.voucherId}
-//                       className="flex items-center justify-between mb-4"
+//                       className="flex justify-between items-center mb-4"
 //                     >
 //                       <div>
 //                         <p>
