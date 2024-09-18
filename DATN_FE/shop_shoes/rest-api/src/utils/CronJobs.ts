@@ -28,15 +28,15 @@ import cron from "node-cron";
 import { distributeVouchers } from "../service/VoucherService"; 
 import { updateProductPrices } from "./utils";
 
-cron.schedule("* * * * *", async () => {
-  console.log(`Cron job phân phối voucher bắt đầu lúc: ${new Date().toLocaleString()}`);
-  try {
-    await distributeVouchers();
-    console.log("Cron job phân phối voucher hoàn thành.");
-  } catch (error) {
-    console.error("Lỗi khi phân phối voucher:", error);
-  }
-});
+// cron.schedule("* * * * *", async () => {
+//   console.log(`Cron job phân phối voucher bắt đầu lúc: ${new Date().toLocaleString()}`);
+//   try {
+//     await distributeVouchers();
+//     console.log("Cron job phân phối voucher hoàn thành.");
+//   } catch (error) {
+//     console.error("Lỗi khi phân phối voucher:", error);
+//   }
+// });
 
 
 cron.schedule("* * * * *", async () => {

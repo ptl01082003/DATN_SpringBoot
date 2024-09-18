@@ -6,7 +6,7 @@ import { UserVouchers } from "../models/UserVouchers";
 import { startOfDay, endOfDay } from "date-fns";
 import sequelize from "sequelize";
 
-// Hàm xóa voucher bị trùng
+
 async function removeDuplicateVouchers() {
   try {
     const duplicates = await UserVouchers.findAll({
@@ -76,7 +76,7 @@ async function checkVoucherEligibility(
       },
     });
 
-    // Kiểm tra điều kiện voucher
+
     switch (voucher.ruleType) {
       case Voucher_RULE.MIN_ORDER_VALUE:
         if (orderValue < (voucher.minOrderValue || 0)) {

@@ -615,30 +615,31 @@ const Shop = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(5); // Số lượng sản phẩm mỗi trang
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            setIsFetching(true);
-            try {
-                const response = await AxiosClient.post(
-                    "/products/lst-products",
-                    {
-                        ...filterParams,
-                        minPrice: priceRange[0],
-                        maxPrice: priceRange[1],
-                        page: currentPage,
-                        size: pageSize
-                    }
-                );
-                setLstProducts(response?.data || []);
-            } catch (error) {
-                console.error("Failed to fetch products", error);
-            } finally {
-                setIsFetching(false);
-            }
-        };
+        useEffect(() => {
+            const fetchProducts = async () => {
+                setIsFetching(true);
+                try {
+                    const response = await AxiosClient.post(
+                        "/products/lst-products",
+                        {
+                            ...filterParams,
+                            minPrice: priceRange[0],
+                            maxPrice: priceRange[1],
+                            page: currentPage,
+                            size: pageSize,
+                        
+                        }
+                    );
+                    setLstProducts(response?.data || []);
+                } catch (error) {
+                    console.error("Failed to fetch products", error);
+                } finally {
+                    setIsFetching(false);
+                }
+            };
 
-        fetchProducts();
-    }, [filterParams, priceRange,currentPage,pageSize]);
+            fetchProducts();
+        }, [filterParams, priceRange,currentPage,pageSize]);
 
     useEffect(() => {
         const fetchFilters = async () => {
