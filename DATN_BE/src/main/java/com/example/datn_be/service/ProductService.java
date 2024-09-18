@@ -14,4 +14,5 @@ public interface ProductService {
     Products updateProduct(ProductsDTO productDTO);
     boolean deleteProduct(Integer productId);
     List<Products> getDiscountedProducts();
+    void updateProductStatus(Integer productId, boolean status);
 }

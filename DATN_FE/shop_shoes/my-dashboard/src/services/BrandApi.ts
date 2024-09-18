@@ -3,7 +3,7 @@
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
 import { KEY_STORAGE } from "../constants";
-const API_URL = "/brands"; // Đảm bảo rằng URL tương ứng với API của bạn
+const API_URL = "/brands"; 
 
 const BrandService = {
   getBrands: async () => {

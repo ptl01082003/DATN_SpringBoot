@@ -80,6 +80,7 @@ const ProductsController = {
     try {
       // Lấy tất cả sản phẩm
       const products = await Products.findAll({
+        where: { status: 1 }, 
         include: [
           {
             model: Materials,

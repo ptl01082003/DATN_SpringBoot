@@ -60,7 +60,7 @@ public class OrderItems {
 
     @ManyToOne
     @JoinColumn(name = "userId")
-    private Users user;
+    private Users users;
 
     @Column(name = "isReview")
     private Boolean isReview = false;

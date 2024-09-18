@@ -73,8 +73,8 @@ public class OrderDetails {
     @Enumerated(EnumType.STRING)
     private REFUND_STATUS refundStatus;
 
-    @Column(name = "refundAmount")
-    private Double refundAmount;
+    @Column(name = "refundAmount" , precision = 16, scale = 2)
+    private BigDecimal refundAmount;
 
     @CreatedDate
     @Column(name = "createdAt", updatable = false)

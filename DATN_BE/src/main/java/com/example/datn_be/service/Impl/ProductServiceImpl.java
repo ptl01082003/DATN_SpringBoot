@@ -223,5 +223,19 @@ public class ProductServiceImpl implements ProductService {
         return productsRepository.findAll().stream()
                 .filter(product -> product.getPriceDiscount() != null && product.getPriceDiscount().compareTo(BigDecimal.ZERO) > 0)
                 .collect(Collectors.toList());
+
     }
+
+    public void updateProductStatus(Integer productId, boolean status) {
+        // Lấy sản phẩm từ cơ sở dữ liệu
+        Products product = productsRepository.findById(productId).orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
+
+        // Cập nhật trạng thái
+        product.setStatus(status);
+
+        // Lưu thay đổi vào cơ sở dữ liệu
+        productsRepository.save(product);
+    }
+
+
 }

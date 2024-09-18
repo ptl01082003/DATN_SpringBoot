@@ -87,6 +87,11 @@ public class OrderItemsServiceImpl implements OrderItemsService {
             String statusName = orders.getStatus() != null ? orders.getStatus().name() : "UNKNOWN";
             String returnStatusName = orders.getReturnStatus() != null ? orders.getReturnStatus().name() : "UNKNOWN";
 
+            String path = orders.getProductDetails() != null && orders.getProductDetails().getProducts() != null &&
+                    orders.getProductDetails().getProducts().getGallery() != null &&
+                    !orders.getProductDetails().getProducts().getGallery().isEmpty() ?
+                    orders.getProductDetails().getProducts().getGallery().get(0).getPath() : null;
+
             OrderItemsDTO dto = new OrderItemsDTO(
                     orders.getOrderItemId(),
                     orders.getAmount() != null ? orders.getAmount() : BigDecimal.valueOf(0),
@@ -102,7 +107,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
                     orders.getCreatedAt(),
                     orders.getUpdatedAt(),
                     orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getProductId() : null,
-                    orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getName() : null,
+                    path,
                     orders.getProductDetails() != null ? Integer.valueOf(orders.getProductDetails().getSizes().getName()) : null,
                     orders.getProductDetails() != null ? orders.getProductDetails().getSellQuanity() : null,
                     orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getCode() : null,
@@ -131,7 +136,8 @@ public class OrderItemsServiceImpl implements OrderItemsService {
             // Xử lý khi trạng thái chuyển từ "Chờ xác nhận" sang "Chờ lấy hàng"
             if (OrderItems.ORDER_STATUS.CHO_XAC_NHAN.equals(oldStatus) &&
                     OrderItems.ORDER_STATUS.CHO_LAY_HANG.equals(newStatus)) {
-                generateInvoice(orderItem);  // Tạo hóa đơn
+                generateInvoice(orderItem);
+                // Tạo hóa đơn
                 sendEmail(orderItem);
                 updateStock(orderItem, -orderItem.getQuanity());
             }

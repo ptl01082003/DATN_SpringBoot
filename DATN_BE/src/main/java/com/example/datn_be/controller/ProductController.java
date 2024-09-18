@@ -19,7 +19,17 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-
+    @PostMapping("/update-status")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
+    public ResponseEntity<String> updateProductStatus(
+            @RequestBody ProductsDTO request) {
+        try {
+            productService.updateProductStatus(request.getProductId(), request.getStatus());
+            return ResponseEntity.ok("Trạng thái sản phẩm đã được cập nhật");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<?> addProduct(@RequestBody ProductsDTO productDTO) {

@@ -39,6 +39,7 @@
         @Column(name = "userName", nullable = false)
         private String userName;
 
+
         @Column(name = "email", nullable = false, unique = true)
         private String email;
 

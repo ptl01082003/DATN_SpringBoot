@@ -7,6 +7,25 @@ import { KEY_STORAGE } from "../constants";
 const API_URL = "/products";
 
 const ProductService = {
+
+  updateProductStatus : async (productId, status) => {
+    try {
+        const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+        const response = await AxiosClient.post(`${API_URL}/update-status`, {
+            productId,
+            status
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return response;
+    } catch (error) {
+        console.error("Lỗi khi cập nhật trạng thái sản phẩm", error);
+        throw error;
+    }
+  },
   // Lấy danh sách tất cả sản phẩm
   getProducts: async () => {
     try {
