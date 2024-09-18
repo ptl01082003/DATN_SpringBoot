@@ -1,9 +1,9 @@
 import jwt, { Secret } from "jsonwebtoken";
-import { redis } from "../config/ConnectRedis";
 
 export const authSocket = (socket: Socket.ExternalSocket, next: any) => {
   try {
     const token = socket.handshake.auth.token;
+    console.log(token);
     if (token) {
       jwt.verify(
         token,
@@ -12,15 +12,8 @@ export const authSocket = (socket: Socket.ExternalSocket, next: any) => {
           if (err) {
             return next(new Error("Không có quyền truy cập"));
           } else {
-            const tokenInRedis = await redis.get(
-              `accessTokenNode-${decoded.userId}`
-            );
-            if (tokenInRedis === token) {
-              socket.userId = decoded.userId;
-              next();
-            } else {
-              return next(new Error("Không có quyền truy cập"));
-            }
+            socket.userId = decoded.userId;
+            next();
           }
         }
       );

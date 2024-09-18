@@ -30,7 +30,7 @@ const ConversationController = {
     try {
       const userId = req.userId as number;
       const { contents, imageUrl, receiverId } = req.body;
-      const receiver = (await Users.findOne({ where: { roleId: 3 } })) as Users;
+      const receiver = (await Users.findOne({ where: { roleId: 2 } })) as Users;
 
       const conversations = await findOrCreateConversation(
         userId,

@@ -183,7 +183,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(getKeyForAccessToken(), SignatureAlgorithm.HS512)
+                .signWith(getKeyForAccessToken(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -198,7 +198,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(getKeyForRefreshToken(), SignatureAlgorithm.HS512)
+                .signWith(getKeyForRefreshToken(), SignatureAlgorithm.HS256)
                 .compact();
     }
 

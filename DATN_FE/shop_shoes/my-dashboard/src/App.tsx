@@ -13,7 +13,7 @@ import Tables from "./pages/Tables";
 
 import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
-import { useAppDispatch } from "./app/hooks";
+import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { fetchGetUserInfo } from "./app/thunks/UserThunk";
 import PrivateRouter from "./components/privateRouter/PrivateRouter";
 import { KEY_STORAGE } from "./constants/constants";
@@ -28,15 +28,18 @@ import StylesPage from "./pages/Styles";
 import SupporterPage from "./pages/Supporter";
 import UserPage from "./pages/UsersPage";
 import VouchersPage from "./pages/Vouchers";
+import { changelstOnlineUsers, selectUserInfo } from "./app/slice/userSlice";
+import * as io from "socket.io-client";
 
-// export const socket = io.connect("http://localhost:6500", {
-//   auth: {
-//     token: localStorage.getItem(KEY_STORAGE.TOKEN),
-//   },
-// });
+export const socket = io.connect("http://localhost:6500", {
+  auth: {
+    token: localStorage.getItem(KEY_STORAGE.TOKEN),
+  },
+});
 
 function App() {
   const dispatch = useAppDispatch();
+  const selUserInfo = useAppSelector(selectUserInfo);
 
   useEffect(() => {
     const token = localStorage.getItem(KEY_STORAGE.TOKEN);
@@ -45,11 +48,12 @@ function App() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   socket.on("changelstOnlineUsers", (data) => {
-  //     dispatch(changelstOnlineUsers(data));
-  //   });
-  // }, []);
+  useEffect(() => {
+    socket.on("changelstOnlineUsers", (data) => {
+      console.log("changelstOnlineUsers", data);
+      dispatch(changelstOnlineUsers(data));
+    });
+  }, []);
 
   return (
     <div className="App">
@@ -85,8 +89,8 @@ function App() {
             <Route path={"products"} element={<ProductPage />} />
             <Route path={"vouchers"} element={<VouchersPage />} />
             <Route path={"supports"} element={<SupporterPage />} />
-            <Route path={"order"} element={<OrderDetails/>} />
-            <Route path={"users"} element={<UserPage/>} />
+            <Route path={"order"} element={<OrderDetails />} />
+            <Route path={"users"} element={<UserPage />} />
             {/* <Route path={"product-details"} element={<ProductDetailsPage />} /> */}
           </Route>
         </Routes>

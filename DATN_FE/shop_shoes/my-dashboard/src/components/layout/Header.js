@@ -25,6 +25,8 @@ import {
 import { NavLink, Link } from "react-router-dom";
 import styled from "styled-components";
 import avtar from "../../assets/images/team-2.jpg";
+import { socket } from "../../App";
+import { removeStorage } from "../../constants";
 
 const ButtonContainer = styled.div`
   .ant-btn-primary {
@@ -283,7 +285,11 @@ function Header({
         <Col span={24} md={18} className="header-control">
           <Button
             type="dashed"
-            onClick={() => window.location.replace("/sign-in")}
+            onClick={() => {
+              socket.disconnect();
+              removeStorage();
+              window.location.replace("/sign-in");
+            }}
           >
             {toggler}
             Đăng xuất

@@ -19,9 +19,8 @@ function Sidenav({ color }: { color: string }) {
   type MenuItem = Required<MenuProps>["items"][number];
 
   const userInfo = useAppSelector(selectUserInfo);
-  console.log(userInfo)
   const userRoles = useMemo(() => userInfo?.roles, [userInfo]);
-  console.log(userRoles)
+
   const items: Array<
     MenuItem & {
       roles: Array<string>;
@@ -100,7 +99,7 @@ function Sidenav({ color }: { color: string }) {
       key: "/supports",
       label: "Hỗ trợ Khách Hàng",
       icon: <MessageOutlined />,
-      roles: [ROLE_TYPES.ADMIN],
+      roles: [ROLE_TYPES.MEMBERSHIP],
     },
   ];
 
@@ -111,8 +110,6 @@ function Sidenav({ color }: { color: string }) {
   > = useMemo(() => {
     return items.filter((item) => item.roles.includes(userRoles));
   }, [userRoles]);
-
-  console.log(userRoles, renderBarByRoles)
 
   const onClick: MenuProps["onClick"] = (e) => {
     navigation(e.key);

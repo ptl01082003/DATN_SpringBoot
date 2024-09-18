@@ -7,6 +7,7 @@ import { KEY_STORAGE } from "../constants/constants";
 import AuthService from "../services/AuthApi";
 import { useAppDispatch } from "../app/hooks";
 import { fetchGetUserInfo } from "../app/thunks/UserThunk";
+import { socket } from "../App";
 
 const { Title } = Typography;
 const { Header, Content } = Layout;
@@ -18,13 +19,16 @@ export default function SignIn() {
   const onLogin = async (params) => {
     try {
       const response = await AuthService.login(params);
-      console.log(response); // Kiểm tra phản hồi từ AuthService
       if (response.code === 200) {
         // Kiểm tra mã phản hồi từ BE
         localStorage.setItem(KEY_STORAGE.TOKEN, response.data.accessToken);
         localStorage.setItem(KEY_STORAGE.RF_TOKEN, response.data.refreshToken);
         dispatch(fetchGetUserInfo());
-        navigation("/dashboard", { replace: true }); // Chuyển hướng trang
+        socket.auth = {
+          token: localStorage.getItem(KEY_STORAGE.TOKEN),
+        };
+        socket.connect();
+        navigation("/dashboard", { replace: true });
       } else {
         toast.error(response.message); // Hiển thị thông báo lỗi
       }

@@ -13,6 +13,7 @@
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "emoji-picker-react": "^4.12.0",
     "framer-motion": "^8.0.2",
     "moment": "^2.30.1",
     "react": "^18.2.0",

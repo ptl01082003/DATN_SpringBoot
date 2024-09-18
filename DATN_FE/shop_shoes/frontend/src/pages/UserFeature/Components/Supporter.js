@@ -7,38 +7,65 @@ import {
 } from "../../../redux/slices/usersSlice";
 import { socket } from "../../../App";
 import TimeAgo from "../../../components/TimeAgo";
+import { ROLE_TYPES } from "../../../constants";
+import EmojiPicker from "emoji-picker-react";
+import { Button, Popover } from "antd";
 
 export default function Supporter() {
   const selUserInfo = useSelector(selectUserInfo);
   const selLstOnlineUsers = useSelector(selectLstOnlineUsers);
   const [conversation, setConversation] = useState();
-  const [contentsInput, setContentsInput] = useState("");
   const [messages, setMessages] = useState([]);
 
+  const [contentsInput, setContentsInput] = useState("");
+  const [receiverId, setReceiverId] = useState();
+  console.log("receiverId", receiverId);
+  console.log("selLstOnlineUsers", selLstOnlineUsers);
   useEffect(() => {
-    (async () => {
-      const lstConversations = await AxiosClient.post(
-        "/conversations/lst-conversations"
-      );
-      const conversation = lstConversations.data?.[0] || {};
-      if (conversation) {
-        const lstMessages = await AxiosClient.post(
-          "/conversations/lst-messages",
-          { conversationId: conversation?.conversationId }
+    if (selLstOnlineUsers && selUserInfo) {
+      (async () => {
+        const lstConversations = await AxiosClient.post(
+          "/conversations/lst-conversations"
         );
+        const conversation = lstConversations.data?.[0] || {};
+        if (conversation && Object.values(conversation).length > 0) {
+          const receiverKey =
+            conversation["senderId"] == selUserInfo?.userId
+              ? "receiverId"
+              : "senderId";
+          setReceiverId(conversation[receiverKey]);
 
-        const messages = lstMessages.data?.messages || [];
+          const lstMessages = await AxiosClient.post(
+            "/conversations/lst-messages",
+            { conversationId: conversation?.conversationId }
+          );
 
-        setMessages(messages);
-        setConversation(conversation);
+          const messages = lstMessages.data?.messages || [];
 
-        if (Array.isArray(messages) && messages.length > 0) {
-          const lastMessages = messages[messages.length - 1];
-          goToMessagesNodeById(lastMessages?.messagesId);
+          setMessages(messages);
+          setConversation(conversation);
+
+          if (Array.isArray(messages) && messages.length > 0) {
+            const lastMessages = messages[messages.length - 1];
+            goToMessagesNodeById(lastMessages?.messagesId);
+          }
+        } else {
+          const lstReceivers = selLstOnlineUsers.filter(
+            (user) => user.roles === ROLE_TYPES.MEMBERSHIP && user.online
+          );
+          console.log("lstReceivers", lstReceivers);
+          if (Array.isArray(lstReceivers) && lstReceivers.length > 0) {
+            const randomUsers =
+              lstReceivers[
+                Math.round(Math.random() * (lstReceivers.length - 1))
+              ];
+            console.log("randomUsers", randomUsers);
+            setReceiverId(randomUsers?.userId);
+          }
         }
-      }
-    })();
-  }, []);
+      })();
+    }
+  }, [selLstOnlineUsers, selUserInfo]);
 
   useEffect(() => {
     socket.on("newMessages", async (data) => {
@@ -58,14 +85,17 @@ export default function Supporter() {
   };
 
   const userReceive = useMemo(() => {
-    return selLstOnlineUsers?.find((onliner) => onliner?.roles === "ADMIN");
-  }, [selLstOnlineUsers]);
+    return selLstOnlineUsers?.find((users) => users?.userId === receiverId);
+  }, [selLstOnlineUsers, receiverId]);
+
+  console.log("userReceive", userReceive);
 
   const isSupporterOnline = useMemo(() => userReceive?.online, [userReceive]);
 
   const sendMessages = async () => {
     const resultMessage = await AxiosClient.post("/conversations/add-message", {
       contents: contentsInput,
+      receiverId: receiverId,
     });
 
     socket.emit("newConversations", {
@@ -85,6 +115,9 @@ export default function Supporter() {
     setContentsInput("");
 
     goToMessagesNodeById(resultMessage?.data?.messagesId);
+  };
+  const handleEmojiClick = (emojiData) => {
+    setContentsInput((pre) => pre + emojiData.emoji);
   };
 
   return (
@@ -148,6 +181,13 @@ export default function Supporter() {
           className="flex-1 px-3 py-2 outline-none"
           placeholder="Nhập tại đây"
         />
+        <Popover
+          placement="top"
+          title={"text"}
+          content={<EmojiPicker onEmojiClick={handleEmojiClick} />}
+        >
+          <Button>Icons</Button>
+        </Popover>
         <button onClick={sendMessages}>Gửi</button>
       </div>
     </div>

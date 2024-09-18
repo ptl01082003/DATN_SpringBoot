@@ -6,6 +6,8 @@ import { Avatar, Divider } from "antd";
 // import { socket } from "../App";
 import TimeAgo from "../components/TimeAgo";
 import { convertTextToShortName } from "../constants/constants";
+import AxiosRequestNode from "../networks/AxiosRequestNode";
+import { socket } from "../App";
 
 const ConversationsMessage = ({
   receiverId,
@@ -24,7 +26,7 @@ const ConversationsMessage = ({
 
   useEffect(() => {
     (async () => {
-      const lstMessages = await AxiosClient.post(
+      const lstMessages = await AxiosRequestNode.post(
         "/conversations/lst-messages",
         { conversationId }
       );
@@ -39,18 +41,17 @@ const ConversationsMessage = ({
     })();
   }, [conversationId]);
 
-  // useEffect(() => {
-  //   socket.on("newMessages", async (data: any) => {
-  //     console.log(messages);
-  //     if (data?.conversationId === conversationId) {
-  //       setMessages((previous) => {
-  //         const mergeData = [...previous, data];
-  //         return mergeData;
-  //       });
-  //       goToMessagesNodeById(data?.messagesId);
-  //     }
-  //   });
-  // }, [conversationId]);
+  useEffect(() => {
+    socket.on("newMessages", async (data: any) => {
+      if (data?.conversationId === conversationId) {
+        setMessages((previous) => {
+          const mergeData = [...previous, data];
+          return mergeData;
+        });
+        goToMessagesNodeById(data?.messagesId);
+      }
+    });
+  }, [conversationId]);
 
   const goToMessagesNodeById = (id: number) => {
     setTimeout(() => {
@@ -65,15 +66,18 @@ const ConversationsMessage = ({
   }, [selLstOnlineUsers, selUserInfo, receiverId]);
 
   const sendMessages = async () => {
-    const resultMessage = await AxiosClient.post("/conversations/add-message", {
-      contents: contentsInput,
+    const resultMessage = await AxiosRequestNode.post(
+      "/conversations/add-message",
+      {
+        contents: contentsInput,
+        receiverId: receiverId,
+      }
+    );
+
+    socket.emit("newMessages", {
+      messages: resultMessage?.data,
       receiverId: receiverId,
     });
-
-    // socket.emit("newMessages", {
-    //   messages: resultMessage?.data,
-    //   receiverId: receiverId,
-    // });
 
     setMessages((previous) => {
       previous.push(resultMessage?.data);
@@ -157,21 +161,21 @@ export default function SupporterPage() {
 
   useEffect(() => {
     (async () => {
-      const lstConversations = await AxiosClient.post(
+      const lstConversations = await AxiosRequestNode.post(
         "/conversations/lst-conversations"
       );
       setConversation(lstConversations.data || []);
     })();
   }, []);
 
-  // useEffect(() => {
-  //   socket.on("newConversations", async () => {
-  //     const lstConversations = await AxiosClient.post(
-  //       "/conversations/lst-conversations"
-  //     );
-  //     setConversation(lstConversations.data || []);
-  //   });
-  // }, []);
+  useEffect(() => {
+    socket.on("newConversations", async () => {
+      const lstConversations = await AxiosRequestNode.post(
+        "/conversations/lst-conversations"
+      );
+      setConversation(lstConversations.data || []);
+    });
+  }, []);
 
   return (
     <div className="flex gap-6">

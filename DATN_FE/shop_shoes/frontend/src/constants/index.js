@@ -43,6 +43,13 @@ import {
 
 import "./style.css";
 
+export const ROLE_TYPES = {
+  USER : "USER",
+  ADMIN : "ADMIN",
+  MEMBERSHIP : "MEMBERSHIP",
+}
+
+
 export const URL_IMAGE = (path) => {
   return `http://localhost:5500/${path}`;
 };
