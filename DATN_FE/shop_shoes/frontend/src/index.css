@@ -10,7 +10,7 @@
   }
 
   .headerSedenavLi {
-    @apply hover:underline underline-offset-2 cursor-pointer text-gray-300 hover:text-white;
+    @apply text-gray-300 cursor-pointer hover:underline underline-offset-2 hover:text-white;
   }
 }
 
@@ -96,4 +96,8 @@ body {
   width: 55%;
   margin: 0 auto;
   object-fit: contain;
+ }
+
+ .ant-image-preview-wrap {
+  z-index: 9999 !important;
  }

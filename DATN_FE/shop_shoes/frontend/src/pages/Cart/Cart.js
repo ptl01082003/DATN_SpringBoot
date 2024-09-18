@@ -50,7 +50,7 @@ const Cart = () => {
                   <div className="w-[160px] aspect-square flex-shrink-0">
                     <img
                       src={URL_IMAGE(items?.path)}
-                      className="object-cover w-full h-full rounded-xl"
+                      className="w-full h-full object-cover rounded-xl"
                     />
                   </div>
                   <div className="flex-1">
@@ -156,7 +156,7 @@ const Cart = () => {
           </div>
           <div className="w-[30%]">
             <h3 className="mb-2 text-xl">
-              Số lượng: <span>{selCarts?.totals}</span>
+              Số lượng trong kho: <span>{selCarts?.totals}</span>
             </h3>
             <h3 className="text-2xl">
               Giá tiền: <span>{TRANSFER_PRICE(selCarts?.amount)}</span>
@@ -177,21 +177,21 @@ const Cart = () => {
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="flex flex-col items-center justify-center gap-4 pb-20 mdl:flex-row"
+          className="flex flex-col justify-center items-center gap-4 pb-20 mdl:flex-row"
         >
           <div>
             <img
-              className="p-4 mx-auto rounded-lg w-80"
+              className="mx-auto w-80 p-4 rounded-lg"
               src={emptyCart}
               alt="emptyCart"
             />
           </div>
           <div className="max-w-[500px] p-4 py-8 bg-white flex gap-4 flex-col items-center rounded-md shadow-lg">
-            <h1 className="text-xl font-bold uppercase font-titleFont">
+            <h1 className="font-titleFont text-xl font-bold uppercase">
               Giỏ hàng của bạn đang trống
             </h1>
             <Link to="/shop">
-              <button className="px-8 py-2 text-lg font-semibold text-gray-200 duration-300 rounded-md cursor-pointer bg-primeColor font-titleFont active:bg-gray-900 hover:text-white hover:bg-black">
+              <button className="bg-primeColor font-titleFont px-8 py-2 text-lg font-semibold text-gray-200 rounded-md duration-300 cursor-pointer active:bg-gray-900 hover:text-white hover:bg-black">
                 Mua hàng
               </button>
             </Link>

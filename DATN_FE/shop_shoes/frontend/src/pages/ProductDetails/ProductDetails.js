@@ -268,7 +268,7 @@
 //             children: (
 //               <div className="space-y-4">
 //                 <div className="flex flex-col items-center space-x-5 bg-[#fffbeb] p-8 rounded-xl">
-//                   <h1 className="font-manrope font-bold text-5xl text-amber-400 mb-6">
+//                   <h1 className="font-manrope mb-6 text-5xl font-bold text-amber-400">
 //                     {averageRating == 0 ? 0 : averageRating.toFixed(1)}
 //                   </h1>
 //                   <Rate
@@ -276,7 +276,7 @@
 //                     allowHalf
 //                     value={averageRating}
 //                   />
-//                   <h1 className="mt-5 font-medium text-xl leading-8 text-gray-900 text-center">
+//                   <h1 className="mt-5 text-xl font-medium leading-8 text-center text-gray-900">
 //                     {products?.reviewers?.length || 0} đánh giá
 //                   </h1>
 //                 </div>
@@ -292,17 +292,17 @@
 //                             style={{ color: "#fbbf24", fontSize: 24 }}
 //                           />
 //                           <div className="flex items-center space-x-3">
-//                             <h1 className="font-semibold text-lg leading-8 text-black">
+//                             <h1 className="text-lg font-semibold leading-8 text-black">
 //                               {review?.user?.fullName}
 //                             </h1>
-//                             <h1 className="font-medium text-base leading-7 text-gray-400">
+//                             <h1 className="text-base font-medium leading-7 text-gray-400">
 //                               {moment(review?.createdAt).format(
 //                                 "HH:mm DD/MM/YYYY"
 //                               )}
 //                             </h1>
 //                           </div>
 //                         </div>
-//                         <h1 className="mb-5 mt-2 text-base italic">{review?.contents}</h1>
+//                         <h1 className="mt-2 mb-5 text-base italic">{review?.contents}</h1>
 //                         <div className="w-[30%]">
 //                           <Carousel arrows infinite={true} autoplay={true}>
 //                             {review?.reviewerPhoto?.map((photo) => (
@@ -567,7 +567,7 @@ export default function ProductDetails() {
             ))}
           </div>
           <h3 className="mb-5 italic">
-            Số lượng: <span>{currentSize?.quantity}</span>
+            Số lượng trong kho: <span>{currentSize?.quantity}</span>
           </h3>
           <InputNumber
             min={1}
@@ -604,7 +604,7 @@ export default function ProductDetails() {
             children: (
               <div className="space-y-4">
                 <div className="flex flex-col items-center space-x-5 bg-[#fffbeb] p-8 rounded-xl">
-                  <h1 className="font-manrope font-bold text-5xl text-amber-400 mb-6">
+                  <h1 className="font-manrope mb-6 text-5xl font-bold text-amber-400">
                     {averageRating == 0 ? 0 : averageRating.toFixed(1)}
                   </h1>
                   <Rate
@@ -612,7 +612,7 @@ export default function ProductDetails() {
                     allowHalf
                     value={averageRating}
                   />
-                  <h1 className="mt-5 font-medium text-xl leading-8 text-gray-900 text-center">
+                  <h1 className="mt-5 text-xl font-medium leading-8 text-center text-gray-900">
                     {products?.reviewers?.length || 0} đánh giá
                   </h1>
                 </div>
@@ -628,17 +628,17 @@ export default function ProductDetails() {
                             style={{ color: "#fbbf24", fontSize: 24 }}
                           />
                           <div className="flex items-center space-x-3">
-                            <h1 className="font-semibold text-lg leading-8 text-black">
+                            <h1 className="text-lg font-semibold leading-8 text-black">
                               {review?.user?.fullName}
                             </h1>
-                            <h1 className="font-medium text-base leading-7 text-gray-400">
+                            <h1 className="text-base font-medium leading-7 text-gray-400">
                               {moment(review?.createdAt).format(
                                 "HH:mm DD/MM/YYYY"
                               )}
                             </h1>
                           </div>
                         </div>
-                        <h1 className="mb-5 mt-2 text-base italic">{review?.contents}</h1>
+                        <h1 className="mt-2 mb-5 text-base italic">{review?.contents}</h1>
                         <div className="w-[30%]">
                           <Carousel arrows infinite={true} autoplay={true}>
                             {review?.reviewerPhoto?.map((photo) => (

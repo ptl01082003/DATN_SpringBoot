@@ -175,7 +175,7 @@ export default function PaymentInfo() {
                                 <div className="w-[120px] aspect-square flex-shrink-0">
                                   <img
                                     src={URL_IMAGE(items?.path)}
-                                    className="object-cover w-full h-full rounded-xl"
+                                    className="w-full h-full object-cover rounded-xl"
                                   />
                                 </div>
                                 <div className="flex-1">
@@ -193,7 +193,7 @@ export default function PaymentInfo() {
                                       {TRANSFER_PRICE(items?.price)}
                                     </h1>
                                   ) : (
-                                    <div className="flex mb-2 space-x-4 items-center">
+                                    <div className="flex items-center mb-2 space-x-4">
                                       <h1 className="text-xl">
                                         <span>{items?.quanity} x </span>
                                         {TRANSFER_PRICE(items?.priceDiscount)}
@@ -219,7 +219,7 @@ export default function PaymentInfo() {
               </div>
               <Divider />
               <h1 className="mb-2 text-left">
-                Số lượng: <span className="font-bold">{oders?.totals}</span>
+                Số lượng trong kho: <span className="font-bold">{oders?.totals}</span>
               </h1>
               <h1 className="text-left">
                 Tổng:
