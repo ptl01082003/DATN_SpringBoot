@@ -56,8 +56,7 @@ public class OrderItems {
     @Column(name = "priceDiscount", precision = 16, scale = 2)
     private BigDecimal priceDiscount;
 
-//    @Column(name = "userId")
-//    private Integer userId;
+
 
     @ManyToOne
     @JoinColumn(name = "userId")
@@ -86,6 +85,5 @@ public class OrderItems {
     @Column(name = "updatedAt")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-
 
 }

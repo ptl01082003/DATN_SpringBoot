@@ -27,8 +27,23 @@ public class UserController {
     @PostMapping("/get-info")
     public ResponseEntity<UsersDTO> getUserInfo(@RequestHeader("Authorization") String token) {
         try {
+            // Remove "Bearer " prefix if present
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
             Integer userId = jwtTokenProvider.getUserIdFromToken(token);
+
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
             UsersDTO userInfo = userService.getUserInfo(userId);
+
+            if (userInfo == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+
             return ResponseEntity.ok(userInfo);
         } catch (Exception e) {
             log.error("Error fetching user info: ", e);
