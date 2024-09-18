@@ -141,12 +141,38 @@ export default function PromotionsPage() {
     });
   };
 
+  // const onFinish: FormProps<FieldType>["onFinish"] = async (
+  //   values: FieldType
+  // ) => {
+  //   try {
+  //     const product = lstProducts.find(
+  //       (prod) => prod.code === values.productId
+  //     );
+  //     const res = await PromotionService.createPromotion({
+  //       ...values,
+  //       productId: product?.productId,
+  //       startDay: values.startDay?.format("YYYY-MM-DD HH:mm:ss"),
+  //       endDay: values.endDay?.format("YYYY-MM-DD HH:mm:ss"),
+  //     });
+  //     console.log("API Response:", res); // Log phản hồi để kiểm tra cấu trúc
+  //
+  //     if (res.code === 0) {
+  //       message.success("Tạo khuyến mãi thành công");
+  //       setOpenCreateModal(false);
+  //       setShouldRender((x) => !x);
+  //     } else {
+  //       message.error("Tạo khuyến mãi thất bại");
+  //     }
+  //   } catch (error) {
+  //     message.error("Lỗi khi tạo khuyến mãi.");
+  //   }
+  // };
   const onFinish: FormProps<FieldType>["onFinish"] = async (
-    values: FieldType
+      values: FieldType
   ) => {
     try {
       const product = lstProducts.find(
-        (prod) => prod.code === values.productId
+          (prod) => prod.code === values.productId
       );
       const res = await PromotionService.createPromotion({
         ...values,
@@ -154,14 +180,21 @@ export default function PromotionsPage() {
         startDay: values.startDay?.format("YYYY-MM-DD HH:mm:ss"),
         endDay: values.endDay?.format("YYYY-MM-DD HH:mm:ss"),
       });
+
+      console.log("API Response:", res);
+
       if (res.code === 0) {
         message.success("Tạo khuyến mãi thành công");
         setOpenCreateModal(false);
-        setShouldRender((x) => !x);
+
+        // Fetch lại dữ liệu sau khi thêm
+        const getPromotions = await PromotionService.getPromotions();
+        setLstPromotions(getPromotions?.data || []);
       } else {
         message.error("Tạo khuyến mãi thất bại");
       }
     } catch (error) {
+      console.error("Error creating promotion:", error);
       message.error("Lỗi khi tạo khuyến mãi.");
     }
   };

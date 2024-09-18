@@ -163,12 +163,34 @@ const ProductsController = {
     }
   },
 
+  // getLstProducts: async (req: Request, res: Response, next: NextFunction) => {
+  //   const where: any = {};
+  //   const { styleId, materialId, brandId, priceMin, priceMax } = req.body;
+  //   try {
+  //     if (styleId) {
+  //       where.styleId = styleId;
+  //     }
+  //     if (materialId) {
+  //       where.materialId = materialId;
+  //     }
+  //     if (brandId) {
+  //       where.brandId = brandId;
+  //     }
+  //     if (priceMin != undefined) {
+  //       where.priceDiscount[Op.gte] = priceMin;
+  //     }
+  //     if (priceMax != undefined) {
+  //       where.priceDiscount[Op.lte] = priceMax;
+  //     }
   getLstProducts: async (req: Request, res: Response, next: NextFunction) => {
     const where: any = {};
-    const { styleId, materialId, brandId, priceMin, priceMax } = req.body;
+    const {originId, styleId, materialId, brandId, priceMin, priceMax,minPrice,maxPrice } = req.body;
     try {
       if (styleId) {
         where.styleId = styleId;
+      }
+      if (originId) {
+        where.originId = originId;
       }
       if (materialId) {
         where.materialId = materialId;
@@ -181,6 +203,19 @@ const ProductsController = {
       }
       if (priceMax != undefined) {
         where.priceDiscount[Op.lte] = priceMax;
+      }
+      if (minPrice && maxPrice) {
+        where.price = {
+          [Op.between]: [minPrice, maxPrice],
+        };
+      } else if (minPrice) {
+        where.price = {
+          [Op.gte]: minPrice,
+        };
+      } else if (maxPrice) {
+        where.price = {
+          [Op.lte]: maxPrice,
+        };
       }
 
       const products = await Products.findAll({

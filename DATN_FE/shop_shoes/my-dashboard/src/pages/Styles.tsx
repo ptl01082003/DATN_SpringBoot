@@ -104,7 +104,7 @@ export default function StylePage() {
   const confirmDelete = (onConfirm: () => void) => {
     confirmAlert({
       title: "Xác nhận",
-      message: "Bạn có chắc chắn muốn xóa chất liệu này?",
+      message: "Bạn có chắc chắn muốn xóa kiểu dáng này?",
       buttons: [
         {
           label: "Có",
@@ -143,7 +143,7 @@ export default function StylePage() {
   const confirmSave = (onConfirm: () => void, action: string) => {
     confirmAlert({
       title: "Xác nhận",
-      message: `Bạn có chắc chắn muốn ${action} chất liệu này?`,
+      message: `Bạn có chắc chắn muốn ${action} kiểu dáng này?`,
       buttons: [
         {
           label: "Có",
@@ -188,7 +188,7 @@ export default function StylePage() {
           // Hiển thị thông báo xác nhận
           confirmAlert({
             title: "Thành công",
-            message: "Chất liệu đã được cập nhật thành công!",
+            message: "Kiểu dáng đã được cập nhật thành công!",
             buttons: [
               {
                 label: "OK",
@@ -218,7 +218,19 @@ export default function StylePage() {
         const response = await StyleService.createStyle(values);
         if (response.code === 0) {
           // setOpenCreateModal(false);
-          setShouldRender((prev) => !prev);
+          confirmAlert({
+            title: "Thành công",
+            message: "Kiểu dáng đã được thêm thành công!",
+            buttons: [
+              {
+                label: "OK",
+                onClick: () => {
+                  // Cập nhật danh sách chất liệu và re-render
+                  setShouldRender((prev) => !prev);
+                },
+              },
+            ],
+          });
         } else {
           console.error("Error:", response.data.message);
         }
@@ -271,7 +283,7 @@ export default function StylePage() {
           autoComplete="off"
         >
           <Form.Item
-            label="Chất liệu"
+            label="Kiểu dáng"
             name="name"
             rules={[
               { required: true, message: "Please input the style name!" },
@@ -287,7 +299,7 @@ export default function StylePage() {
                 setOpenCreateModal(false);
               }}
             >
-              Add
+              Thêm
             </Button>
           </Form.Item>
         </Form>
@@ -312,7 +324,7 @@ export default function StylePage() {
           autoComplete="off"
         >
           <Form.Item
-            label="style Name"
+            label="Style Name"
             name="name"
             rules={[
               { required: true, message: "Please input the style name!" },
@@ -328,7 +340,7 @@ export default function StylePage() {
                 setOpenEditModal(false);
               }}
             >
-              Save Changes
+              Lưu
             </Button>
           </Form.Item>
         </Form>

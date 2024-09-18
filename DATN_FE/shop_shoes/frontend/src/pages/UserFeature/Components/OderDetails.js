@@ -180,16 +180,21 @@ const DeliveredOrders = ({ orders, setShouldRender }) => {
 };
 
 export default function OderDetails() {
-  const [lstOders, setLstOders] = useState();
+  const [lstOders, setLstOders] = useState([]);
   const [orderStatus, setOrderStatus] = useState(ODER_STATUS.CHO_XAC_NHAN);
   const [shouldRender, setShouldRender] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null); // Đổi từ `order` thành `selectedOrder` để rõ nghĩa hơn
 
   useEffect(() => {
     (async () => {
-      const lstOders = await AxiosClient.post("/orders/lst-orders", {
-        status: orderStatus,
-      });
-      setLstOders(lstOders?.data || []);
+      try {
+        const response = await AxiosClient.post("/orders/lst-orders", {
+          status: orderStatus,
+        });
+        setLstOders(response?.data || []);
+      } catch (error) {
+        toast.error(`Lỗi: ${error.message}`);
+      }
     })();
   }, [orderStatus, shouldRender]);
 
@@ -197,14 +202,50 @@ export default function OderDetails() {
     setOrderStatus(status);
   };
 
+  const sendInvoice = async (order) => {
+    if (!order) {
+      toast.error("Không có đơn hàng để xuất hóa đơn.");
+      return;
+    }
+
+    try {
+      const res = await AxiosClient.post(`/orders/generate-invoice`, { orderId: order.id });
+
+      if (res.code === 0) {
+        const emailRes = await AxiosClient.post(`/orders/send-invoice-email`, { orderId: order.id });
+        if (emailRes.code === 0) {
+          toast.success("Hóa đơn đã được gửi qua email!");
+        } else {
+          toast.error("Gửi hóa đơn qua email không thành công");
+        }
+      } else {
+        toast.error("Tạo hóa đơn không thành công");
+      }
+    } catch (error) {
+      toast.error(`Lỗi: ${error.message}`);
+    }
+  };
+
   const orderRefund = async (order) => {
-    const item = await AxiosClient.post("/payment-orders/refund", {
-      orderItemId: order?.orderItemId,
-    });
-    if (item.code == 0) {
-      setShouldRender(true);
-    } else {
-      toast.error(item?.message);
+    try {
+      const item = await AxiosClient.post("/payment-orders/refund", {
+        orderItemId: order?.orderItemId,
+      });
+      if (item.code === 0) {
+        setShouldRender(true);
+      } else {
+        toast.error(item?.message);
+      }
+    } catch (error) {
+      toast.error(`Lỗi: ${error.message}`);
+    }
+  };
+
+  const handleOrderStatusChange = async (status) => {
+    setOrderStatus(status);
+
+    if (status === ODER_STATUS.CHO_LAY_HANG && selectedOrder) {
+      await sendInvoice(selectedOrder);
     }
   };
 
@@ -231,52 +272,53 @@ export default function OderDetails() {
     }
   };
 
-  const items = ODER_STATUS_STRING.map((oders) => ({
-    key: oders.value,
-    label: oders.label,
-    icon: oders.icon,
+  const items = ODER_STATUS_STRING.map((status) => ({
+    key: status.value,
+    label: status.label,
+    icon: status.icon,
     children: (
       <div className="flex-1 mt-6 space-y-8">
-        {Array.isArray(lstOders) && lstOders?.length > 0 ? (
-          lstOders?.map((items) => (
-            <div>
+        {Array.isArray(lstOders) && lstOders.length > 0 ? (
+          lstOders.map((item) => (
+            <div key={item.id}>
               <div className="flex items-start gap-5">
                 <div className="w-[120px] aspect-square flex-shrink-0">
                   <img
-                    src={URL_IMAGE(items?.path)}
+                    src={URL_IMAGE(item?.path)}
                     className="object-cover w-full h-full rounded-xl"
+                    alt={item?.name}
                   />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-start gap-4 mb-4">
-                    <h1 className="flex-1 text-lg font-bold">{items?.name}</h1>
+                    <h1 className="flex-1 text-lg font-bold">{item?.name}</h1>
                     <h1 className="flex-shrink-0 text-lg font-bold">
-                      {TRANSFER_PRICE(items?.amount)}
+                      {TRANSFER_PRICE(item?.amount)}
                     </h1>
                   </div>
-                  {items?.priceDiscount === items?.price ? (
+                  {item?.priceDiscount === item?.price ? (
                     <h1 className="mb-2 text-xl">
-                      <span>{items?.quanity} x </span>
-                      {TRANSFER_PRICE(items?.price)}
+                      <span>{item?.quantity} x </span>
+                      {TRANSFER_PRICE(item?.price)}
                     </h1>
                   ) : (
                     <div className="flex items-center mb-2 space-x-4">
                       <h1 className="text-xl">
-                        <span>{items?.quanity} x </span>
-                        {TRANSFER_PRICE(items?.priceDiscount)}
+                        <span>{item?.quantity} x </span>
+                        {TRANSFER_PRICE(item?.priceDiscount)}
                       </h1>
                       <h1 className="text-lg line-through">
-                        {TRANSFER_PRICE(items?.price)}
+                        {TRANSFER_PRICE(item?.price)}
                       </h1>
                     </div>
                   )}
                   <h1 className="mb-4 text-xl">
-                    Size: <span>{items?.sizeName}</span>
+                    Size: <span>{item?.sizeName}</span>
                   </h1>
                 </div>
               </div>
               <div className="flex justify-end w-full">
-                {renderActionByOrderStatus(items)}
+                {renderActionByOrderStatus(item)}
               </div>
               <Divider />
             </div>
@@ -300,3 +342,125 @@ export default function OderDetails() {
     </>
   );
 }
+
+// export default function OderDetails() {
+//   const [lstOders, setLstOders] = useState();
+//   const [orderStatus, setOrderStatus] = useState(ODER_STATUS.CHO_XAC_NHAN);
+//   const [shouldRender, setShouldRender] = useState(false);
+
+//   useEffect(() => {
+//     (async () => {
+//       const lstOders = await AxiosClient.post("/orders/lst-orders", {
+//         status: orderStatus,
+//       });
+//       setLstOders(lstOders?.data || []);
+//     })();
+//   }, [orderStatus, shouldRender]);
+
+//   const onChange = async (status) => {
+//     setOrderStatus(status);
+//   };
+
+//   const orderRefund = async (order) => {
+//     const item = await AxiosClient.post("/payment-orders/refund", {
+//       orderItemId: order?.orderItemId,
+//     });
+//     if (item.code == 0) {
+//       setShouldRender(true);
+//     } else {
+//       toast.error(item?.message);
+//     }
+//   };
+
+//   const renderActionByOrderStatus = (orders) => {
+//     switch (orderStatus) {
+//       case ODER_STATUS.DA_GIAO:
+//         return (
+//           <DeliveredOrders orders={orders} setShouldRender={setShouldRender} />
+//         );
+//       case ODER_STATUS.CHO_XAC_NHAN:
+//       case ODER_STATUS.CHO_LAY_HANG:
+//         return (
+//           <button
+//             onClick={() => {
+//               orderRefund(orders);
+//             }}
+//             className="min-w-[136px] py-3 rounded-lg bg-red-600 text-white font-bold"
+//           >
+//             HỦY
+//           </button>
+//         );
+//       default:
+//         return <></>;
+//     }
+//   };
+
+//   const items = ODER_STATUS_STRING.map((oders) => ({
+//     key: oders.value,
+//     label: oders.label,
+//     icon: oders.icon,
+//     children: (
+//       <div className="flex-1 mt-6 space-y-8">
+//         {Array.isArray(lstOders) && lstOders?.length > 0 ? (
+//           lstOders?.map((items) => (
+//             <div>
+//               <div className="flex items-start gap-5">
+//                 <div className="w-[120px] aspect-square flex-shrink-0">
+//                   <img
+//                     src={URL_IMAGE(items?.path)}
+//                     className="object-cover w-full h-full rounded-xl"
+//                   />
+//                 </div>
+//                 <div className="flex-1">
+//                   <div className="flex items-start gap-4 mb-4">
+//                     <h1 className="flex-1 text-lg font-bold">{items?.name}</h1>
+//                     <h1 className="flex-shrink-0 text-lg font-bold">
+//                       {TRANSFER_PRICE(items?.amount)}
+//                     </h1>
+//                   </div>
+//                   {items?.priceDiscount === items?.price ? (
+//                     <h1 className="mb-2 text-xl">
+//                       <span>{items?.quanity} x </span>
+//                       {TRANSFER_PRICE(items?.price)}
+//                     </h1>
+//                   ) : (
+//                     <div className="flex items-center mb-2 space-x-4">
+//                       <h1 className="text-xl">
+//                         <span>{items?.quanity} x </span>
+//                         {TRANSFER_PRICE(items?.priceDiscount)}
+//                       </h1>
+//                       <h1 className="text-lg line-through">
+//                         {TRANSFER_PRICE(items?.price)}
+//                       </h1>
+//                     </div>
+//                   )}
+//                   <h1 className="mb-4 text-xl">
+//                     Size: <span>{items?.sizeName}</span>
+//                   </h1>
+//                 </div>
+//               </div>
+//               <div className="flex justify-end w-full">
+//                 {renderActionByOrderStatus(items)}
+//               </div>
+//               <Divider />
+//             </div>
+//           ))
+//         ) : (
+//           <div className="min-h-[40vh] flex justify-center items-center">
+//             <Empty description="Không có dữ liệu" />
+//           </div>
+//         )}
+//       </div>
+//     ),
+//   }));
+
+//   return (
+//     <>
+//       <Tabs
+//         className="custom-order-details-tabs"
+//         items={items}
+//         onChange={onChange}
+//       />
+//     </>
+//   );
+// }

@@ -29,7 +29,7 @@ import { distributeVouchers } from "../service/VoucherService"; // Đảm bảo 
 import { updateProductPrices } from "./utils";
 
 // Job cron để phân phối voucher
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("* * * * *", async () => {
   console.log(`Cron job phân phối voucher bắt đầu lúc: ${new Date().toLocaleString()}`);
   try {
     await distributeVouchers();
@@ -40,7 +40,7 @@ cron.schedule("0 0 * * *", async () => {
 });
 
 // Job cron để cập nhật giá sản phẩm
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("* * * * *", async () => {
   console.log(`Cron job cập nhật giá sản phẩm bắt đầu lúc: ${new Date().toLocaleString()}`);
   try {
     await updateProductPrices();

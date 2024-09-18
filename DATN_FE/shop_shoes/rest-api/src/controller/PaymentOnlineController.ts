@@ -281,18 +281,6 @@ const PaymentOnlineController = {
         );
       }
   
-      const cartTotals = new Decimal(carts.totals || 0);
-  
-      const newOrders = await OrderDetails.create({
-        userId,
-        amount: ordersAmount.toNumber(),
-        name,
-        address,
-        phone,
-        totals: cartTotals.toNumber(),
-        voucherId: undefined,
-      });
-  
       const cartItems = await CartItems.findAll({
         where: { cartId: carts.cartId },
         include: [{ model: ProductDetails, include: [{ model: Products }] }],
@@ -300,24 +288,22 @@ const PaymentOnlineController = {
   
       console.log("Các mặt hàng trong giỏ hàng:", cartItems);
   
-      for (const product of cartItems) {
-        const priceDiscount = new Decimal(product.productDetails.products.priceDiscount || 0);
-        const productsAmount = new Decimal(product.quanity).times(priceDiscount);
-        ordersAmount = ordersAmount.plus(productsAmount);
+      // Tính toán tổng giá trị đơn hàng trước khi áp dụng voucher
+      const cartTotals = new Decimal(cartItems.reduce((sum, item) => {
+        const priceDiscount = new Decimal(item.productDetails.products.priceDiscount || 0);
+        return sum + priceDiscount.times(item.quanity).toNumber();
+      }, 0));
   
-        await OrderItems.create({
-          userId,
-          amount: productsAmount.toNumber(),
-          quanity: product.quanity,
-          orderDetailId: newOrders.orderDetailId,
-          productDetailId: product.productDetailId,
-          price: new Decimal(product.productDetails.products.price || 0).toNumber(),
-          priceDiscount: priceDiscount.toNumber(),
-          status: provider === PAYMENT_PROVIDER.CASH ? ODER_STATUS.CHO_XAC_NHAN : ODER_STATUS.CHO_THANH_TOAN,
-        });
-  
-        await product.destroy();
-      }
+      // Tạo đơn hàng mới
+      const newOrders = await OrderDetails.create({
+        userId,
+        amount: cartTotals.toNumber(),
+        name,
+        address,
+        phone,
+        totals: cartTotals.toNumber(),
+        voucherId: undefined,
+      });
   
       let voucherId: number | undefined = undefined;
       let discount = new Decimal(0);
@@ -327,7 +313,7 @@ const PaymentOnlineController = {
         console.log("Voucher tìm được:", voucher);
   
         if (voucher && voucher.status === Vouchers_STATUS.ISACTIVE) {
-          const orderValue = ordersAmount;
+          const orderValue = cartTotals;
           console.log("Giá trị đơn hàng trước khi áp dụng voucher:", orderValue.toNumber());
   
           if (voucher.minOrderValue && orderValue.lessThan(new Decimal(voucher.minOrderValue))) {
@@ -336,12 +322,9 @@ const PaymentOnlineController = {
             });
           }
   
-          if (voucher.typeValue === Vouchers_TYPE.MONEY) {
-            discount = Decimal.min(new Decimal(voucher.discountValue), orderValue);
-          } else if (voucher.typeValue === Vouchers_TYPE.PERCENT) {
-            discount = orderValue.times(new Decimal(voucher.discountValue).dividedBy(100));
-            discount = Decimal.min(discount, new Decimal(voucher.discountMax));
-          }
+          // Tính toán giá trị giảm giá từ voucher
+          discount = orderValue.times(new Decimal(voucher.discountValue).dividedBy(100));
+          discount = Decimal.min(discount, new Decimal(voucher.discountMax));
   
           ordersAmount = Decimal.max(orderValue.minus(discount), new Decimal(0));
           console.log("Giá trị đơn hàng sau khi áp dụng voucher:", ordersAmount.toNumber());
@@ -362,9 +345,41 @@ const PaymentOnlineController = {
         }
       }
   
+      // Cập nhật đơn hàng với giá trị giảm giá
       newOrders.voucherId = voucherId;
       newOrders.amount = ordersAmount.toNumber();
       await newOrders.save();
+  
+      // Phân phối giá trị giảm giá cho từng sản phẩm và tạo OrderItems
+      for (const product of cartItems) {
+        const priceDiscount = new Decimal(product.productDetails.products.priceDiscount || 0);
+        const productAmount = new Decimal(product.quanity).times(priceDiscount);
+  
+        // Tính toán phần giảm giá cho sản phẩm dựa trên tỷ lệ phần trăm giảm giá của đơn hàng
+        const discountAmount = productAmount.times(discount.dividedBy(cartTotals));
+        const finalPrice = productAmount.minus(discountAmount);
+  
+        // Tạo OrderItem
+        const orderItem = await OrderItems.create({
+          userId,
+          amount: finalPrice.toNumber(),
+          quanity: product.quanity,
+          orderDetailId: newOrders.orderDetailId,
+          productDetailId: product.productDetailId,
+          price: new Decimal(product.productDetails.products.price || 0).toNumber(),
+          priceDiscount: priceDiscount.toNumber(),
+          status: provider === PAYMENT_PROVIDER.CASH ? ODER_STATUS.CHO_XAC_NHAN : ODER_STATUS.CHO_THANH_TOAN,
+        });
+  
+        console.log("OrderItem đã tạo:", orderItem);
+  
+        // Cập nhật giá trị của orderItem nếu cần
+        if (orderItem.amount !== finalPrice.toNumber()) {
+          await orderItem.update({ amount: finalPrice.toNumber() });
+        }
+  
+        await product.destroy();
+      }
   
       await PaymentDetails.create({
         provider,
@@ -396,9 +411,6 @@ const PaymentOnlineController = {
               message: "Lỗi thanh toán, vui lòng thử lại.",
             });
           }
-        case PAYMENT_PROVIDER.VN_PAY:
-          // Xử lý VN_PAY nếu cần
-          break;
         case PAYMENT_PROVIDER.CASH:
           return res.json(
             ResponseBody({
@@ -412,6 +424,7 @@ const PaymentOnlineController = {
       next(error);
     }
   },
+  
   
   
 

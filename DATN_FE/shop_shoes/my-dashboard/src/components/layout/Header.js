@@ -409,9 +409,9 @@ function Header({
               </div>
             </div>
           </Drawer>
-          <Link to="/sign-in" className="btn-sign-in">
+          <Link to="/sign-out" className="btn-sign-in">
             {profile}
-            <span>Sign in</span>
+            <span>Sign out</span>
           </Link>
           <Input
             className="header-search"

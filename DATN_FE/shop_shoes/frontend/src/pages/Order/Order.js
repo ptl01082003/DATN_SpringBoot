@@ -75,8 +75,6 @@ const Oders = () => {
     let amount = Number(totalAmount);
     if (voucher.voucher.typeValue === "PERCENT") {
       discountAmount = (amount * discountValue) / 100;
-    } else if (voucher.voucher.typeValue === "MONEY") {
-      discountAmount = discountValue;
     }
 
     return Math.max(amount - discountAmount, 0);
@@ -318,9 +316,9 @@ const Oders = () => {
 
           <div className="flex flex-col space-y-4">
             <h2 className="text-lg font-bold">Chọn voucher:</h2>
-            <Button type="button" onClick={() => setModalVisible(true)}>
+            <button className="px-4 py-3 font-bold rounded-lg bg-orange-400 text-white" type="button" onClick={() => setModalVisible(true)}>
               Chọn voucher
-            </Button>
+            </button>
             {selectedVoucher && (
               <div>
                 <h3 className="text-md font-semibold">Voucher đã chọn:</h3>

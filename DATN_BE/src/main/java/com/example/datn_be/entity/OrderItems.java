@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.catalina.User;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -55,8 +56,12 @@ public class OrderItems {
     @Column(name = "priceDiscount", precision = 16, scale = 2)
     private BigDecimal priceDiscount;
 
-    @Column(name = "userId")
-    private Integer userId;
+//    @Column(name = "userId")
+//    private Integer userId;
+
+    @ManyToOne
+    @JoinColumn(name = "userId")
+    private Users user;
 
     @Column(name = "isReview")
     private Boolean isReview = false;

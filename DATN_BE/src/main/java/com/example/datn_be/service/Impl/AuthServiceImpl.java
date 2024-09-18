@@ -9,6 +9,8 @@ import com.example.datn_be.service.AuthService;
 import com.example.datn_be.utils.ApiResponse;
 import com.example.datn_be.utils.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +22,14 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
 
     @Autowired
-    private UsersRepository userRepository; // Inject repository để tương tác với bảng Users
-
+    private UsersRepository userRepository;
     @Autowired
-    private JwtTokenProvider jwtTokenProvider; // Inject JwtTokenProvider để xử lý token JWT
+    private JwtTokenProvider jwtTokenProvider;
     @Autowired
     private RedisServiceImpl redisServiceImpl;
+    @Qualifier("redisTemplate")
+    @Autowired
+    private RedisTemplate redisTemplate;
 
 
     @Transactional
@@ -44,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
         newUser.setPhone(request.getPhone());
         newUser.setEmail(request.getEmail());
         newUser.setUserName(request.getUserName());
-        newUser.setPassword(jwtTokenProvider.encodePassword(request.getPassword())); // Mã hóa mật khẩu
+        newUser.setPassword(jwtTokenProvider.encodePassword(request.getPassword()));
         userRepository.save(newUser);
 
         return ResponseEntity.ok(ApiResponse.success(null, "Đăng ký tài khoản thành công"));
@@ -149,7 +153,8 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public ResponseEntity<ApiResponse> logout(Integer userId) {
-        // Xóa các token khỏi Redis hoặc cơ sở dữ liệu nếu có triển khai
+        String tokenKey = "user:token:" + userId;
+        redisTemplate.delete(tokenKey);
         return ResponseEntity.ok(ApiResponse.success(null, "Thực hiện thành công"));
     }
 

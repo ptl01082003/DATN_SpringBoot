@@ -10,7 +10,13 @@ import com.example.datn_be.respository.OrderItemsRepository;
 import com.example.datn_be.respository.PaymentDetailsRepository;
 import com.example.datn_be.respository.ProductDetailsRepository;
 import com.example.datn_be.service.OrderItemsService;
+import com.example.datn_be.service.ThymeleafService;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -27,14 +33,20 @@ import java.util.List;
 @Service
 public class OrderItemsServiceImpl implements OrderItemsService {
 
-
     @Autowired
     private OrderItemsRepository orderItemsRepository;
 
     @Autowired
     private PaymentDetailsRepository paymentDetailsRepository;
+
     @Autowired
     private ProductDetailsRepository productDetailsRepository;
+
+    @Autowired
+    private ThymeleafService thymeleafService;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     @Override
     public List<OrderItemsDTO> getOrdersByStatus(String status) {
@@ -45,7 +57,6 @@ public class OrderItemsServiceImpl implements OrderItemsService {
                 try {
                     orderStatus = OrderItems.ORDER_STATUS.valueOf(status.toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    // Trạng thái không hợp lệ
                     return new ArrayList<>();
                 }
                 orderItems = orderItemsRepository.findByStatus(orderStatus);
@@ -60,16 +71,12 @@ public class OrderItemsServiceImpl implements OrderItemsService {
         orderItems.sort(Comparator.comparing(OrderItems::getCreatedAt).reversed());
 
         List<OrderItemsDTO> response = new ArrayList<>();
-
         for (OrderItems orders : orderItems) {
-            // Tìm thông tin thanh toán cho đơn hàng
             PaymentDetails payment = paymentDetailsRepository.findByOrderDetails_OrderDetailId(
                     orders.getOrderDetails() != null ? orders.getOrderDetails().getOrderDetailId() : null
             );
-
             boolean isPaid = payment != null && PaymentDetails.PAYMENT_STATUS.SUCCESS.equals(payment.getStatus());
 
-            // Kiểm tra giá trị null trước khi sử dụng
             BigDecimal priceDiscount = orders.getProductDetails() != null && orders.getProductDetails().getProducts() != null ?
                     orders.getProductDetails().getProducts().getPriceDiscount() : BigDecimal.ZERO;
             BigDecimal productPrice = isPaid ?
@@ -77,11 +84,9 @@ public class OrderItemsServiceImpl implements OrderItemsService {
                     (orders.getProductDetails() != null && orders.getProductDetails().getProducts() != null ?
                             orders.getProductDetails().getProducts().getPrice() : BigDecimal.ZERO);
 
-            // Đảm bảo các thuộc tính không null trước khi gọi phương thức
             String statusName = orders.getStatus() != null ? orders.getStatus().name() : "UNKNOWN";
             String returnStatusName = orders.getReturnStatus() != null ? orders.getReturnStatus().name() : "UNKNOWN";
 
-            // Tạo DTO cho từng đơn hàng
             OrderItemsDTO dto = new OrderItemsDTO(
                     orders.getOrderItemId(),
                     orders.getAmount() != null ? orders.getAmount() : BigDecimal.valueOf(0),
@@ -89,7 +94,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
                     returnStatusName,
                     productPrice,
                     isPaid ? (orders.getPriceDiscount() != null ? orders.getPriceDiscount() : priceDiscount) : priceDiscount,
-                    orders.getUserId(),
+                    orders.getOrderItemId(),
                     orders.getIsReview() != null ? orders.getIsReview() : false,
                     orders.getQuanity(),
                     orders.getProductDetails() != null ? orders.getProductDetails().getProductDetailId() : null,
@@ -109,8 +114,6 @@ public class OrderItemsServiceImpl implements OrderItemsService {
         return response;
     }
 
-
-
     @Override
     @Transactional
     public boolean updateOrderStatus(Integer orderItemId, String status) {
@@ -128,6 +131,8 @@ public class OrderItemsServiceImpl implements OrderItemsService {
             // Xử lý khi trạng thái chuyển từ "Chờ xác nhận" sang "Chờ lấy hàng"
             if (OrderItems.ORDER_STATUS.CHO_XAC_NHAN.equals(oldStatus) &&
                     OrderItems.ORDER_STATUS.CHO_LAY_HANG.equals(newStatus)) {
+                generateInvoice(orderItem);  // Tạo hóa đơn
+                sendEmail(orderItem);
                 updateStock(orderItem, -orderItem.getQuanity());
             }
             // Xử lý khi trạng thái chuyển từ "Chờ lấy hàng" hoặc "Chờ giao hàng" sang "Đã hủy"
@@ -135,6 +140,8 @@ public class OrderItemsServiceImpl implements OrderItemsService {
                 if (OrderItems.ORDER_STATUS.CHO_LAY_HANG.equals(oldStatus) ||
                         OrderItems.ORDER_STATUS.CHO_GIAO_HANG.equals(oldStatus)) {
                     updateStock(orderItem, orderItem.getQuanity());
+                    // Gọi phương thức tạo hóa đơn và gửi email
+                    thymeleafService.generateInvoiceAndSendEmail(orderItem);
                 }
             }
             // Xử lý khi trạng thái chuyển sang "Giao không thành công"
@@ -157,6 +164,27 @@ public class OrderItemsServiceImpl implements OrderItemsService {
         }
     }
 
+    private void generateInvoice(OrderItems orderItem) {
+        // Sử dụng ThymeleafService để tạo hóa đơn
+        thymeleafService.generateInvoiceAndSendEmail(orderItem);
+    }
+
+    private void sendEmail(OrderItems orderItem) {
+        // Lấy email khách hàng từ OrderDetails
+        String customerEmail = orderItem.getOrderDetails().getUsers().getEmail();
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
+            messageHelper.setTo(customerEmail);
+            messageHelper.setSubject("Hóa Đơn Đặt Hàng");
+            messageHelper.setText(thymeleafService.generateInvoiceAndSendEmail(orderItem), true); // true để gửi dưới dạng HTML
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send email", e);
+        }
+    }
+
     private void updateStock(OrderItems orderItem, int quantityChange) {
         ProductDetails productDetails = orderItem.getProductDetails();
         if (productDetails != null) {
@@ -167,7 +195,146 @@ public class OrderItemsServiceImpl implements OrderItemsService {
             productDetailsRepository.save(productDetails);
         }
     }
-
+//    @Autowired
+//    private OrderItemsRepository orderItemsRepository;
+//
+//    @Autowired
+//    private PaymentDetailsRepository paymentDetailsRepository;
+//    @Autowired
+//    private ProductDetailsRepository productDetailsRepository;
+//
+//    @Override
+//    public List<OrderItemsDTO> getOrdersByStatus(String status) {
+//        List<OrderItems> orderItems;
+//        try {
+//            if (status != null && !status.isEmpty()) {
+//                OrderItems.ORDER_STATUS orderStatus;
+//                try {
+//                    orderStatus = OrderItems.ORDER_STATUS.valueOf(status.toUpperCase());
+//                } catch (IllegalArgumentException e) {
+//                    // Trạng thái không hợp lệ
+//                    return new ArrayList<>();
+//                }
+//                orderItems = orderItemsRepository.findByStatus(orderStatus);
+//            } else {
+//                orderItems = orderItemsRepository.findAll();
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return new ArrayList<>();
+//        }
+//
+//        orderItems.sort(Comparator.comparing(OrderItems::getCreatedAt).reversed());
+//
+//        List<OrderItemsDTO> response = new ArrayList<>();
+//
+//        for (OrderItems orders : orderItems) {
+//            // Tìm thông tin thanh toán cho đơn hàng
+//            PaymentDetails payment = paymentDetailsRepository.findByOrderDetails_OrderDetailId(
+//                    orders.getOrderDetails() != null ? orders.getOrderDetails().getOrderDetailId() : null
+//            );
+//
+//            boolean isPaid = payment != null && PaymentDetails.PAYMENT_STATUS.SUCCESS.equals(payment.getStatus());
+//
+//            // Kiểm tra giá trị null trước khi sử dụng
+//            BigDecimal priceDiscount = orders.getProductDetails() != null && orders.getProductDetails().getProducts() != null ?
+//                    orders.getProductDetails().getProducts().getPriceDiscount() : BigDecimal.ZERO;
+//            BigDecimal productPrice = isPaid ?
+//                    (orders.getPrice() != null ? orders.getPrice() : BigDecimal.ZERO) :
+//                    (orders.getProductDetails() != null && orders.getProductDetails().getProducts() != null ?
+//                            orders.getProductDetails().getProducts().getPrice() : BigDecimal.ZERO);
+//
+//            // Đảm bảo các thuộc tính không null trước khi gọi phương thức
+//            String statusName = orders.getStatus() != null ? orders.getStatus().name() : "UNKNOWN";
+//            String returnStatusName = orders.getReturnStatus() != null ? orders.getReturnStatus().name() : "UNKNOWN";
+//
+//            // Tạo DTO cho từng đơn hàng
+//            OrderItemsDTO dto = new OrderItemsDTO(
+//                    orders.getOrderItemId(),
+//                    orders.getAmount() != null ? orders.getAmount() : BigDecimal.valueOf(0),
+//                    statusName,
+//                    returnStatusName,
+//                    productPrice,
+//                    isPaid ? (orders.getPriceDiscount() != null ? orders.getPriceDiscount() : priceDiscount) : priceDiscount,
+//                    orders.getUserId(),
+//                    orders.getIsReview() != null ? orders.getIsReview() : false,
+//                    orders.getQuanity(),
+//                    orders.getProductDetails() != null ? orders.getProductDetails().getProductDetailId() : null,
+//                    orders.getOrderDetails() != null ? orders.getOrderDetails().getOrderDetailId() : null,
+//                    orders.getCreatedAt(),
+//                    orders.getUpdatedAt(),
+//                    orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getProductId() : null,
+//                    orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getName() : null,
+//                    orders.getProductDetails() != null ? Integer.valueOf(orders.getProductDetails().getSizes().getName()) : null,
+//                    orders.getProductDetails() != null ? orders.getProductDetails().getSellQuanity() : null,
+//                    orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getCode() : null,
+//                    orders.getProductDetails() != null ? orders.getProductDetails().getProducts().getName() : null
+//            );
+//
+//            response.add(dto);
+//        }
+//        return response;
+//    }
+//
+//
+//
+//    @Override
+//    @Transactional
+//    public boolean updateOrderStatus(Integer orderItemId, String status) {
+//        try {
+//            OrderItems orderItem = orderItemsRepository.findById(orderItemId)
+//                    .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+//
+//            OrderItems.ORDER_STATUS newStatus = OrderItems.ORDER_STATUS.valueOf(status);
+//            OrderItems.ORDER_STATUS oldStatus = orderItem.getStatus();
+//
+//            // Cập nhật trạng thái đơn hàng
+//            orderItem.setStatus(newStatus);
+//            orderItemsRepository.save(orderItem);
+//
+//            // Xử lý khi trạng thái chuyển từ "Chờ xác nhận" sang "Chờ lấy hàng"
+//            if (OrderItems.ORDER_STATUS.CHO_XAC_NHAN.equals(oldStatus) &&
+//                    OrderItems.ORDER_STATUS.CHO_LAY_HANG.equals(newStatus)) {
+//                updateStock(orderItem, -orderItem.getQuanity());
+//            }
+//            // Xử lý khi trạng thái chuyển từ "Chờ lấy hàng" hoặc "Chờ giao hàng" sang "Đã hủy"
+//            else if (OrderItems.ORDER_STATUS.DA_HUY.equals(newStatus)) {
+//                if (OrderItems.ORDER_STATUS.CHO_LAY_HANG.equals(oldStatus) ||
+//                        OrderItems.ORDER_STATUS.CHO_GIAO_HANG.equals(oldStatus)) {
+//                    updateStock(orderItem, orderItem.getQuanity());
+//                }
+//            }
+//            // Xử lý khi trạng thái chuyển sang "Giao không thành công"
+//            else if (OrderItems.ORDER_STATUS.KHONG_THANH_CONG.equals(newStatus)) {
+//                if (OrderItems.ORDER_STATUS.CHO_GIAO_HANG.equals(oldStatus)) {
+//                    updateStock(orderItem, orderItem.getQuanity());
+//                }
+//            }
+//            // Xử lý khi trạng thái chuyển sang "Đã nhập kho"
+//            else if (OrderItems.ORDER_STATUS.NHAP_KHO.equals(newStatus)) {
+//                if (OrderItems.ORDER_STATUS.KHONG_THANH_CONG.equals(oldStatus)) {
+//                    updateStock(orderItem, orderItem.getQuanity()); // Cập nhật số lượng kho khi nhập lại
+//                }
+//            }
+//
+//            return true;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
+//
+//    private void updateStock(OrderItems orderItem, int quantityChange) {
+//        ProductDetails productDetails = orderItem.getProductDetails();
+//        if (productDetails != null) {
+//            int currentStock = productDetails.getQuantity() != null ? productDetails.getQuantity() : 0;
+//            productDetails.setQuantity(currentStock + quantityChange);
+//            productDetails.setSellQuanity(productDetails.getSellQuanity() != null
+//                    ? productDetails.getSellQuanity() + quantityChange : quantityChange);
+//            productDetailsRepository.save(productDetails);
+//        }
+//    }
+//============================================================================
 //    @Override
 //    @Transactional
 //    public boolean updateOrderStatus(Integer orderItemId, String status) {

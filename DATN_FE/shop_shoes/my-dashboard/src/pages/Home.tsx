@@ -1,7 +1,3 @@
-
-
-
-
 // import { useEffect, useState } from "react";
 
 // import {
@@ -311,34 +307,12 @@
 
 // export default Home;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import React, { useState, useEffect } from 'react';
-import { Card, Col, Row, Typography, Select, DatePicker, message } from 'antd';
-import ReactECharts from 'echarts-for-react';
-import StatisticsService from '../services/OrderApi'; // Đảm bảo đường dẫn đúng
-import { Dayjs } from 'dayjs';
-import { EChartsOption } from 'echarts';
+import React, { useState, useEffect } from "react";
+import { Card, Col, Row, Typography, Select, DatePicker, message } from "antd";
+import ReactECharts from "echarts-for-react";
+import StatisticsService from "../services/OrderApi"; // Đảm bảo đường dẫn đúng
+import { Dayjs } from "dayjs";
+import { EChartsOption } from "echarts";
 
 const { Option } = Select;
 
@@ -354,16 +328,22 @@ const Home = () => {
       try {
         let data;
         if (timePeriod === "daily" && dateRange) {
-          const response = await StatisticsService.getRevenueByDay(dateRange[0].format("YYYY-MM-DD"), dateRange[1].format("YYYY-MM-DD"));
-          data = response;
+          const response = await StatisticsService.getRevenueByDay(
+            dateRange[0].format("YYYY-MM-DD"),
+            dateRange[1].format("YYYY-MM-DD")
+          );
+          data = response.data;
         } else if (timePeriod === "monthly") {
-          const response = await StatisticsService.getRevenueByMonth(year, month);
-          data = response;
+          const response = await StatisticsService.getRevenueByMonth(
+            year,
+            month
+          );
+          data = response.data;
         } else if (timePeriod === "yearly") {
           const response = await StatisticsService.getRevenueByYear(year);
-          data = response;
+          data = response.data;
         }
-    
+
         const formattedData = formatChartData(data);
         setChartData(formattedData);
       } catch (error) {
@@ -378,21 +358,21 @@ const Home = () => {
   const formatChartData = (data: any): EChartsOption => {
     return {
       xAxis: {
-        type: 'category',
+        type: "category",
         data: data.dates, // Dữ liệu trục X từ API
       },
       yAxis: {
-        type: 'value',
+        type: "value",
       },
       series: [
         {
           data: data.values, // Dữ liệu trục Y từ API
-          type: 'line',
+          type: "line",
           smooth: true, // Làm cho đường biểu đồ mượt mà
         },
       ],
       tooltip: {
-        trigger: 'axis',
+        trigger: "axis",
       },
     };
   };
@@ -430,9 +410,9 @@ const Home = () => {
                   <Select
                     value={month}
                     onChange={setMonth}
-                    style={{ width: '100%' }}
+                    style={{ width: "100%" }}
                   >
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                       <Option key={m} value={m}>
                         {m}
                       </Option>
@@ -443,9 +423,12 @@ const Home = () => {
                   <Select
                     value={year}
                     onChange={setYear}
-                    style={{ width: '100%' }}
+                    style={{ width: "100%" }}
                   >
-                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                    {Array.from(
+                      { length: 10 },
+                      (_, i) => new Date().getFullYear() - i
+                    ).map((y) => (
                       <Option key={y} value={y}>
                         {y}
                       </Option>
@@ -455,7 +438,10 @@ const Home = () => {
               </Row>
             )}
             {chartData && (
-              <ReactECharts option={chartData} style={{ height: '400px', marginTop: '16px' }} />
+              <ReactECharts
+                option={chartData}
+                style={{ height: "400px", marginTop: "16px" }}
+              />
             )}
           </Card>
         </Col>

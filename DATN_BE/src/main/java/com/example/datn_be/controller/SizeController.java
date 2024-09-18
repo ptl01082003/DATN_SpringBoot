@@ -48,7 +48,7 @@ public class SizeController {
         try{
             Sizes size = sizeService.addSize(sizesDTO);
             return  new ResponseEntity<>(
-                    Map.of("message","Thực hiện thành công","data",size),
+                    Map.of("code",0,"message","Thực hiện thành công","data",size),
                     HttpStatus.OK
             );
         }catch (Exception e){
@@ -93,7 +93,7 @@ public class SizeController {
             Sizes size = sizeService.updateSize(sizesDTO);
             if (size != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", size),
+                        Map.of("code",0,"message", "Thực hiện thành công", "data", size),
                         HttpStatus.OK
                 );
             } else {
@@ -120,7 +120,7 @@ public class SizeController {
         try {
             boolean isDeleted = sizeService.deleteSize(sizeId);
             if (isDeleted) {
-                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
+                return ResponseEntity.ok(Map.of("code",0,"message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("message", "Thương hiệu không tồn tại"));

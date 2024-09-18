@@ -17,7 +17,7 @@ const VouchersController = {
         discountValue,
         quantity,
         status = "ISACTIVE", // default value
-        typeValue = "MONEY", // default value
+        typeValue = "P", // default value
         ruleType,
         minOrderValue,
         validProducts,

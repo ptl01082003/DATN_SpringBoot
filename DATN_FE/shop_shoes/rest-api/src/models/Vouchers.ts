@@ -12,7 +12,6 @@ import { UserVouchers } from "./UserVouchers";
 import { OrderDetails } from "./OrderDetails";
 
 export enum Vouchers_TYPE {
-  MONEY = "MONEY",
   PERCENT = "PERCENT",
 }
 
@@ -66,7 +65,7 @@ export class Vouchers extends Model {
   @Column
   public status?: string;
 
-  @Default(Vouchers_TYPE.MONEY)
+  @Default(Vouchers_TYPE.PERCENT)
   @Column
   public typeValue?: string;
 

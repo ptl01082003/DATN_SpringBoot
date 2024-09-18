@@ -22,7 +22,6 @@ export enum RESPONSE_CODE {
 }
 
 export enum Vouchers_TYPE {
-  MONEY = "MONEY",
   PERCENT = "PERCENT",
 }
 

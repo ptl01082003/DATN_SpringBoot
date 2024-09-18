@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,7 +21,6 @@ public class VouchersServiceImpl implements VouchersService {
     public VouchersDTO createVoucher(VouchersDTO vouchersDTO) {
         Vouchers voucher = new Vouchers();
         // Chuyển đổi từ DTO sang Entity
-
         voucher.setCode(vouchersDTO.getCode());
         voucher.setDescription(vouchersDTO.getDescription());
         voucher.setValueOrder(vouchersDTO.getValueOrder());
@@ -32,7 +30,7 @@ public class VouchersServiceImpl implements VouchersService {
         voucher.setDiscountValue(vouchersDTO.getDiscountValue());
         voucher.setQuantity(vouchersDTO.getQuantity());
         voucher.setStatus(vouchersDTO.getStatus());
-        voucher.setTypeValue(vouchersDTO.getTypeValue());
+        voucher.setTypeValue(Vouchers.VouchersType.PERCENT);  // Chỉ sử dụng PERCENT
         voucher.setRuleType(vouchersDTO.getRuleType());
         voucher.setMinOrderValue(vouchersDTO.getMinOrderValue());
         voucher.setMinOrderCount(vouchersDTO.getMinOrderCount());
@@ -72,7 +70,7 @@ public class VouchersServiceImpl implements VouchersService {
             voucher.setDiscountValue(vouchersDTO.getDiscountValue());
             voucher.setQuantity(vouchersDTO.getQuantity());
             voucher.setStatus(vouchersDTO.getStatus());
-            voucher.setTypeValue(vouchersDTO.getTypeValue());
+            voucher.setTypeValue(Vouchers.VouchersType.PERCENT);  // Chỉ sử dụng PERCENT
             voucher.setRuleType(vouchersDTO.getRuleType());
             voucher.setMinOrderValue(vouchersDTO.getMinOrderValue());
             voucher.setMinOrderCount(vouchersDTO.getMinOrderCount());
@@ -105,7 +103,7 @@ public class VouchersServiceImpl implements VouchersService {
         dto.setDiscountValue(voucher.getDiscountValue());
         dto.setQuantity(voucher.getQuantity());
         dto.setStatus(voucher.getStatus());
-        dto.setTypeValue(voucher.getTypeValue());
+        dto.setTypeValue(Vouchers.VouchersType.PERCENT);  // Chỉ sử dụng PERCENT
         dto.setRuleType(voucher.getRuleType());
         dto.setMinOrderValue(voucher.getMinOrderValue());
         dto.setMinOrderCount(voucher.getMinOrderCount());

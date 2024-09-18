@@ -234,7 +234,7 @@ const UserPage: React.FC = () => {
             <DatePicker format="DD-MM-YYYY" />
           </Form.Item>
           <Form.Item
-            name="roles"  // Đảm bảo roleId được truyền đúng
+            name="roles" 
             label="Vai trò"
             rules={[{ required: true, message: "Vai trò là bắt buộc" }]}
           >

@@ -70,7 +70,7 @@ function App() {
       />
       <Router basename="/">
         <Routes>
-          <Route path={"/sign-up"} element={<SignUp />} />
+          <Route path={"/sign-out"} element={<SignUp />} />
           <Route path={"/sign-in"} element={<SignIn />} />
           <Route path="/*" element={<PrivateRouter />}>
             <Route path={""} element={<Home />} />

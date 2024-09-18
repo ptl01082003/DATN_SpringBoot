@@ -1,39 +1,33 @@
 import { Op } from "sequelize";
-import { Vouchers } from "../models/Vouchers";
+import { Vouchers, Voucher_RULE, Vouchers_STATUS } from "../models/Vouchers";
 import { Users } from "../models/Users";
 import { OrderDetails } from "../models/OrderDetails";
-import { Voucher_RULE, Vouchers_STATUS } from "../models/Vouchers";
 import { UserVouchers } from "../models/UserVouchers";
 import { startOfDay, endOfDay } from "date-fns";
 import sequelize from "sequelize";
 
 // Hàm xóa voucher bị trùng
-// Hàm xóa voucher bị trùng
 async function removeDuplicateVouchers() {
   try {
-    // Lấy danh sách tất cả các bản ghi trùng dựa trên userId và voucherId
     const duplicates = await UserVouchers.findAll({
       attributes: ['userId', 'voucherId'],
       group: ['userId', 'voucherId'],
-      having: sequelize.literal('COUNT(*) > 1'),  // Tìm những bản ghi bị trùng
+      having: sequelize.literal('COUNT(*) > 1'),
     });
 
     console.log(`Số lượng voucher bị trùng: ${duplicates.length}`);
 
-    // Duyệt qua danh sách trùng và xóa các bản ghi ngoài bản ghi đầu tiên
     for (const duplicate of duplicates) {
       const { userId, voucherId } = duplicate;
 
-      // Lấy tất cả các bản ghi voucher của user này, sắp xếp theo thời gian nhận
       const userVoucherRecords = await UserVouchers.findAll({
         where: {
           userId: userId,
           voucherId: voucherId,
         },
-        order: [['receivedAt', 'ASC']], // Sắp xếp theo thời gian nhận
+        order: [['receivedAt', 'ASC']],
       });
 
-      // Xóa tất cả các bản ghi sau bản ghi đầu tiên
       for (let i = 1; i < userVoucherRecords.length; i++) {
         await userVoucherRecords[i].destroy();
         console.log(`Đã xóa voucher trùng với userId: ${userId}, voucherId: ${voucherId}`);
@@ -43,6 +37,7 @@ async function removeDuplicateVouchers() {
     console.error("Lỗi khi xóa voucher bị trùng:", error);
   }
 }
+
 async function checkVoucherEligibility(
   voucherCode: string,
   userId: number,
@@ -207,7 +202,6 @@ export async function distributeVouchers() {
       })
     );
 
-    // Gọi hàm xóa voucher bị trùng sau khi phân phối
     await removeDuplicateVouchers();
   } catch (error) {
     console.error("Lỗi khi phân phối voucher:", error);

@@ -5,6 +5,7 @@ import com.example.datn_be.entity.OrderItems;
 import com.example.datn_be.respository.OrderItemsRepository;
 import com.example.datn_be.service.OrderItemsService;
 import com.example.datn_be.service.ReviewersService;
+import com.example.datn_be.service.ThymeleafService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,9 @@ public class OrdersController {
     @Autowired
     private OrderItemsRepository orderItemsRepository;
 
+    @Autowired
+    private ThymeleafService thymeleafService;
+
     // Lấy danh sách đơn hàng theo trạng thái (status)
     @PostMapping("/lst-orders")
     @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
@@ -39,24 +43,28 @@ public class OrdersController {
         return ResponseEntity.ok(orders);
     }
 
-    // Tạo đánh giá
     @PostMapping("/update-status")
     @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<String> updateOrderStatus(
             @RequestParam String status,
             @RequestParam Integer orderItemId) {
         try {
+            // Gọi phương thức cập nhật trạng thái đơn hàng
             boolean result = orderItemsService.updateOrderStatus(orderItemId, status);
+
+            // Kiểm tra kết quả
             if (result) {
-                return ResponseEntity.ok("Order status updated successfully");
+                // Trả về thông báo khi cập nhật trạng thái thành công
+                return ResponseEntity.ok("Cập nhật trạng thái đơn hàng thành công. Hóa đơn đã được xuất và gửi email.");
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order item not found or invalid status");
+                // Nếu không tìm thấy đơn hàng hoặc trạng thái không hợp lệ
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy đơn hàng hoặc trạng thái không hợp lệ");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order status");
+            // Trả về thông báo lỗi nếu có ngoại lệ xảy ra
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật trạng thái đơn hàng thất bại");
         }
     }
-
 
     // Lấy thống kê đơn hàng theo năm
     @PostMapping("/statistics-year")

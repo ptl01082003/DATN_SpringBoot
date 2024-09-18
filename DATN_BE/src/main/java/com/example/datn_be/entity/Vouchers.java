@@ -33,7 +33,6 @@ import java.util.Set;
 public class Vouchers {
 
     public enum VouchersType {
-        MONEY,
         PERCENT
     }
 
@@ -79,7 +78,7 @@ public class Vouchers {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "typeValue", nullable = false)
-    private VouchersType typeValue = VouchersType.MONEY;
+    private VouchersType typeValue = VouchersType.PERCENT;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ruleType")

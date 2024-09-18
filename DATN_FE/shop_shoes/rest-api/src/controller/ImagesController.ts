@@ -7,7 +7,7 @@ const ImagesController = {
     try {
       const { path, productId } = req.body;
 
-      // Kiểm tra dữ liệu đầu vào
+    
       if (!path) {
         return res.status(400).json({ message: "Missing required fields" });
       }

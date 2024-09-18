@@ -36,22 +36,22 @@ public class MaterialsController {
         }
     }
 
-        @PostMapping("")
-        @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
-        public ResponseEntity<?> getMaterials() {
-            try {
-                List<Materials> materials = materialService.getMaterials();
-                return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", materials),
-                        HttpStatus.OK
-                );
-            } catch (Exception e) {
-                return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thất bại", "error", e.getMessage()),
-                        HttpStatus.BAD_REQUEST
-                );
-            }
+    @PostMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
+    public ResponseEntity<?> getMaterials() {
+        try {
+            List<Materials> materials = materialService.getMaterials();
+            return new ResponseEntity<>(
+                    Map.of("message", "Thực hiện thành công", "data", materials),
+                    HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    Map.of("message", "Thực hiện thất bại", "error", e.getMessage()),
+                    HttpStatus.BAD_REQUEST
+            );
         }
+    }
 
     @PostMapping("/getById")
     @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
@@ -110,7 +110,7 @@ public class MaterialsController {
         try {
             boolean isDeleted = materialService.deleteMaterial(materialId);
             if (isDeleted) {
-                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
+                return ResponseEntity.ok(Map.of("code",0,"message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("message", "Thương hiệu không tồn tại"));
