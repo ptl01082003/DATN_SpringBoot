@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchGetUserInfo } from "../thunks/UserThunk";
+import { any, number } from "prop-types";
 
 export const usersSlice = createSlice({
   name: "usersSlice",
   initialState: {
-    userInfo: undefined,
+    userInfo: any,
     lstOnlineUsers: [],
   },
 

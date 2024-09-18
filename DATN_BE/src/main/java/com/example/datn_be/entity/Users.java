@@ -7,6 +7,8 @@
     import lombok.Getter;
     import lombok.NoArgsConstructor;
     import lombok.Setter;
+    import org.springframework.data.annotation.CreatedDate;
+    import org.springframework.data.annotation.LastModifiedDate;
     import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
@@ -37,6 +39,7 @@
         @Column(name = "userName", nullable = false)
         private String userName;
 
+
         @Column(name = "email", nullable = false, unique = true)
         private String email;
 
@@ -48,23 +51,27 @@
 
         @Column(name = "birth")
         @JsonFormat(pattern = "yyyy-MM-dd")
-        private LocalDate birth;  // Changed from LocalDateTime to LocalDate
+        private LocalDate birth;
 
         @Column(name = "fullName", nullable = false)
         private String fullName;
 
-        @Column(name = "status", nullable = false)
+        @Enumerated(EnumType.STRING)
+        @Column(name = "status")
         private UserStatus status;
 
-        @Column(name = "createdAt")
+        @CreatedDate
+        @Column(name = "createdAt", updatable = false)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime createdAt;
 
+        @LastModifiedDate
         @Column(name = "updatedAt")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime updatedAt;
 
         @ManyToOne(fetch = FetchType.LAZY)
+        @Enumerated(EnumType.STRING)
         @JoinColumn(name = "roleId")
         private Roles roles;
 

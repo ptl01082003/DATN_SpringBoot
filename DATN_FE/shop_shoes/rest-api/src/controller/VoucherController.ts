@@ -17,7 +17,7 @@ const VouchersController = {
         discountValue,
         quantity,
         status = "ISACTIVE", // default value
-        typeValue = "MONEY", // default value
+        typeValue = "P", // default value
         ruleType,
         minOrderValue,
         validProducts,
@@ -71,6 +71,10 @@ const VouchersController = {
       next(error);
     }
   },
+
+  voucherSelected:  async (req: Request, res: Response, next: NextFunction) => {
+    const { voucherId, amounts} = req.body;
+   },
 
   getById: async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -232,6 +236,7 @@ const VouchersController = {
           discountValue: userVoucher.vouchers.discountValue,
           ruleType: userVoucher.vouchers.ruleType,
           typeValue: userVoucher.vouchers.typeValue,
+          endDay: userVoucher.vouchers.endDay,
         },
       }));
 

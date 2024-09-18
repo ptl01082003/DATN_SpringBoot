@@ -28,7 +28,6 @@ const io = new Server(server, {
 io.use(authSocket as any);
 
 io.on("connection", async (socket) => {
-  console.log(socket.id);
   const userId = (socket as Socket.ExternalSocket).userId;
   const roles = (await redis.get(`roles-${userId}`)) as keyof typeof ROLE_TYPES;
 
@@ -36,7 +35,7 @@ io.on("connection", async (socket) => {
   const lstOnlineUsers = lstonlineUsersInRedis
     ? JSON.parse(lstonlineUsersInRedis)
     : {};
-
+  console.log("_______",userId, roles);
   lstOnlineUsers[userId] = {
     roles,
     userId,

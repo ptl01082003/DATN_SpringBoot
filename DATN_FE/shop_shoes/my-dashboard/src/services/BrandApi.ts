@@ -3,7 +3,7 @@
 import AxiosClient from "../networks/AxiosRequest";
 import { Response } from "../constants/constants";
 import { KEY_STORAGE } from "../constants";
-const API_URL = "/brands"; // Đảm bảo rằng URL tương ứng với API của bạn
+const API_URL = "/brands"; 
 
 const BrandService = {
   getBrands: async () => {
@@ -11,7 +11,7 @@ const BrandService = {
       const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(API_URL, {}, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       });
       return response;
@@ -24,8 +24,8 @@ const BrandService = {
     try {
       const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}`,
-        brandId
+          `${API_URL}`,
+          brandId
       );
       return response; // Sử dụng response.data để trả về dữ liệu chính xác
     } catch (error) {
@@ -38,13 +38,13 @@ const BrandService = {
     try {
       const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/create`,
-        brandData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+          `${API_URL}/create`,
+          brandData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
       );
       return response;
     } catch (error) {
@@ -58,13 +58,13 @@ const BrandService = {
     try {
       const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosClient.post<any, Response<any>>(
-        `${API_URL}/edit`,
-        brandData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+          `${API_URL}/edit`,
+          brandData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
       );
       return response;
     } catch (error) {
@@ -73,19 +73,19 @@ const BrandService = {
     }
   },
 
-   // Xóa một thương hiệu dựa trên ID
+  // Xóa một thương hiệu dựa trên ID
   deleteBrand: async (brandId: number) => {
     try {
       const token = localStorage.getItem(KEY_STORAGE.TOKEN);
-      const response = await AxiosClient.post<Response<any>>(
-        `${API_URL}/remove`,
-        null,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: { brandId },
-        }
+      const response = await AxiosClient.post<any, Response<any>>(
+          `${API_URL}/remove`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: { brandId },
+          }
       );
       return response;
     } catch (error) {

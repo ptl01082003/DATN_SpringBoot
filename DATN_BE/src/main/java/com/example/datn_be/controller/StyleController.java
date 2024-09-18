@@ -28,7 +28,7 @@ public class StyleController {
         try {
             Styles styles=styleService.addStyles(stylesDTO);
             return new ResponseEntity<>(
-                    Map.of("message","Complete","data",styles),
+                    Map.of("code",0,"message","Complete","data",styles),
                     HttpStatus.CREATED
             );
         } catch (Exception e){
@@ -88,7 +88,7 @@ public class StyleController {
             Styles updatedStyle = styleService.updateStyle(stylesDTO);
             if (updatedStyle != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", updatedStyle),
+                        Map.of("code",0,"message", "Thực hiện thành công", "data", updatedStyle),
                         HttpStatus.OK
                 );
             } else {
@@ -115,7 +115,7 @@ public class StyleController {
         try {
             boolean isDeleted = styleService.deleteStyle(styleId);
             if (isDeleted) {
-                return ResponseEntity.ok(Map.of("message", "Thực hiện thành công"));
+                return ResponseEntity.ok(Map.of("code",0,"message", "Thực hiện thành công"));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("message", "Phong cách không tồn tại"));

@@ -124,7 +124,19 @@ export default function StylePage() {
         );
         console.log("Delete response:", response);
         if (response.code === 0) {
-          setShouldRender((prev) => !prev);
+          confirmAlert({
+            title: "Thành công",
+            message: "Xuât xứ xóa thành công!",
+            buttons: [
+              {
+                label: "OK",
+                onClick: () => {
+                  // Cập nhật danh sách chất liệu và re-render
+                  setShouldRender((prev) => !prev);
+                },
+              },
+            ],
+          });
         }
       } catch (error) {
         console.error("Error deleting origin:", error);
@@ -141,7 +153,7 @@ export default function StylePage() {
   const confirmSave = (onConfirm: () => void, action: string) => {
     confirmAlert({
       title: "Xác nhận",
-      message: `Bạn có chắc chắn muốn ${action} chất liệu này?`,
+      message: `Bạn có chắc chắn muốn ${action} xuất xứ này?`,
       buttons: [
         {
           label: "Có",
@@ -186,7 +198,7 @@ export default function StylePage() {
           // Hiển thị thông báo xác nhận
           confirmAlert({
             title: "Thành công",
-            message: "Chất liệu đã được cập nhật thành công!",
+            message: "Xuất xứ đã được cập nhật thành công!",
             buttons: [
               {
                 label: "OK",
@@ -214,7 +226,19 @@ export default function StylePage() {
         const response = await OriginService.createOrigin(values);
         if (response.code === 0) {
           // setOpenCreateModal(false);
-          setShouldRender((prev) => !prev);
+          confirmAlert({
+            title: "Thành công",
+            message: "Xuất xứ đã được thêm thành công!",
+            buttons: [
+              {
+                label: "OK",
+                onClick: () => {
+                  // Cập nhật danh sách chất liệu và re-render
+                  setShouldRender((prev) => !prev);
+                },
+              },
+            ],
+          });
         } else {
           console.error("Error:", response.data.message);
         }
@@ -265,7 +289,7 @@ export default function StylePage() {
           autoComplete="off"
         >
           <Form.Item
-            label="Chất liệu"
+            label="Xuất xứ"
             name="name"
             rules={[
               { required: true, message: "Please input the origin name!" },
@@ -281,7 +305,7 @@ export default function StylePage() {
                 setOpenCreateModal(false);
               }}
             >
-              Add
+              Thêm
             </Button>
           </Form.Item>
         </Form>
@@ -306,7 +330,7 @@ export default function StylePage() {
           autoComplete="off"
         >
           <Form.Item
-            label="origin Name"
+            label="Origin Name"
             name="name"
             rules={[
               { required: true, message: "Please input the origin name!" },
@@ -322,7 +346,7 @@ export default function StylePage() {
                 setOpenEditModal(false);
               }}
             >
-              Save Changes
+              Lưu
             </Button>
           </Form.Item>
         </Form>

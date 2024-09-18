@@ -79,7 +79,7 @@ const UserService = {
       throw error;
     }
   },
-  // Xóa người dùng
+
   deleteUser: async (userId: number) => {
     try {
       const token = localStorage.getItem(KEY_STORAGE.TOKEN);
@@ -90,7 +90,7 @@ const UserService = {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          params: { id: userId }, // Truyền userId trong params
+          params: { id: userId }, // Sửa lỗi nếu backend yêu cầu query params
         }
       );
       return response;
@@ -98,7 +98,7 @@ const UserService = {
       console.error(`Error deleting user ${userId}`, error);
       throw error;
     }
-  },
-};
+  }
+}
 
 export default UserService;

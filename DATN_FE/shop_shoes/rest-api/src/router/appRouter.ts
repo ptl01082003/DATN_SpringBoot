@@ -20,6 +20,7 @@ import { uploadRouter } from "./uploadRouter";
 import userRouter from "./UserRouter";
 import routerVouchers from "./VoucherRouter";
 import conversationsRouter from "./ConversationsRouter";
+import routerDashboard from "./dashboardRouter";
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ export function appRouter() {
   router.use("/styles", routerStyle);
   router.use("/brands", routerBrands);
   router.use("/uploads", uploadRouter);
+  router.use("/dashboard", routerDashboard);
 
   router.use("/sizes", routerSize);
   router.use("/images", routerImage);

@@ -102,7 +102,7 @@ export default function SizePage() {
   const confirmDelete = (onConfirm: () => void) => {
     confirmAlert({
       title: "Xác nhận",
-      message: "Bạn có chắc chắn muốn xóa chất liệu này?",
+      message: "Bạn có chắc chắn muốn xóa kích cỡ này?",
       buttons: [
         {
           label: "Có",
@@ -124,7 +124,19 @@ export default function SizePage() {
         );
         console.log("Delete response:", response);
         if (response.code === 0) {
-          setShouldRender((prev) => !prev);
+          confirmAlert({
+            title: "Thành công",
+            message: "Xóa kich cỡ thành công!",
+            buttons: [
+              {
+                label: "OK",
+                onClick: () => {
+                  // Cập nhật danh sách chất liệu và re-render
+                  setShouldRender((prev) => !prev);
+                },
+              },
+            ],
+          });
         }
       } catch (error) {
         console.error("Error deleting size:", error);
@@ -141,7 +153,7 @@ export default function SizePage() {
   const confirmSave = (onConfirm: () => void, action: string) => {
     confirmAlert({
       title: "Xác nhận",
-      message: `Bạn có chắc chắn muốn ${action} chất liệu này?`,
+      message: `Bạn có chắc chắn muốn ${action} kích cỡ này?`,
       buttons: [
         {
           label: "Có",
@@ -186,7 +198,7 @@ export default function SizePage() {
           // Hiển thị thông báo xác nhận
           confirmAlert({
             title: "Thành công",
-            message: "Chất liệu đã được cập nhật thành công!",
+            message: "Kích cỡ đã được cập nhật thành công!",
             buttons: [
               {
                 label: "OK",
@@ -214,7 +226,19 @@ export default function SizePage() {
         const response = await SizeService.createSize(values);
         if (response.code === 0) {
           // setOpenCreateModal(false);
-          setShouldRender((prev) => !prev);
+          confirmAlert({
+            title: "Thành công",
+            message: "Kích cỡ đã được thêm thành công!",
+            buttons: [
+              {
+                label: "OK",
+                onClick: () => {
+                  // Cập nhật danh sách chất liệu và re-render
+                  setShouldRender((prev) => !prev);
+                },
+              },
+            ],
+          });
         } else {
           console.error("Error:", response.data.message);
         }
@@ -265,7 +289,7 @@ export default function SizePage() {
           autoComplete="off"
         >
           <Form.Item
-            label="Chất liệu"
+            label="Kích cỡ"
             name="name"
             rules={[
               { required: true, message: "Please input the size name!" },
@@ -281,7 +305,7 @@ export default function SizePage() {
                 setOpenCreateModal(false);
               }}
             >
-              Add
+              Thêm
             </Button>
           </Form.Item>
         </Form>
@@ -322,7 +346,7 @@ export default function SizePage() {
                 setOpenEditModal(false);
               }}
             >
-              Save Changes
+              Lưu
             </Button>
           </Form.Item>
         </Form>

@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { Secret } from "jsonwebtoken";
-import { redis } from "../config/ConnectRedis";
 import { RESPONSE_CODE, ResponseBody } from "../constants";
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
@@ -20,21 +19,8 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
               })
             );
           } else {
-            const tokenInRedis = await redis.get(
-              `accessToken-${decoded.userId}`
-            );
-            if (tokenInRedis === token) {
-              req.userId = decoded.userId;
-              next();
-            } else {
-              return res.json(
-                ResponseBody({
-                  data: null,
-                  code: RESPONSE_CODE.INCORRECT,
-                  message: "Token không hợp lệ",
-                })
-              );
-            }
+            req.userId = decoded.userId;
+            next();
           }
         }
       );

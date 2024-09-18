@@ -1,12 +1,4 @@
 const eChart = {
-  series: [
-    {
-      name: "Sales",
-      data: [450, 200, 100, 220, 500, 100, 400, 230, 500],
-      color: "#fff",
-    },
-  ],
-
   options: {
     chart: {
       type: "bar",
@@ -39,15 +31,12 @@ const eChart = {
     },
     xaxis: {
       categories: [
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
+        "Chờ xác nhận",
+        "Chờ thanh toán",
+        "Chờ lấy hàng",
+        "Chờ giao hàng",
+        "Đã giao",
+        "Đã huỷ",
       ],
       labels: {
         show: true,
@@ -70,9 +59,26 @@ const eChart = {
         },
       },
     },
+    plotOptions: {
+      bar: {
+        dataLabels: {
+          position: 'top', 
+        }
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        colors: ['#ffffff'],
+      },
+      offsetY: -20, 
+      formatter: (val) => val,
+    },
     yaxis: {
+      tickAmount: 5,
+      decimalsInFloat: 0,
       labels: {
-        show: true,
+        show: false,
         align: "right",
         minWidth: 0,
         maxWidth: 160,
@@ -96,7 +102,7 @@ const eChart = {
     tooltip: {
       y: {
         formatter: function (val) {
-          return "$ " + val + " thousands";
+          return val;
         },
       },
     },

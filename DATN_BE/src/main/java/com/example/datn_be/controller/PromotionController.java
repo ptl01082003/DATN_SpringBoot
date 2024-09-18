@@ -26,7 +26,7 @@ public class PromotionController {
         try {
             PromotionsDTO createdPromotion = promotionService.createPromotion(promotionsDTO);
             return new ResponseEntity<>(
-                    Map.of("message", "Thực hiện thành công", "data", createdPromotion),
+                    Map.of("code",0,"message", "Thực hiện thành công", "data", createdPromotion),
                     HttpStatus.CREATED
             );
         } catch (Exception e) {
@@ -90,7 +90,7 @@ public class PromotionController {
             PromotionsDTO updatedPromotion = promotionService.updatePromotion(promotionsDTO.getPromotionId(), promotionsDTO);
             if (updatedPromotion != null) {
                 return new ResponseEntity<>(
-                        Map.of("message", "Thực hiện thành công", "data", updatedPromotion),
+                        Map.of("code",0,"message", "Thực hiện thành công", "data", updatedPromotion),
                         HttpStatus.OK
                 );
             } else {

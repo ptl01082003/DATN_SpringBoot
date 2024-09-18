@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Thông tin đơn hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+        }
+        .header, .footer {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .header h4, .footer h4 {
+            margin: 0;
+        }
+        .content {
+            margin-top: 20px;
+        }
+        .table thead th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .table tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .strong-text {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h4>Kính chào quý khách <span th:text="${user.userName}"></span></h4>
+    </div>
+    <div class="content">
+        <p>Mã đơn hàng của quý khách trên LT-SHOP là: <span class="strong-text" th:text="${orderDetails.orderCode}"></span>.</p>
+        <p>Thời gian tạo: <span class="strong-text" th:text="${#temporals.format(orderItems.createdAt, 'dd-MM-yyyy HH:mm')}"></span></p>
+        <p>Thời gian cập nhật: <span class="strong-text" th:text="${#temporals.format(orderItems.updatedAt, 'dd-MM-yyyy HH:mm')}"></span></p>
+        <br />
+        <p>Cảm ơn quý khách đã đặt hàng, hi vọng quý khách hài lòng với sản phẩm.</p>
+
+        <div class="mt-3 mb-3">
+            <h4>Thông tin khách hàng</h4>
+            <p>Khách hàng: <span class="strong-text" th:text="${user.userName}"></span></p>
+            <p>Điện thoại: <span class="strong-text" th:text="${user.phone}"></span></p>
+            <p>Địa chỉ nhận hàng: <span class="strong-text" th:text="${orderDetails.address}"></span></p>
+        </div>
+
+        <h4>Chi tiết các sản phẩm</h4>
+        <div class="row table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead>
+                <tr>
+                    <th>Tên sản phẩm</th>
+                    <th>Size</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${orderItems}">
+                    <td th:text="${item.productDetails.products.name}"></td>
+                    <td th:text="${item.productDetails.sizes.name}"></td>
+                    <td th:text="${item.price}"></td>
+                    <td th:text="${item.quanity}"></td>
+                    <td th:text="${item.amount}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="footer">
+        <p>&copy; LT-SHOP</p>
+    </div>
+</div>
+</body>
+</html>

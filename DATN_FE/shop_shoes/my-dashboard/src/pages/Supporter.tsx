@@ -1,11 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { Avatar, Button, Divider, Image, Popover, Upload } from "antd";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import AxiosClient from "../networks/AxiosRequest";
 import { selectLstOnlineUsers, selectUserInfo } from "../app/slice/userSlice";
-import { Avatar, Divider } from "antd";
 // import { socket } from "../App";
+import EmojiPicker from "emoji-picker-react";
+import { socket } from "../App";
 import TimeAgo from "../components/TimeAgo";
 import { convertTextToShortName } from "../constants/constants";
+import AxiosRequestNode from "../networks/AxiosRequestNode";
+import { URL_IMAGE } from "../constants";
+import { FolderOpenOutlined, PlusOutlined } from "@ant-design/icons";
 
 const ConversationsMessage = ({
   receiverId,
@@ -19,12 +23,14 @@ const ConversationsMessage = ({
   const selUserInfo = useSelector(selectUserInfo);
   const [contentsInput, setContentsInput] = useState("");
   const selLstOnlineUsers = useSelector(selectLstOnlineUsers);
+  const [openUploadImage, setOpenUploadImage] = useState(false);
+  const [fileList, setFileList] = useState([]);
 
   const [messages, setMessages] = useState<Array<any>>([]);
 
   useEffect(() => {
     (async () => {
-      const lstMessages = await AxiosClient.post(
+      const lstMessages = await AxiosRequestNode.post(
         "/conversations/lst-messages",
         { conversationId }
       );
@@ -39,18 +45,17 @@ const ConversationsMessage = ({
     })();
   }, [conversationId]);
 
-  // useEffect(() => {
-  //   socket.on("newMessages", async (data: any) => {
-  //     console.log(messages);
-  //     if (data?.conversationId === conversationId) {
-  //       setMessages((previous) => {
-  //         const mergeData = [...previous, data];
-  //         return mergeData;
-  //       });
-  //       goToMessagesNodeById(data?.messagesId);
-  //     }
-  //   });
-  // }, [conversationId]);
+  useEffect(() => {
+    socket.on("newMessages", async (data: any) => {
+      if (data?.conversationId === conversationId) {
+        setMessages((previous) => {
+          const mergeData = [...previous, data];
+          return mergeData;
+        });
+        goToMessagesNodeById(data?.messagesId);
+      }
+    });
+  }, [conversationId]);
 
   const goToMessagesNodeById = (id: number) => {
     setTimeout(() => {
@@ -65,15 +70,18 @@ const ConversationsMessage = ({
   }, [selLstOnlineUsers, selUserInfo, receiverId]);
 
   const sendMessages = async () => {
-    const resultMessage = await AxiosClient.post("/conversations/add-message", {
-      contents: contentsInput,
+    const resultMessage = await AxiosRequestNode.post(
+      "/conversations/add-message",
+      {
+        contents: contentsInput,
+        receiverId: receiverId,
+      }
+    );
+
+    socket.emit("newMessages", {
+      messages: resultMessage?.data,
       receiverId: receiverId,
     });
-
-    // socket.emit("newMessages", {
-    //   messages: resultMessage?.data,
-    //   receiverId: receiverId,
-    // });
 
     setMessages((previous) => {
       previous.push(resultMessage?.data);
@@ -82,6 +90,44 @@ const ConversationsMessage = ({
     setContentsInput("");
 
     goToMessagesNodeById(resultMessage?.data?.messagesId);
+  };
+
+  const handleEmojiClick = (emojiData) => {
+    setContentsInput((pre) => pre + emojiData.emoji);
+  };
+  const uploadButton = (
+    <button style={{ border: 0, background: "none" }} type="button">
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </button>
+  );
+
+  const handleChange = async ({ fileList: newFileList }) => {
+    const images = newFileList[0];
+    setFileList(newFileList);
+    if (images?.status === "done") {
+      const resultMessage = await AxiosRequestNode.post(
+        "/conversations/add-message",
+        {
+          imageUrl: images?.response?.data?.[0],
+          receiverId: receiverId,
+        }
+      );
+      socket.emit("newMessages", {
+        messages: resultMessage?.data,
+        receiverId: receiverId,
+      });
+
+      setMessages((previous) => {
+        previous.push(resultMessage?.data);
+        return previous;
+      });
+
+      setOpenUploadImage(false);
+      setFileList([]);
+
+      goToMessagesNodeById(resultMessage?.data?.messagesId);
+    }
   };
 
   return (
@@ -102,24 +148,41 @@ const ConversationsMessage = ({
           )}
         </div>
       </div>
-      <div className="flex-1 w-full p-4 space-y-3 overflow-y-auto">
+      <div className="w-full overflow-y-auto flex-1 p-4 space-y-3">
         {messages?.map((message: any) => {
           const isReceiver = selUserInfo?.userId != message?.userId;
 
           return (
-            <div id={`messages-${message?.messagesId}`}>
+            <div
+              key={message?.createdAt}
+              id={`messages-${message?.messagesId}`}
+            >
               {isReceiver ? (
-                <div className="flex flex-col items-start">
-                  <div className="p-4 inline-block rounded-lg min-w-[15%] max-w-[70%] bg-slate-100">
-                    {message?.contents}
+                message?.imageUrl ? (
+                  <div className="flex justify-start">
+                    <div className="w-full max-w-xs p-2 bg-slate-200 rounded-lg">
+                      <Image src={URL_IMAGE(message?.imageUrl)} />
+                    </div>
                   </div>
-                  <h1 className="mt-1 text-xs italic">
-                    <TimeAgo time={message?.createdAt}></TimeAgo>
-                  </h1>
+                ) : (
+                  <div className="flex flex-col items-start">
+                    <div className="p-4 inline-block rounded-lg min-w-[15%] max-w-[70%] bg-slate-200">
+                      {message?.contents}
+                    </div>
+                    <h1 className="mt-1 text-xs italic">
+                      <TimeAgo time={message?.createdAt}></TimeAgo>
+                    </h1>
+                  </div>
+                )
+              ) : message?.imageUrl ? (
+                <div className="flex justify-end">
+                  <div className="w-full max-w-xs p-2 bg-orange-200 rounded-lg">
+                    <Image src={URL_IMAGE(message?.imageUrl)} />
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-end">
-                  <div className="p-4 inline-block rounded-lg max-w-[15%] bg-orange-200">
+                  <div className="p-4 inline-block rounded-lg min-w-[15%] max-w-[70%]  bg-orange-200">
                     {message?.contents}
                   </div>
                   <h1 className="mt-1 text-xs italic">
@@ -131,14 +194,52 @@ const ConversationsMessage = ({
           );
         })}
       </div>
-      <div className="flex w-full gap-4 px-3 py-4 border-t ">
+      <div className="w-full sticky right-0 bottom-0 flex items-center gap-4 px-3 py-4 border-t">
         <input
           value={contentsInput}
           onChange={(e) => setContentsInput(e.target.value)}
           className="flex-1 px-3 py-2 outline-none"
           placeholder="Nhập tại đây"
         />
-        <button onClick={sendMessages}>Gửi</button>
+        <Popover
+          placement="top"
+          title={"text"}
+          content={<EmojiPicker onEmojiClick={handleEmojiClick} />}
+        >
+          <Button>Icons</Button>
+        </Popover>
+        <Popover
+          placement="top"
+          open={openUploadImage}
+          title={"Upload hình ảnh"}
+          content={
+            <div className="w-[100px]">
+              <Upload
+                action="http://localhost:5500/api/v1/uploads/multiple"
+                listType="picture-card"
+                fileList={fileList}
+                onChange={handleChange}
+              >
+                {fileList.length >= 1 ? null : uploadButton}
+              </Upload>
+            </div>
+          }
+        >
+          <button
+            className="px-4 py-2 bg-blue-100 rounded-lg"
+            onClick={() => {
+              setOpenUploadImage((x) => !x);
+            }}
+          >
+            <FolderOpenOutlined />
+          </button>
+        </Popover>
+        <button
+          className="py-2 min-w-[100px] bg-orange-200 rounded-lg"
+          onClick={sendMessages}
+        >
+          Gửi
+        </button>
       </div>
     </>
   );
@@ -157,21 +258,21 @@ export default function SupporterPage() {
 
   useEffect(() => {
     (async () => {
-      const lstConversations = await AxiosClient.post(
+      const lstConversations = await AxiosRequestNode.post(
         "/conversations/lst-conversations"
       );
       setConversation(lstConversations.data || []);
     })();
   }, []);
 
-  // useEffect(() => {
-  //   socket.on("newConversations", async () => {
-  //     const lstConversations = await AxiosClient.post(
-  //       "/conversations/lst-conversations"
-  //     );
-  //     setConversation(lstConversations.data || []);
-  //   });
-  // }, []);
+  useEffect(() => {
+    socket.on("newConversations", async () => {
+      const lstConversations = await AxiosRequestNode.post(
+        "/conversations/lst-conversations"
+      );
+      setConversation(lstConversations.data || []);
+    });
+  }, []);
 
   return (
     <div className="flex gap-6">
@@ -210,7 +311,7 @@ export default function SupporterPage() {
                     {convertTextToShortName(users?.[senderKeyName]?.fullName)}
                   </Avatar>
                   <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex justify-between items-center mb-1">
                       <h3 className="italic">
                         {users?.[senderKeyName]?.fullName}
                       </h3>

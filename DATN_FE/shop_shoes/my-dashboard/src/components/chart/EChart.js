@@ -1,9 +1,23 @@
 import ReactApexChart from "react-apexcharts";
 import { Row, Col, Typography } from "antd";
 import eChart from "./configs/eChart";
+import { useEffect, useState } from "react";
+import AxiosRequestNode from "../../networks/AxiosRequestNode";
 
 function EChart() {
   const { Title, Paragraph } = Typography;
+  const [orderChart, setorderChart] = useState();
+  useEffect(() => {
+    (async () => {
+      const dashboard = await AxiosRequestNode.post(
+        "/dashboard/get-order-chart"
+      );
+      console.log("dashboard", dashboard);
+      if ((dashboard.code == 0) && dashboard?.data) {
+        setorderChart(Object.values(dashboard?.data));
+      }
+    })();
+  }, []);
 
   const items = [
     {
@@ -23,20 +37,25 @@ function EChart() {
       user: "Items",
     },
   ];
-
   return (
     <>
       <div id="chart">
+      <Title level={5} className="pb-3">Đơn hàng trong ngày hôm nay: </Title>
         <ReactApexChart
           className="bar-chart"
           options={eChart.options}
-          series={eChart.series}
+          series={[
+            {
+              name: "Đơn hàng",
+              data: orderChart,
+              color: "#fff",
+            },
+          ]}
           type="bar"
-          height={220}
+          height={300}
         />
       </div>
-      <div className="chart-vistior">
-        <Title level={5}>Active Users</Title>
+      {/* <div className="chart-vistior">
         <Paragraph className="lastweek">
           than last week <span className="bnb2">+30%</span>
         </Paragraph>
@@ -54,7 +73,7 @@ function EChart() {
             </Col>
           ))}
         </Row>
-      </div>
+      </div> */}
     </>
   );
 }

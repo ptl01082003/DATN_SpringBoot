@@ -22,7 +22,6 @@ export enum RESPONSE_CODE {
 }
 
 export enum Vouchers_TYPE {
-  MONEY = "MONEY",
   PERCENT = "PERCENT",
 }
 
@@ -42,6 +41,12 @@ export enum PROMOTIONS_STATUS {
   PRE_START = "PRE_START",
   ACTIVE = "ACTIVE",
   EXPIRED = "EXPIRED",
+}
+
+export enum ROLE_TYPES {
+  USER = "USER",
+  ADMIN = "ADMIN",
+  MEMBERSHIP = "MEMBERSHIP",
 }
 
 export const PATH_ROUTER = {};

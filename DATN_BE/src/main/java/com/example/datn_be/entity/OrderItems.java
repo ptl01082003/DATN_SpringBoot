@@ -7,10 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.catalina.User;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -25,36 +27,40 @@ import java.util.Objects;
 @EntityListeners(AuditingEntityListener.class)
 public class OrderItems {
     public enum ORDER_STATUS {
-        DA_GIAO, DA_HUY, TRA_HANG, CHO_LAY_HANG, CHO_XAC_NHAN, CHO_GIAO_HANG, CHO_THANH_TOAN, KHONG_DU_SO_LUONG;
+        DA_GIAO, DA_HUY, TRA_HANG, CHO_LAY_HANG, CHO_XAC_NHAN, CHO_GIAO_HANG, CHO_THANH_TOAN, KHONG_DU_SO_LUONG, KHONG_THANH_CONG,NHAP_KHO;
 
     }
 
     public enum RETURN_STATUS {
         PENDING, APPROVED, REJECTED
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer orderItemId;
 
-    @Column(name = "amount",nullable = false)
-    private Double amount;
+    @Column(name = "amount", nullable = false, precision = 16, scale = 2)
+    private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status",nullable = false)
+    @Column(name = "status", nullable = false)
     private ORDER_STATUS status = ORDER_STATUS.CHO_THANH_TOAN;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "returnStatus")
     private RETURN_STATUS returnStatus;
 
-    @Column(name = "price")
-    private Double price;
+    @Column(name = "price", precision = 16, scale = 2)
+    private BigDecimal price;
 
-    @Column(name = "priceDiscount")
-    private Double priceDiscount;
+    @Column(name = "priceDiscount", precision = 16, scale = 2)
+    private BigDecimal priceDiscount;
 
-    @Column(name = "userId")
-    private Integer userId;
+
+
+    @ManyToOne
+    @JoinColumn(name = "userId")
+    private Users users;
 
     @Column(name = "isReview")
     private Boolean isReview = false;
@@ -79,6 +85,5 @@ public class OrderItems {
     @Column(name = "updatedAt")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-
 
 }

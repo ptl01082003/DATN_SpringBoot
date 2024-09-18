@@ -16,11 +16,20 @@ import { Roles } from "./Roles";
 import { Vouchers } from "./Vouchers";
 import { UserVouchers } from "./UserVouchers";
 
+
+
+export enum User_Status {
+  LAM_VIEC = "LAM_VIEC",
+  NGHI_VIEC = "NGHI_VIEC",
+ 
+}
 @Table({
   tableName: "users",
   modelName: "Users",
   timestamps: true,
 })
+
+
 export class Users extends Model {
   @PrimaryKey
   @Column
@@ -37,6 +46,9 @@ export class Users extends Model {
 
   @Column
   public password!: string;
+
+  @Column
+  public status?: String;
 
   @Column({
     type: DataType.DATE,

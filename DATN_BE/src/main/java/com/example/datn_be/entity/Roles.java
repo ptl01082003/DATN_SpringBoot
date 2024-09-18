@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Roles {
 
+
+
     public enum RoleTypes {
         USER,
         ADMIN,

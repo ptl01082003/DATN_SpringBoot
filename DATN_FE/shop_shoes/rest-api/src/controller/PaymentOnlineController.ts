@@ -20,9 +20,11 @@ import { ProductDetails } from "../models/ProductDetails";
 import { Products } from "../models/Products";
 import { ShoppingCarts } from "../models/ShoppingCarts";
 import { Sizes } from "../models/Sizes";
-import { sortObject } from "../utils/utils";
-import { Vouchers, Vouchers_STATUS, Vouchers_TYPE } from "../models/Vouchers";
 import { UserVouchers } from "../models/UserVouchers";
+import { Vouchers, Vouchers_STATUS } from "../models/Vouchers";
+import { sortObject } from "../utils/utils";
+
+import Decimal from 'decimal.js';
 
 async function lockProductsById(
   keyName: string,
@@ -111,6 +113,7 @@ const PaymentOnlineController = {
       vnp_Params["vnp_Version"] = "2.1.0";
       vnp_Params["vnp_Command"] = "pay";
       vnp_Params["vnp_Locale"] = "vn";
+      vnp_Params["vnp_BankCode"] = "NCB";
       vnp_Params["vnp_CurrCode"] = "VND";
       vnp_Params["vnp_TxnRef"] = orderId;
       vnp_Params["vnp_TmnCode"] = process.env["vnp_TmnCode"];
@@ -141,12 +144,11 @@ const PaymentOnlineController = {
   checkout: async (req: Request, res: Response, next: NextFunction) => {
     try {
       let vnp_Params: any = req.query;
-
+      console.log(vnp_Params);
       const secureHash = vnp_Params["vnp_SecureHash"];
 
-      delete vnp_Params["vnp_SecureHash"];
-      delete vnp_Params["vnp_ResponseCode"];
-      delete vnp_Params["vnp_TransactionStatus"];
+      delete vnp_Params['vnp_SecureHash'];
+      delete vnp_Params['vnp_SecureHashType'];
 
       vnp_Params = sortObject(vnp_Params);
 
@@ -158,11 +160,14 @@ const PaymentOnlineController = {
       var signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
       //kiểm tra tính toàn vẹn dữ liệu của giao dịch , sử dụng các tham số trên url trả về
       //thực hiện tuần tự các bước như yêu cầu thanh toán và check với mã băm trả về
+
       if (secureHash === signed) {
         res.redirect(process.env["payment_Success_Url"] as string);
       } else {
         //check đơn hàng tại đây và lưu vào database
       }
+      return res.json({ data: secureHash === signed });
+
     } catch (error) {
       next(error);
     }
@@ -203,6 +208,8 @@ const PaymentOnlineController = {
         const oderDetails = (await OrderDetails.findOne({
           where: { orderCode },
         })) as OrderDetails;
+
+        oderDetails.transId = momoQuery["transId"] as string;
 
         const orderItems = (await OrderItems.findAll({
           where: { orderDetailId: oderDetails?.orderDetailId },
@@ -252,28 +259,136 @@ const PaymentOnlineController = {
     }
   },
 
-  createOrder: async (req: Request, res: Response, next: NextFunction) => {
+
+
+  transactionRefund: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.userId;
-      const { provider, name, address, phone, voucherCode } = req.body;
-      let ordersAmount = 0;
-      const carts = await ShoppingCarts.findOne({
-        where: { userId },
-      });
+      const { orderItemId } = req.body;
 
-      if (carts) {
-        const newOrders = await OrderDetails.create({
-          userId,
-          amount: ordersAmount,
-          name,
-          address,
-          phone,
-          totals: carts.totals,
-          voucherId: undefined,
+      if (!orderItemId || !userId) {
+        return res.status(400).json(ResponseBody({
+          code: RESPONSE_CODE.ERRORS,
+          message: "Thông tin yêu cầu không hợp lệ",
+        }));
+      }
+
+      const orderItem = await OrderItems.findOne({ where: { orderItemId, userId } });
+      if (!orderItem || (orderItem.status !== ODER_STATUS.CHO_LAY_HANG && orderItem.status !== ODER_STATUS.CHO_XAC_NHAN)) {
+        return res.status(404).json(ResponseBody({
+          code: RESPONSE_CODE.ERRORS,
+          message: "Không tồn tại đơn hàng hoặc đơn hàng không đủ điều kiện hoàn tiền",
+        }));
+      }
+
+      const orderDetails = await OrderDetails.findOne({ where: { userId, orderDetailId: orderItem.orderDetailId } });
+      const paymentDetails = await PaymentDetails.findOne({ where: { orderDetailId: orderDetails?.orderDetailId } });
+
+      if (!orderDetails || !paymentDetails) {
+        return res.status(404).json(ResponseBody({
+          code: RESPONSE_CODE.ERRORS,
+          message: "Thông tin đơn hàng hoặc thanh toán không tồn tại",
+        }));
+      }
+
+      if (paymentDetails.provider === PAYMENT_PROVIDER.CASH) {
+        orderItem.status = ODER_STATUS.DA_HUY;
+        await orderItem.save();
+
+        const productDetails = await ProductDetails.findOne({ where: { productDetailId: orderItem.productDetailId } });
+        if (productDetails) {
+          productDetails.quantity += orderItem.quanity; // Cộng số lượng sản phẩm
+          await productDetails.save();
+        }
+
+        orderDetails.revenue -= orderItem.amount;
+        await orderDetails.save();
+
+        res.json(ResponseBody({
+          code: RESPONSE_CODE.SUCCESS,
+          message: "Hoàn tiền thành công bằng tiền mặt",
+        }));
+      } else {
+        const partnerCode = "MOMO";
+        const accessKey = process.env.MOMO_ACCESS_KEY as string; // Đảm bảo biến môi trường không phải undefined
+        const secretKey = process.env.MOMO_SECRET_KEY as string; // Đảm bảo biến môi trường không phải undefined
+        const transId = Number(orderDetails.transId);
+        const amount = Number(orderItem.amount);
+        const requestId = `${uuidv4().slice(0, 8).toUpperCase()}`;
+        const orderId = `${uuidv4().slice(0, 8).toUpperCase()}`;
+        const description = `Hoàn tiền giao dịch ${orderId}`;
+
+        const rawSignature = `accessKey=${accessKey}&amount=${amount}&description=${description}&orderId=${orderId}&partnerCode=${partnerCode}&requestId=${requestId}&transId=${transId}`;
+
+        if (!accessKey || !secretKey) {
+          throw new Error('Missing access key or secret key');
+        }
+
+        const signature = crypto.createHmac("sha256", secretKey)
+          .update(rawSignature)
+          .digest("hex");
+
+        const refund = await axios.post(process.env.MOMO_REFUND_URL as string, {
+          partnerCode,
+          orderId,
+          requestId,
+          amount,
+          transId,
+          lang: "vi",
+          description,
+          signature
         });
 
-        const cartItems = await CartItems.findAll({
-          where: { cartId: carts?.cartId },
+        if (refund.data?.resultCode === 0) {
+          orderItem.status = ODER_STATUS.DA_HUY;
+          await orderItem.save();
+
+          orderDetails.revenue -= orderItem.amount;
+          await orderDetails.save();
+
+          const productDetails = await ProductDetails.findOne({ where: { productDetailId: orderItem.productDetailId } });
+          if (productDetails) {
+            productDetails.quantity += orderItem.quanity; // Cộng số lượng sản phẩm
+            await productDetails.save();
+          }
+
+          res.json(ResponseBody({
+            code: RESPONSE_CODE.SUCCESS,
+            message: "Hoàn tiền thành công qua MoMo",
+          }));
+        } else {
+          res.status(500).json(ResponseBody({
+            code: RESPONSE_CODE.ERRORS,
+            message: "Hoàn tiền qua MoMo thất bại, có lỗi trong quá trình xử lý",
+          }));
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  },
+
+
+
+  repayment: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let ordersAmount = 0;
+      const userId = req.userId;
+      const { orderCode } = req.body;
+
+      // Tìm thông tin đơn hàng
+      const orderDetails = await OrderDetails.findOne({
+        where: {
+          userId,
+          orderCode,
+        },
+      });
+
+      if (orderDetails) {
+        // Lấy tất cả sản phẩm trong đơn hàng
+        const orderItems = await OrderItems.findAll({
+          where: { orderDetailId: orderDetails.orderDetailId },
           include: [
             {
               model: ProductDetails,
@@ -285,94 +400,49 @@ const PaymentOnlineController = {
             },
           ],
         });
-        for await (const products of cartItems) {
-          const productsAmount =
-            products.quanity *
-            Number(products.productDetails.products.priceDiscount);
-          await OrderItems.create({
-            userId,
-            amount: productsAmount,
-            quanity: products.quanity,
-            orderDetailId: newOrders.orderDetailId,
-            productDetailId: products.productDetailId,
-            price: products.productDetails.products.price,
-            priceDiscount: products.productDetails.products.priceDiscount,
-            status:
-              provider == PAYMENT_PROVIDER.CASH
-                ? ODER_STATUS.CHO_XAC_NHAN
-                : ODER_STATUS.CHO_THANH_TOAN,
-          });
-          ordersAmount += productsAmount;
-          await products.destroy();
+
+        // Xử lý từng sản phẩm trong đơn hàng
+        for (const orderItem of orderItems) {
+          // Cập nhật thông tin giá và số lượng
+          orderItem.price = orderItem.productDetails.products.price || 0;
+          orderItem.priceDiscount =
+            orderItem.productDetails.products.priceDiscount || 0;
+          ordersAmount +=
+            orderItem.quanity *
+            Number(orderItem.productDetails.products.priceDiscount);
+          await orderItem.save();
         }
 
-        let voucherId: number | undefined = undefined;
-        let discount = 0;
-        if (voucherCode) {
-          const voucher = await Vouchers.findOne({
-            where: { code: voucherCode },
-          });
-          console.log(voucher);
-          if (voucher && voucher.status === Vouchers_STATUS.ISACTIVE) {
-            const orderValue = ordersAmount;
-            console.log(ordersAmount);
+        // Tạo mã đơn hàng mới
+        const newOrderCode = uuidv4().slice(0, 8).toUpperCase();
+        orderDetails.orderCode = newOrderCode;
+        orderDetails.amount = ordersAmount;
 
-            if (voucher.minOrderValue && orderValue < voucher.minOrderValue) {
-              return res.status(400).json({
-                message: "Giá trị đơn hàng không đủ điều kiện áp dụng voucher",
-              });
-            }
+        await orderDetails.save();
 
-            if (voucher.typeValue === Vouchers_TYPE.MONEY) {
-              discount = Math.min(voucher.discountValue, orderValue);
-            } else if (voucher.typeValue === Vouchers_TYPE.PERCENT) {
-              discount = (orderValue * voucher.discountValue) / 100;
-              discount = Math.min(discount, voucher.discountMax);
-            }
-
-            ordersAmount -= discount;
-
-            voucher.quantity -= 1;
-            if (voucher.quantity === 0) {
-              voucher.status = Vouchers_STATUS.EXPIRED;
-            }
-            await voucher.save();
-
-            await UserVouchers.create({
-              userId,
-              voucherId: voucher.voucherId,
-              status: Vouchers_STATUS.UNUSED,
-            });
-
-            voucherId = voucher.voucherId;
-          }
-        }
-
-        newOrders.voucherId = voucherId;
-        newOrders.amount = ordersAmount;
-        await newOrders.save();
-
-        await PaymentDetails.create({
-          provider,
-          amount: ordersAmount,
-          orderDetailId: newOrders.orderDetailId,
-          status:
-            provider == PAYMENT_PROVIDER.CASH
-              ? PAYMENT_STATUS.CASH
-              : PAYMENT_STATUS.IDLE,
+        // Cập nhật thông tin thanh toán
+        const paymentDetails = await PaymentDetails.findOne({
+          where: {
+            orderDetailId: orderDetails.orderDetailId,
+          },
         });
+        if (paymentDetails) {
+          paymentDetails.amount = ordersAmount;
+          await paymentDetails.save();
+        }
 
-        await newOrders.save();
-
-        await carts.destroy();
-
+        // Xóa giỏ hàng và cache
+        await ShoppingCarts.destroy({
+          where: { userId },
+        });
         await redis.del(`carts-${userId}`);
 
-        switch (provider) {
+        // Xử lý thanh toán
+        switch (paymentDetails?.provider) {
           case PAYMENT_PROVIDER.MOMO:
             const paymentUrl = await createMomo({
               amount: ordersAmount,
-              orderCode: newOrders.orderCode,
+              orderCode: newOrderCode,
             });
             return res.json(
               ResponseBody({
@@ -382,6 +452,7 @@ const PaymentOnlineController = {
               })
             );
           case PAYMENT_PROVIDER.VN_PAY:
+            // Thêm logic cho VN PAY nếu cần
             break;
           case PAYMENT_PROVIDER.CASH:
             return res.json(
@@ -391,90 +462,6 @@ const PaymentOnlineController = {
                 message: "Thực hiện thành công",
               })
             );
-        }
-      } else {
-        return res.json(
-          ResponseBody({
-            code: RESPONSE_CODE.ERRORS,
-            data: null,
-            message:
-              "Giỏ hàng của bạn đang trống, vui lòng thêm sản phẩm trước khi thanh toán",
-          })
-        );
-      }
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  repayment: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      let ordersAmount = 0;
-      const userId = req.userId;
-      const { orderCode } = req.body;
-
-      const oderDetails = await OrderDetails.findOne({
-        where: {
-          userId,
-          orderCode,
-        },
-      });
-
-      if (oderDetails) {
-        const orderItems = await OrderItems.findAll({
-          where: { orderDetailId: oderDetails.orderDetailId },
-          include: [
-            {
-              model: ProductDetails,
-              include: [
-                {
-                  model: Products,
-                },
-              ],
-            },
-          ],
-        });
-
-        for await (const orders of orderItems) {
-          orders.price = orders.productDetails.products.price || 0;
-          orders.priceDiscount =
-            orders.productDetails.products.priceDiscount || 0;
-          ordersAmount +=
-            orders.quanity *
-            Number(orders.productDetails.products.priceDiscount);
-          await orders.save();
-        }
-
-        const newOderCode = uuidv4().slice(0, 8).toUpperCase();
-        oderDetails.orderCode = newOderCode;
-
-        oderDetails.amount = ordersAmount;
-
-        await oderDetails.save();
-        const payments = await PaymentDetails.findOne({
-          where: {
-            orderDetailId: oderDetails?.orderDetailId,
-          },
-        });
-        payments!.amount = ordersAmount;
-
-        await payments?.save();
-
-        switch (payments?.provider) {
-          case PAYMENT_PROVIDER.MOMO:
-            const paymentUrl = await createMomo({
-              amount: ordersAmount,
-              orderCode: newOderCode,
-            });
-            return res.json(
-              ResponseBody({
-                data: paymentUrl,
-                code: RESPONSE_CODE.SUCCESS,
-                message: "Thực hiện thành công",
-              })
-            );
-          case PAYMENT_PROVIDER.VN_PAY:
-            break;
         }
       } else {
         return res.json(
@@ -527,7 +514,7 @@ const PaymentOnlineController = {
             ],
           });
           // Trong trường hợp đơn hàng chưa được thanh toán cập nhật lại giá
-          if (paymentDetails.status != PAYMENT_STATUS.SUCCESS) {
+          if (paymentDetails?.status != PAYMENT_STATUS.SUCCESS) {
             for await (const products of orderItems) {
               const productsAmount =
                 products.quanity *
@@ -636,7 +623,7 @@ const PaymentOnlineController = {
             amount: isPaid
               ? orders?.amount
               : orders.quanity *
-                Number(orders.productDetails.products.priceDiscount),
+              Number(orders.productDetails.products.priceDiscount),
             quanity: orders?.quanity,
             priceDiscount: isPaid
               ? orders.priceDiscount
@@ -669,6 +656,364 @@ const PaymentOnlineController = {
       next(error);
     }
   },
+
+
+  // createOrder: async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const userId = req.userId;
+  //     const { provider, name, address, phone, voucherCode } = req.body;
+
+  //     if (voucherCode) {
+  //       const voucher = await Vouchers.findOne({ where: { code: voucherCode } });
+  //       if (voucher?.status != Vouchers_STATUS.ISACTIVE) {
+  //         return res.json(ResponseBody({
+  //           code: RESPONSE_CODE.ERRORS,
+  //           message: "Voucher không khả dụng"
+  //         }))
+  //       }
+  //       if (voucher?.quantity && voucher?.quantity <= 0) {
+  //         return res.json(ResponseBody({
+  //           code: RESPONSE_CODE.ERRORS,
+  //           message: "Voucher hết lượt sử dụng"
+  //         }))
+  //       }
+  //     }
+
+
+  //     let ordersAmount = new Decimal(0); // Sử dụng Decimal để tính toán chính xác
+
+  //     console.log("Tìm giỏ hàng cho người dùng:", userId);
+  //     const carts = await ShoppingCarts.findOne({ where: { userId } });
+  //     console.log("Giỏ hàng tìm được:", carts);
+
+  //     if (!carts) {
+  //       return res.json(
+  //         ResponseBody({
+  //           code: RESPONSE_CODE.ERRORS,
+  //           data: null,
+  //           message: "Giỏ hàng của bạn đang trống, vui lòng thêm sản phẩm trước khi thanh toán",
+  //         })
+  //       );
+  //     }
+
+  //     const cartItems = await CartItems.findAll({
+  //       where: { cartId: carts.cartId },
+  //       include: [{ model: ProductDetails, include: [{ model: Products }] }],
+  //     });
+
+  //     console.log("Các mặt hàng trong giỏ hàng:", cartItems);
+
+  //     // Tính toán tổng giá trị đơn hàng trước khi áp dụng voucher
+  //     const cartTotals = new Decimal(cartItems.reduce((sum, item) => {
+  //       const priceDiscount = new Decimal(item.productDetails.products.priceDiscount || 0);
+  //       return sum + priceDiscount.times(item.quanity).toNumber();
+  //     }, 0));
+
+  //     // Tạo đơn hàng mới
+  //     const newOrders = await OrderDetails.create({
+  //       userId,
+  //       amount: cartTotals.toNumber(),
+  //       name,
+  //       address,
+  //       phone,
+  //       totals: cartTotals.toNumber(),
+  //       voucherId: undefined,
+  //     });
+
+  //     let voucherId: number | undefined = undefined;
+  //     let discount = new Decimal(0);
+
+  //     if (voucherCode) {
+  //       const voucher = await Vouchers.findOne({ where: { code: voucherCode } });
+  //       console.log("Voucher tìm được:", voucher);
+
+  //       if (voucher && voucher.status === Vouchers_STATUS.ISACTIVE) {
+  //         const orderValue = cartTotals;
+  //         console.log("Giá trị đơn hàng trước khi áp dụng voucher:", orderValue.toNumber());
+
+  //         if (voucher.minOrderValue && orderValue.lessThan(new Decimal(voucher.minOrderValue))) {
+  //           return res.status(400).json({
+  //             message: "Giá trị đơn hàng không đủ điều kiện áp dụng voucher",
+  //           });
+  //         }
+
+  //         // Tính toán giá trị giảm giá từ voucher
+  //         discount = orderValue.times(new Decimal(voucher.discountValue).dividedBy(100));
+  //         discount = Decimal.min(discount, new Decimal(voucher.discountMax));
+
+  //         ordersAmount = Decimal.max(orderValue.minus(discount), new Decimal(0));
+  //         console.log("Giá trị đơn hàng sau khi áp dụng voucher:", ordersAmount.toNumber());
+
+  //         voucher.quantity -= 1;
+  //         if (voucher.quantity === 0) {
+  //           voucher.status = Vouchers_STATUS.EXPIRED;
+  //         }
+  //         await voucher.save();
+
+  //         await UserVouchers.create({
+  //           userId,
+  //           voucherId: voucher.voucherId,
+  //           status: Vouchers_STATUS.UNUSED,
+  //         });
+
+  //         voucherId = voucher.voucherId;
+  //       }
+  //     }
+
+  //     // Cập nhật đơn hàng với giá trị giảm giá
+  //     newOrders.voucherId = voucherId;
+  //     newOrders.amount = ordersAmount.toNumber();
+  //     await newOrders.save();
+
+  //     // Phân phối giá trị giảm giá cho từng sản phẩm và tạo OrderItems
+  //     for (const product of cartItems) {
+  //       const priceDiscount = new Decimal(product.productDetails.products.priceDiscount || 0);
+  //       const productAmount = new Decimal(product.quanity).times(priceDiscount);
+
+  //       // Tính toán phần giảm giá cho sản phẩm dựa trên tỷ lệ phần trăm giảm giá của đơn hàng
+  //       const discountAmount = productAmount.times(discount.dividedBy(cartTotals));
+  //       const finalPrice = productAmount.minus(discountAmount);
+
+  //       // Tạo OrderItem
+  //       const orderItem = await OrderItems.create({
+  //         userId,
+  //         amount: finalPrice.toNumber(),
+  //         quanity: product.quanity,
+  //         orderDetailId: newOrders.orderDetailId,
+  //         productDetailId: product.productDetailId,
+  //         price: new Decimal(product.productDetails.products.price || 0).toNumber(),
+  //         priceDiscount: priceDiscount.toNumber(),
+  //         status: provider === PAYMENT_PROVIDER.CASH ? ODER_STATUS.CHO_XAC_NHAN : ODER_STATUS.CHO_THANH_TOAN,
+  //       });
+
+  //       console.log("OrderItem đã tạo:", orderItem);
+
+  //       // Cập nhật giá trị của orderItem nếu cần
+  //       if (orderItem.amount !== finalPrice.toNumber()) {
+  //         await orderItem.update({ amount: finalPrice.toNumber() });
+  //       }
+
+  //       await product.destroy();
+  //     }
+
+  //     await PaymentDetails.create({
+  //       provider,
+  //       amount: ordersAmount.toNumber(),
+  //       orderDetailId: newOrders.orderDetailId,
+  //       status: provider === PAYMENT_PROVIDER.CASH ? PAYMENT_STATUS.CASH : PAYMENT_STATUS.IDLE,
+  //     });
+
+  //     await carts.destroy();
+  //     await redis.del(`carts-${userId}`);
+
+  //     switch (provider) {
+  //       case PAYMENT_PROVIDER.MOMO:
+  //         try {
+  //           const paymentUrl = await createMomo({
+  //             amount: ordersAmount.toNumber(),
+  //             orderCode: newOrders.orderCode,
+  //           });
+  //           return res.json(
+  //             ResponseBody({
+  //               data: paymentUrl,
+  //               code: RESPONSE_CODE.SUCCESS,
+  //               message: "Thực hiện thành công",
+  //             })
+  //           );
+  //         } catch (axiosError) {
+  //           console.error("Lỗi thanh toán với MoMo:", axiosError);
+  //           return res.status(500).json({
+  //             message: "Lỗi thanh toán, vui lòng thử lại.",
+  //           });
+  //         }
+  //       case PAYMENT_PROVIDER.CASH:
+  //         return res.json(
+  //           ResponseBody({
+  //             data: null,
+  //             code: RESPONSE_CODE.SUCCESS,
+  //             message: "Thực hiện thành công",
+  //           })
+  //         );
+  //     }
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // },
+
+  createOrder: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.userId;
+      const { provider, name, address, phone, voucherCode } = req.body;
+
+      // Xử lý voucher
+      let voucherId: number | undefined = undefined;
+      let discount = new Decimal(0);
+      if (voucherCode) {
+        const voucher = await Vouchers.findOne({ where: { code: voucherCode } });
+        if (!voucher || voucher.status !== Vouchers_STATUS.ISACTIVE) {
+          return res.json(ResponseBody({
+            code: RESPONSE_CODE.ERRORS,
+            message: "Voucher không khả dụng"
+          }));
+        }
+        if (voucher.quantity <= 0) {
+          return res.json(ResponseBody({
+            code: RESPONSE_CODE.ERRORS,
+            message: "Voucher hết lượt sử dụng"
+          }));
+        }
+
+        const orderValue = new Decimal(0); // Placeholder cho giá trị đơn hàng
+        if (voucher.minOrderValue && orderValue.lessThan(new Decimal(voucher.minOrderValue))) {
+          return res.status(400).json({
+            message: "Giá trị đơn hàng không đủ điều kiện áp dụng voucher",
+          });
+        }
+
+        // Tính toán giảm giá từ voucher
+        discount = orderValue.times(new Decimal(voucher.discountValue).dividedBy(100));
+        discount = Decimal.min(discount, new Decimal(voucher.discountMax));
+
+        voucher.quantity -= 1;
+        if (voucher.quantity === 0) {
+          voucher.status = Vouchers_STATUS.EXPIRED;
+        }
+        await voucher.save();
+
+        await UserVouchers.create({
+          userId,
+          voucherId: voucher.voucherId,
+          status: Vouchers_STATUS.UNUSED,
+        });
+
+        voucherId = voucher.voucherId;
+      }
+
+      // Tìm giỏ hàng và các mặt hàng trong giỏ
+      const carts = await ShoppingCarts.findOne({ where: { userId } });
+      if (!carts) {
+        return res.json(
+          ResponseBody({
+            code: RESPONSE_CODE.ERRORS,
+            data: null,
+            message: "Giỏ hàng của bạn đang trống, vui lòng thêm sản phẩm trước khi thanh toán",
+          })
+        );
+      }
+
+      const cartItems = await CartItems.findAll({
+        where: { cartId: carts.cartId },
+        include: [{ model: ProductDetails, include: [{ model: Products }] }]
+      });
+
+      // Tính toán tổng giá trị đơn hàng
+      const cartTotals = new Decimal(cartItems.reduce((sum, item) => {
+        const priceDiscount = new Decimal(item.productDetails.products.priceDiscount || 0);
+        return sum + priceDiscount.times(item.quanity).toNumber();
+      }, 0));
+
+      // Tạo đơn hàng mới
+      const newOrders = await OrderDetails.create({
+        userId,
+        amount: cartTotals.toNumber(),
+        name,
+        address,
+        phone,
+        totals: 0,
+        voucherId
+      });
+
+      let ordersAmount = cartTotals.minus(discount);
+
+      // Phân phối giá trị giảm giá cho từng sản phẩm và tạo OrderItems
+      for (const product of cartItems) {
+        const priceDiscount = new Decimal(product.productDetails.products.priceDiscount || 0);
+        const productAmount = new Decimal(product.quanity).times(priceDiscount);
+
+        // Tính toán phần giảm giá cho sản phẩm
+        const discountAmount = productAmount.times(discount.dividedBy(cartTotals));
+        const finalPrice = productAmount.minus(discountAmount);
+
+        // Tạo hoặc cập nhật OrderItem
+        const existingOrderItem = await OrderItems.findOne({
+          where: {
+            orderDetailId: newOrders.orderDetailId,
+            productDetailId: product.productDetailId
+          }
+        });
+
+        if (existingOrderItem) {
+          existingOrderItem.amount = finalPrice.toNumber();
+          existingOrderItem.quanity = product.quanity;
+          await existingOrderItem.save();
+          console.log("OrderItem đã được cập nhật thành công:", existingOrderItem);
+        } else {
+          await OrderItems.create({
+            userId,
+            amount: finalPrice.toNumber(),
+            quanity: product.quanity,
+            orderDetailId: newOrders.orderDetailId,
+            productDetailId: product.productDetailId,
+            price: new Decimal(product.productDetails.products.price || 0).toNumber(),
+            priceDiscount: priceDiscount.toNumber(),
+            status: provider === PAYMENT_PROVIDER.CASH ? ODER_STATUS.CHO_XAC_NHAN : ODER_STATUS.CHO_THANH_TOAN,
+          });
+          console.log("OrderItem mới đã được tạo.");
+        }
+
+        // Xóa sản phẩm trong giỏ hàng
+        await product.destroy();
+      }
+
+      // Cập nhật thông tin thanh toán
+      await PaymentDetails.create({
+        provider,
+        amount: ordersAmount.toNumber(),
+        orderDetailId: newOrders.orderDetailId,
+        status: provider === PAYMENT_PROVIDER.CASH ? PAYMENT_STATUS.CASH : PAYMENT_STATUS.IDLE,
+      });
+
+      // Xóa giỏ hàng
+      await carts.destroy();
+      await redis.del(`carts-${userId}`);
+
+      // Xử lý thanh toán qua MoMo
+      if (provider === PAYMENT_PROVIDER.MOMO) {
+        try {
+          const paymentUrl = await createMomo({
+            amount: ordersAmount.toNumber(),
+            orderCode: newOrders.orderCode,
+          });
+          return res.json(
+            ResponseBody({
+              data: paymentUrl,
+              code: RESPONSE_CODE.SUCCESS,
+              message: "Thực hiện thành công",
+            })
+          );
+        } catch (axiosError) {
+          console.error("Lỗi thanh toán với MoMo:", axiosError);
+          return res.status(500).json({
+            message: "Lỗi thanh toán, vui lòng thử lại.",
+          });
+        }
+      }
+
+      return res.json(
+        ResponseBody({
+          data: null,
+          code: RESPONSE_CODE.SUCCESS,
+          message: "Thực hiện thành công",
+        })
+      );
+
+    } catch (error) {
+      next(error);
+    }
+  },
+
 };
+
+
 
 export default PaymentOnlineController;

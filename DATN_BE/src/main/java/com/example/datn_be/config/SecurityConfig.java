@@ -133,14 +133,14 @@ public class SecurityConfig {
                                         "/api/v1/promotions/**",
                                         "/api/v1/vouchers/**"
 
-                        ).hasAnyRole("ADMIN", "MEMBERSHIP") // Requires ADMIN or MEMBERSHIP role
-                        .anyRequest().authenticated() // All other requests require authentication
+                        ).hasAnyRole("ADMIN", "MEMBERSHIP")
+                        .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless session management
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // Add JWT filter
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
