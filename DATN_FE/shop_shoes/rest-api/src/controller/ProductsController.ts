@@ -164,25 +164,7 @@ const ProductsController = {
     }
   },
 
-  // getLstProducts: async (req: Request, res: Response, next: NextFunction) => {
-  //   const where: any = {};
-  //   const { styleId, materialId, brandId, priceMin, priceMax } = req.body;
-  //   try {
-  //     if (styleId) {
-  //       where.styleId = styleId;
-  //     }
-  //     if (materialId) {
-  //       where.materialId = materialId;
-  //     }
-  //     if (brandId) {
-  //       where.brandId = brandId;
-  //     }
-  //     if (priceMin != undefined) {
-  //       where.priceDiscount[Op.gte] = priceMin;
-  //     }
-  //     if (priceMax != undefined) {
-  //       where.priceDiscount[Op.lte] = priceMax;
-  //     }
+
   getLstProducts: async (req: Request, res: Response, next: NextFunction) => {
     const where: any = {};
     const {originId, styleId, materialId, brandId, priceMin, priceMax,minPrice,maxPrice } = req.body;
@@ -220,7 +202,7 @@ const ProductsController = {
       }
 
       const products = await Products.findAll({
-        where,
+        where: { status: 1 },
         include: [
           {
             model: Materials,

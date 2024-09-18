@@ -2,15 +2,22 @@ import moment from "moment";
 import { Products } from "./../models/Products";
 import { Promotions, PROMOTIONS_STATUS } from "./../models/Promotions";
 import crypto from "crypto-js";
-
 const applyPromotionToProduct = async (product: any, promotion: any) => {
   const startDay = moment(promotion.startDay);
   const endDay = moment(promotion.endDay);
   const currentTime = moment();
 
+  if (!startDay.isValid() || !endDay.isValid()) {
+    console.error("Ngày bắt đầu hoặc ngày kết thúc không hợp lệ.");
+    return;
+  }
+
   try {
     if (currentTime.isBetween(startDay, endDay, null, "[]")) {
-      await promotion.update({ status: PROMOTIONS_STATUS.ACTIVE });
+      if (promotion.status !== PROMOTIONS_STATUS.ACTIVE) {
+        await promotion.update({ status: PROMOTIONS_STATUS.ACTIVE });
+      }
+
       const originalPrice = product.price;
       const discountedPrice = originalPrice - promotion.discountPrice;
 
@@ -26,24 +33,32 @@ const applyPromotionToProduct = async (product: any, promotion: any) => {
       if (affectedRows > 0) {
         console.log(`Giá sản phẩm ID ${product.productId} đã được cập nhật.`);
       } else {
-        console.log(
-          `Không có bản ghi nào được cập nhật cho sản phẩm ID ${product.productId}.`
-        );
+        console.log(`Không có bản ghi nào được cập nhật cho sản phẩm ID ${product.productId}.`);
       }
     } else if (currentTime.isBefore(startDay)) {
-      await promotion.update({ status: PROMOTIONS_STATUS.PRE_START });
-      console.log(`Khuyến mãi ID ${promotion.promotionId} chưa bắt đầu.`);
+      if (promotion.status !== PROMOTIONS_STATUS.PRE_START) {
+        await promotion.update({ status: PROMOTIONS_STATUS.PRE_START });
+        console.log(`Khuyến mãi ID ${promotion.promotionId} chưa bắt đầu.`);
+      }
     } else if (currentTime.isAfter(endDay)) {
-      await promotion.update({ status: PROMOTIONS_STATUS.EXPIRED });
+      if (promotion.status !== PROMOTIONS_STATUS.EXPIRED) {
+        await promotion.update({ status: PROMOTIONS_STATUS.EXPIRED });
 
-      const originalPrice = product.price;
+        const originalPrice = product.price;
 
-      await Products.update(
-        { priceDiscount: originalPrice },
-        { where: { productId: product.productId } }
-      );
+        const [affectedRows] = await Products.update(
+          { priceDiscount: originalPrice },
+          { where: { productId: product.productId } }
+        );
 
-      console.log(`Khuyến mãi ID ${promotion.promotionId} đã hết hạn.`);
+        if (affectedRows > 0) {
+          console.log(`Giá sản phẩm ID ${product.productId} đã được đặt lại về giá gốc.`);
+        } else {
+          console.log(`Không có bản ghi nào được cập nhật cho sản phẩm ID ${product.productId}.`);
+        }
+
+        console.log(`Khuyến mãi ID ${promotion.promotionId} đã hết hạn.`);
+      }
     }
   } catch (error) {
     console.error("Lỗi khi áp dụng khuyến mãi:", error);
@@ -52,10 +67,7 @@ const applyPromotionToProduct = async (product: any, promotion: any) => {
 
 export const updateProductPrices = async () => {
   try {
-    console.log(
-      "Bắt đầu cập nhật giá sản phẩm:",
-      moment().format("YYYY-MM-DD HH:mm:ss")
-    );
+    console.log("Bắt đầu cập nhật giá sản phẩm:", moment().format("YYYY-MM-DD HH:mm:ss"));
     const products = await Products.findAll();
     console.log(`Tổng số sản phẩm: ${products.length}`);
 
@@ -63,9 +75,7 @@ export const updateProductPrices = async () => {
       const promotions = await Promotions.findAll({
         where: { productId: product.productId },
       });
-      console.log(
-        `Sản phẩm ID ${product.productId} có ${promotions.length} khuyến mãi`
-      );
+      console.log(`Sản phẩm ID ${product.productId} có ${promotions.length} khuyến mãi`);
 
       for (const promotion of promotions) {
         await applyPromotionToProduct(product, promotion);
@@ -77,6 +87,7 @@ export const updateProductPrices = async () => {
     console.error("Lỗi khi cập nhật giá sản phẩm:", error);
   }
 };
+
 export function generateUniqueUserId() {
   const min = 1000000000;
   const randomNumber = parseInt(
