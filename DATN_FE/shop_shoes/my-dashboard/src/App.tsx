@@ -11,26 +11,23 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Tables from "./pages/Tables";
 
-import * as io from "socket.io-client";
-import { ToastContainer } from "react-toastify";
-import PrivateRouter from "./components/privateRouter/PrivateRouter";
-import BrandsPage from "./pages/Brands";
-import StylesPage from "./pages/Styles";
-import MaterialsPage from "./pages/Materials";
-import OriginsPage from "./pages/Origins";
-import DeliveredOrders from "./pages/OderDetails";
-import SizePage from "./pages/Sizes";
-import PromotionsPage from "./pages/Promotions";
-import ProductPage from "./pages/Products";
-import VouchersPage from "./pages/Vouchers";
-import { KEY_STORAGE } from "./constants/constants";
-import SupporterPage from "./pages/Supporter";
-import { useAppDispatch } from "./app/hooks";
 import { useEffect } from "react";
-import { changelstOnlineUsers } from "./app/slice/userSlice";
+import { ToastContainer } from "react-toastify";
+import { useAppDispatch } from "./app/hooks";
 import { fetchGetUserInfo } from "./app/thunks/UserThunk";
+import PrivateRouter from "./components/privateRouter/PrivateRouter";
+import { KEY_STORAGE } from "./constants/constants";
+import BrandsPage from "./pages/Brands";
+import MaterialsPage from "./pages/Materials";
 import OrderDetails from "./pages/OderDetails";
+import OriginsPage from "./pages/Origins";
+import ProductPage from "./pages/Products";
+import PromotionsPage from "./pages/Promotions";
+import SizePage from "./pages/Sizes";
+import StylesPage from "./pages/Styles";
+import SupporterPage from "./pages/Supporter";
 import UserPage from "./pages/UsersPage";
+import VouchersPage from "./pages/Vouchers";
 
 // export const socket = io.connect("http://localhost:6500", {
 //   auth: {

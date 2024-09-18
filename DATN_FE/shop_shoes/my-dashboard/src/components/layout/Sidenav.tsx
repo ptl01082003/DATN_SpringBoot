@@ -8,32 +8,48 @@ import { Divider, Menu } from "antd";
 import { MenuProps } from "antd/lib";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
+import { useAppSelector } from "../../app/hooks";
+import { selectUserInfo } from "../../app/slice/userSlice";
+import { useMemo } from "react";
+import { ROLE_TYPES } from "../../constants/constants";
 
 function Sidenav({ color }: { color: string }) {
   const navigation = useNavigate();
 
   type MenuItem = Required<MenuProps>["items"][number];
 
-  const items: MenuItem[] = [
+  const userInfo = useAppSelector(selectUserInfo);
+  console.log(userInfo)
+  const userRoles = useMemo(() => userInfo?.roles, [userInfo]);
+  console.log(userRoles)
+  const items: Array<
+    MenuItem & {
+      roles: Array<string>;
+    }
+  > = [
     {
       key: "/dashboard",
       label: "Dashboard",
       icon: <PieChartOutlined />,
+      roles: [ROLE_TYPES.ADMIN],
     },
     {
       key: "/products",
       label: "Sản phẩm",
       icon: <MailOutlined />,
+      roles: [ROLE_TYPES.ADMIN, ROLE_TYPES.MEMBERSHIP],
     },
     {
       key: "/order",
       label: "Quản lý đơn hàng",
       icon: <MailOutlined />,
+      roles: [ROLE_TYPES.ADMIN, ROLE_TYPES.MEMBERSHIP],
     },
     {
       key: "attribute",
       label: "Thuộc tính sản phẩm",
       type: "group",
+      roles: [ROLE_TYPES.ADMIN],
       children: [
         {
           key: "/brands",
@@ -66,26 +82,39 @@ function Sidenav({ color }: { color: string }) {
       key: "/promotions",
       label: "Khuyến mãi",
       icon: <PieChartOutlined />,
+      roles: [ROLE_TYPES.ADMIN],
     },
     {
       key: "/vouchers",
       label: "Voucher",
       icon: <PieChartOutlined />,
+      roles: [ROLE_TYPES.ADMIN],
     },
     {
       key: "/users",
       label: "User",
       icon: <PieChartOutlined />,
+      roles: [ROLE_TYPES.ADMIN],
     },
     {
       key: "/supports",
       label: "Hỗ trợ Khách Hàng",
       icon: <MessageOutlined />,
+      roles: [ROLE_TYPES.ADMIN],
     },
   ];
 
+  const renderBarByRoles: Array<
+    MenuItem & {
+      roles: Array<string>;
+    }
+  > = useMemo(() => {
+    return items.filter((item) => item.roles.includes(userRoles));
+  }, [userRoles]);
+
+  console.log(userRoles, renderBarByRoles)
+
   const onClick: MenuProps["onClick"] = (e) => {
-    console.log("click ", e);
     navigation(e.key);
   };
 
@@ -100,7 +129,7 @@ function Sidenav({ color }: { color: string }) {
         defaultSelectedKeys={["/dashboard"]}
         defaultOpenKeys={["/dashboard"]}
         mode="vertical"
-        items={items}
+        items={renderBarByRoles}
       />
     </>
   );

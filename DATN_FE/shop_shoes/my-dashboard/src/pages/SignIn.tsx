@@ -5,29 +5,34 @@ import signinbg from "../assets/images/img-signin.jpg";
 import { toast } from "react-toastify";
 import { KEY_STORAGE } from "../constants/constants";
 import AuthService from "../services/AuthApi";
+import { useAppDispatch } from "../app/hooks";
+import { fetchGetUserInfo } from "../app/thunks/UserThunk";
 
 const { Title } = Typography;
 const { Header, Content } = Layout;
 
 export default function SignIn() {
   const navigation = useNavigate();
+  const dispatch = useAppDispatch();
 
   const onLogin = async (params) => {
     try {
-        const response = await AuthService.login(params);
-        console.log(response); // Kiểm tra phản hồi từ AuthService
-        if (response.code === 200) { // Kiểm tra mã phản hồi từ BE
-            localStorage.setItem(KEY_STORAGE.TOKEN, response.data.accessToken);
-            localStorage.setItem(KEY_STORAGE.RF_TOKEN, response.data.refreshToken);
-            navigation("/dashboard", { replace: true }); // Chuyển hướng trang
-        } else {
-            toast.error(response.message); // Hiển thị thông báo lỗi
-        }
+      const response = await AuthService.login(params);
+      console.log(response); // Kiểm tra phản hồi từ AuthService
+      if (response.code === 200) {
+        // Kiểm tra mã phản hồi từ BE
+        localStorage.setItem(KEY_STORAGE.TOKEN, response.data.accessToken);
+        localStorage.setItem(KEY_STORAGE.RF_TOKEN, response.data.refreshToken);
+        dispatch(fetchGetUserInfo());
+        navigation("/dashboard", { replace: true }); // Chuyển hướng trang
+      } else {
+        toast.error(response.message); // Hiển thị thông báo lỗi
+      }
     } catch (error) {
-        console.error('Lỗi khi đăng nhập:', error); // Hiển thị lỗi nếu có
-        toast.error("Đã xảy ra lỗi khi đăng nhập.");
+      console.error("Lỗi khi đăng nhập:", error); // Hiển thị lỗi nếu có
+      toast.error("Đã xảy ra lỗi khi đăng nhập.");
     }
-};
+  };
 
   return (
     <>
@@ -78,7 +83,7 @@ export default function SignIn() {
                     htmlType="submit"
                     style={{ width: "100%" }}
                   >
-                    ĐĂNG NHẬP 
+                    ĐĂNG NHẬP
                   </Button>
                 </Form.Item>
                 <p className="text-muted font-semibold">

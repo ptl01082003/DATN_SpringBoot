@@ -43,6 +43,12 @@ export enum PROMOTIONS_STATUS {
   EXPIRED = "EXPIRED",
 }
 
+export enum ROLE_TYPES {
+  USER = "USER",
+  ADMIN = "ADMIN",
+  MEMBERSHIP = "MEMBERSHIP",
+}
+
 export const PATH_ROUTER = {};
 
 export const TRANSFER_PRICE = (price: string) =>
