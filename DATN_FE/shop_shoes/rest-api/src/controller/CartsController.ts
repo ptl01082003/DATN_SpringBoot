@@ -1,23 +1,16 @@
-import { NextFunction, Request, Response } from "express";
-import { ShoppingCarts } from "../models/ShoppingCarts";
-import { Products } from "../models/Products";
-import { redis } from "../config/ConnectRedis";
-import { CartItems } from "../models/CartItems";
-import { RESPONSE_CODE, ResponseBody, STATUS_CODE } from "../constants";
-import { ProductDetails } from "../models/ProductDetails";
-import { Images } from "../models/Images";
-import { Sizes } from "../models/Sizes";
-import { DECIMAL } from "sequelize";
 import Decimal from "decimal.js";
-import { PAYMENT_PROVIDER } from "../models/PaymentDetails";
-import { OrderDetails } from "../models/OrderDetails";
-import { ODER_STATUS, OrderItems } from "../models/OrderItems";
+import { NextFunction, Request, Response } from "express";
+import { redis } from "../config/ConnectRedis";
+import { RESPONSE_CODE, ResponseBody, STATUS_CODE } from "../constants";
+import { CartItems } from "../models/CartItems";
+import { Images } from "../models/Images";
+import { ProductDetails } from "../models/ProductDetails";
+import { Products } from "../models/Products";
+import { ShoppingCarts } from "../models/ShoppingCarts";
+import { Sizes } from "../models/Sizes";
 
 
 const CartsController = {
-
-
- 
   create: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.userId;
@@ -308,9 +301,6 @@ const CartsController = {
       }
     }
   },
-
-
-
 
 //   create: async (req: Request, res: Response, next: NextFunction) => {
 //     try {

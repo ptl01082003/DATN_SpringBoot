@@ -13,7 +13,7 @@ export const authSocket = (socket: Socket.ExternalSocket, next: any) => {
             return next(new Error("Không có quyền truy cập"));
           } else {
             const tokenInRedis = await redis.get(
-              `accessToken-${decoded.userId}`
+              `accessTokenNode-${decoded.userId}`
             );
             if (tokenInRedis === token) {
               socket.userId = decoded.userId;

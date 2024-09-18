@@ -72,6 +72,10 @@ const VouchersController = {
     }
   },
 
+  voucherSelected:  async (req: Request, res: Response, next: NextFunction) => {
+    const { voucherId, amounts} = req.body;
+   },
+
   getById: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { voucherId } = req.body;

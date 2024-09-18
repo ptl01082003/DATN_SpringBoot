@@ -47,11 +47,8 @@ export class Users extends Model {
   @Column
   public password!: string;
 
-  @Column({
-    type: DataType.ENUM(...Object.values(User_Status)),
-    allowNull: false,
-  })
-  public status?: User_Status;
+  @Column
+  public status?: String;
 
   @Column({
     type: DataType.DATE,

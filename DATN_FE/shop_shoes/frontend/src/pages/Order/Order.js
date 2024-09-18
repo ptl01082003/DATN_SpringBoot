@@ -315,7 +315,6 @@ const Oders = () => {
           </div>
 
           <div className="flex flex-col space-y-4">
-            <h2 className="text-lg font-bold">Chọn voucher:</h2>
             <button className="px-4 py-3 font-bold rounded-lg bg-orange-400 text-white" type="button" onClick={() => setModalVisible(true)}>
               Chọn voucher
             </button>
