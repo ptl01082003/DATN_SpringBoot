@@ -3,10 +3,16 @@
 @tailwind utilities;
 
 .ck-editor__editable {
-    min-height: 300px !important;
+  min-height: 300px !important;
 }
 
 .custom-order-details-tabs .ant-tabs-tab-btn {
-    display: flex;
-    align-items: center;
-  }
+  display: flex;
+  align-items: center;
+}
+
+.icon-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

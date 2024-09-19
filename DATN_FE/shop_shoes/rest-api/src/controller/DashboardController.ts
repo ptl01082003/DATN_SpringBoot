@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import moment from "moment";
-import { OrderItems } from "../models/OrderItems";
+import { ODER_STATUS, OrderItems } from "../models/OrderItems";
 import { Sequelize } from "sequelize";
 import { Op } from "sequelize";
 import { RESPONSE_CODE, ResponseBody } from "../constants";
 import sequelize from "sequelize";
+import { Reviewers } from "../models/Reviewers";
 
 const DashboardCtrl = {
   getOrderChart: async (req: Request, res: Response, next: NextFunction) => {
@@ -47,6 +48,38 @@ const DashboardCtrl = {
       next(error);
     }
   },
+  getRevenue: async (req: Request, res: Response, next: NextFunction) => {
+    const startOfDay = moment().startOf('day').toDate();
+    const endOfDay = moment().endOf('day').toDate();
+    const todayRevenues = await OrderItems.sum('amount', {
+      where: {
+        updatedAt: {
+          [Op.between]: [startOfDay, endOfDay],
+        },
+      },
+    });
+    const revenuesTotals = await OrderItems.sum('amount');
+    const rejectTotals = await OrderItems.findAll({
+      where: {
+        status: ODER_STATUS.DA_HUY,
+      }
+    })
+    const reviewers = await Reviewers.findAll();
+
+    return res.json(ResponseBody({
+      code: RESPONSE_CODE.SUCCESS,
+      message: "Thực hiện thành công",
+      data: {
+        today: todayRevenues,
+        total: revenuesTotals,
+        reject: rejectTotals.length || 0,
+        reviewer: {
+          totals: reviewers?.length || 0,
+          avg: (reviewers.reduce((u, v) => u + v.stars, 0) / (reviewers?.length != 0 ? reviewers?.length : 1)).toFixed(1)
+        }
+      }
+    }))
+  }
 };
 
 export default DashboardCtrl;

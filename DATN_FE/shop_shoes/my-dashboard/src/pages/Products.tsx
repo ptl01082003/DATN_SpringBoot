@@ -46,7 +46,7 @@ const ProductPage: React.FC = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-
+  const [shouldRender, setShouldRender] = useState<boolean>(false);
   const [products, setProducts] = useState<any[]>([]);
   const [sizes, setSizes] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
@@ -69,10 +69,18 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       const productResponse = await ProductService.getProducts();
-    console.log("Fetched product:", productResponse.data);
-      setProducts(productResponse.data || []);
+      console.log("Fetched product:", productResponse.data);
+      setProducts(
+        productResponse.data?.map((product) => ({
+          ...product,
+          productDetails: product?.productDetails?.map((details) => ({
+            ...details,
+            sizeId: details?.sizes?.sizeId,
+          })),
+        })) || []
+      );
     })();
-  }, []);
+  }, [shouldRender]);
 
   // useEffect(() => {
   //   (async () => {
@@ -142,6 +150,7 @@ const ProductPage: React.FC = () => {
           ...productData,
           productId: modalInfo.data.productId,
         });
+        setShouldRender(x => !x);
         toast.success("Cập nhật sản phẩm thành công!");
       }
 
@@ -242,12 +251,12 @@ const ProductPage: React.FC = () => {
       dataIndex: "status",
       key: "status",
       render: (status: boolean, record: any) => (
-          <Switch
-              checked={status}
-              onChange={(checked) => handleUpdateStatus(record, checked)}
-              checkedChildren={<CheckOutlined />}
-              unCheckedChildren={<CloseOutlined />}
-          />
+        <Switch
+          checked={status}
+          onChange={(checked) => handleUpdateStatus(record, checked)}
+          checkedChildren={<CheckOutlined />}
+          unCheckedChildren={<CloseOutlined />}
+        />
       ),
     },
     {
@@ -291,34 +300,37 @@ const ProductPage: React.FC = () => {
 
   const handleUpdateStatus = async (record, checked) => {
     try {
-        // Gọi API để cập nhật trạng thái sản phẩm
-        const response = await ProductService.updateProductStatus(record.productId, checked);
-  
-        // Kiểm tra mã trạng thái trả về
-        if (response && response.status === 200) {
-            message.success('Cập nhật trạng thái sản phẩm thành công');
-  
-            // Cập nhật danh sách sản phẩm
-            setProducts((prev) => {
-                if (!Array.isArray(prev)) {
-                    return prev;
-                }
-  
-                const updatedProducts = prev.map((item) =>
-                    item.productId === record.productId
-                        ? { ...item, status: checked }
-                        : item
-                );
-                return updatedProducts;
-            });
-        } else {
-            message.error('Cập nhật trạng thái sản phẩm thất bại');
-        }
+      // Gọi API để cập nhật trạng thái sản phẩm
+      const response = await ProductService.updateProductStatus(
+        record.productId,
+        checked
+      );
+
+      // Kiểm tra mã trạng thái trả về
+      if (response && response.status === 200) {
+        message.success("Cập nhật trạng thái sản phẩm thành công");
+
+        // Cập nhật danh sách sản phẩm
+        setProducts((prev) => {
+          if (!Array.isArray(prev)) {
+            return prev;
+          }
+
+          const updatedProducts = prev.map((item) =>
+            item.productId === record.productId
+              ? { ...item, status: checked }
+              : item
+          );
+          return updatedProducts;
+        });
+      } else {
+        message.error("Cập nhật trạng thái sản phẩm thất bại");
+      }
     } catch (error) {
-        console.error("Lỗi khi cập nhật trạng thái sản phẩm", error);
-        message.error('Có lỗi xảy ra khi cập nhật sản phẩm');
+      console.error("Lỗi khi cập nhật trạng thái sản phẩm", error);
+      message.error("Có lỗi xảy ra khi cập nhật sản phẩm");
     }
-};
+  };
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
     setFileList(newFileList);
@@ -626,4 +638,3 @@ const ProductPage: React.FC = () => {
 };
 
 export default ProductPage;
-

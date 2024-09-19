@@ -12,7 +12,6 @@ function EChart() {
       const dashboard = await AxiosRequestNode.post(
         "/dashboard/get-order-chart"
       );
-      console.log("dashboard", dashboard);
       if ((dashboard.code == 0) && dashboard?.data) {
         setorderChart(Object.values(dashboard?.data));
       }
@@ -52,7 +51,7 @@ function EChart() {
             },
           ]}
           type="bar"
-          height={300}
+          height={450}
         />
       </div>
       {/* <div className="chart-vistior">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   MenuUnfoldOutlined,
@@ -34,13 +34,26 @@ import team1 from "../assets/images/team-1.jpg";
 import team2 from "../assets/images/team-2.jpg";
 import team3 from "../assets/images/team-3.jpg";
 import team4 from "../assets/images/team-4.jpg";
+import { TRANSFER_PRICE } from "../constants";
+import AxiosRequestNode from "../networks/AxiosRequestNode";
 
 function Home() {
   const { Title, Text } = Typography;
 
   const onChange = (e: any) => console.log(`radio checked:${e.target.value}`);
 
-  const [reverse, setReverse] = useState(false);
+  const [revenue, setRevenue] = useState<any>({});
+
+  useEffect(() => {
+    (async () => {
+      const results = (await AxiosRequestNode.post(
+        "/dashboard/get-revenue"
+      )) as any;
+      if (results.code == 0 && results?.data) {
+        setRevenue(results?.data || 0);
+      }
+    })();
+  }, []);
 
   const dollor = [
     <svg
@@ -130,30 +143,30 @@ function Home() {
   ];
   const count = [
     {
-      today: "Today’s Sales",
-      title: "$53,000",
-      persent: "+30%",
+      today: "Tổng doanh thu",
+      title: TRANSFER_PRICE(revenue?.total),
+      persent: "",
       icon: dollor,
       bnb: "bnb2",
     },
     {
-      today: "Today’s Users",
-      title: "3,200",
-      persent: "+20%",
-      icon: profile,
+      today: "Doanh thu hôm nay",
+      title: TRANSFER_PRICE(revenue?.today),
+      persent: "",
+      icon: dollor,
       bnb: "bnb2",
     },
     {
-      today: "New Clients",
-      title: "+1,200",
-      persent: "-20%",
-      icon: heart,
-      bnb: "redtext",
+      today: "Tổng đơn hủy",
+      title: revenue?.reject,
+      persent: "",
+      icon: cart,
+      bnb: "bnb2",
     },
     {
-      today: "New Orders",
-      title: "$13,200",
-      persent: "10%",
+      today: "Đánh giá sản phẩm",
+      title: revenue?.reviewer?.totals + " KH",
+      persent: revenue?.reviewer?.avg,
       icon: cart,
       bnb: "bnb2",
     },
@@ -341,7 +354,7 @@ function Home() {
               md={12}
               lg={6}
               xl={6}
-              className="mb-24"
+              className="mb-12"
             >
               <Card bordered={false} className="criclebox">
                 <div className="number">
@@ -363,19 +376,19 @@ function Home() {
         </Row>
 
         <Row gutter={[24, 0]}>
-          <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
-          <Card bordered={false} className="criclebox h-full">
+          <Col xs={24} sm={24} md={12} lg={12} xl={24} className="mb-24">
+            <Card bordered={false} className="criclebox h-full">
               <Echart />
             </Card>
           </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={14} className="mb-24">
+          {/* <Col xs={24} sm={24} md={12} lg={12} xl={12} className="mb-24">
             <Card bordered={false} className="criclebox h-full">
               <LineChart />
             </Card>
-          </Col>
+          </Col> */}
         </Row>
 
-        <Row gutter={[24, 0]}>
+        {/* <Row gutter={[24, 0]}>
           <Col xs={24} sm={24} md={12} lg={12} xl={16} className="mb-24">
             <Card bordered={false} className="cardbody criclebox h-full">
               <div className="project-ant">
@@ -541,7 +554,7 @@ function Home() {
               </div>
             </Card>
           </Col>
-        </Row>
+        </Row> */}
       </div>
     </>
   );

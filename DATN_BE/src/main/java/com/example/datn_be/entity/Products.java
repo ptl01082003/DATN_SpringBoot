@@ -106,6 +106,22 @@ public class Products {
         this.code = generateProductCode();
     }
 
+    public Integer getOriginId() {
+        return origins != null ? origins.getOriginId() : null;
+    }
+
+    public Integer getStyleId() {
+        return styles != null ? styles.getStyleId() : null;
+    }
+
+    public Integer getMaterialId() {
+        return materials != null ? materials.getMaterialId() : null;
+    }
+
+    public Integer getBrandId() {
+        return brands != null ? brands.getBrandId() : null;
+    }
+
     @PreUpdate
     public void preUpdate() {
         if (this.priceDiscount == null) {

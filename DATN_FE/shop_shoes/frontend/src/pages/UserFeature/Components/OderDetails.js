@@ -232,7 +232,7 @@ export default function OderDetails() {
         orderItemId: order?.orderItemId,
       });
       if (item.code === 0) {
-        setShouldRender(true);
+        setShouldRender(x => !x);
       } else {
         toast.error(item?.message);
       }

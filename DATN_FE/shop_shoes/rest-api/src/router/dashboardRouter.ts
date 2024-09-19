@@ -6,5 +6,6 @@ const routerDashboard = express.Router();
 
 routerDashboard.use(checkAuth);
 routerDashboard.post("/get-order-chart", DashboardCtrl.getOrderChart);
+routerDashboard.post("/get-revenue", DashboardCtrl.getRevenue);
 
 export default routerDashboard;
