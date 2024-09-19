@@ -297,7 +297,6 @@ const ProductPage: React.FC = () => {
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);
   };
-
   const handleUpdateStatus = async (record, checked) => {
     try {
       // Gọi API để cập nhật trạng thái sản phẩm

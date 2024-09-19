@@ -76,8 +76,12 @@ export default function PromotionsPage() {
     },
     {
       title: "Mã sản phẩm",
-      dataIndex: "code",
-      key: "code",
+      dataIndex: "productId",
+      key: "productId",
+      render: (productId: number) => {
+        const product = lstProducts.find((prod) => prod.productId === productId);
+        return product ? product.code : 'Không có mã';
+      },
     },
     {
       title: "Hành động",
@@ -89,12 +93,12 @@ export default function PromotionsPage() {
           >
             Sửa
           </Button>
-          <Button
+          {/* <Button
             icon={<DeleteOutlined />}
             onClick={() => deletePromotionItems(record)}
           >
             Xóa
-          </Button>
+          </Button> */}
         </Space>
       ),
     },
@@ -116,20 +120,22 @@ export default function PromotionsPage() {
 
   const deletePromotionItems = async (record: any) => {
     try {
-      const res: any = await PromotionService.deletePromotion(
-        record.promotionId
-      );
-      if (res.code === 0) {
+      const res: any = await PromotionService.deletePromotion(record.promotionId);
+      console.log("API Response:", res); // Logging API response for debugging
+  
+      if (res.message === "Thực hiện thành công") {
         message.success("Xóa khuyến mãi thành công");
         setShouldRender((x) => !x);
       } else {
-        message.error("Xóa khuyến mãi thất bại");
+        // Hiển thị thông báo lỗi với thông tin chi tiết
+        message.error(`Xóa khuyến mãi thất bại: ${res.message || 'Không có thông tin chi tiết'}`);
       }
     } catch (error) {
+      console.error("Error deleting promotion:", error);
       message.error("Lỗi khi xóa khuyến mãi.");
     }
   };
-
+  
   const editPromotionItems = (record: any) => {
     setOpenEditModal({
       open: true,
@@ -141,39 +147,9 @@ export default function PromotionsPage() {
     });
   };
 
-  // const onFinish: FormProps<FieldType>["onFinish"] = async (
-  //   values: FieldType
-  // ) => {
-  //   try {
-  //     const product = lstProducts.find(
-  //       (prod) => prod.code === values.productId
-  //     );
-  //     const res = await PromotionService.createPromotion({
-  //       ...values,
-  //       productId: product?.productId,
-  //       startDay: values.startDay?.format("YYYY-MM-DD HH:mm:ss"),
-  //       endDay: values.endDay?.format("YYYY-MM-DD HH:mm:ss"),
-  //     });
-  //     console.log("API Response:", res); // Log phản hồi để kiểm tra cấu trúc
-  //
-  //     if (res.code === 0) {
-  //       message.success("Tạo khuyến mãi thành công");
-  //       setOpenCreateModal(false);
-  //       setShouldRender((x) => !x);
-  //     } else {
-  //       message.error("Tạo khuyến mãi thất bại");
-  //     }
-  //   } catch (error) {
-  //     message.error("Lỗi khi tạo khuyến mãi.");
-  //   }
-  // };
-  const onFinish: FormProps<FieldType>["onFinish"] = async (
-      values: FieldType
-  ) => {
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values: FieldType) => {
     try {
-      const product = lstProducts.find(
-          (prod) => prod.code === values.productId
-      );
+      const product = lstProducts.find((prod) => prod.code === values.productId);
       const res = await PromotionService.createPromotion({
         ...values,
         productId: product?.productId,
@@ -199,19 +175,15 @@ export default function PromotionsPage() {
     }
   };
 
-  const onEditFinish: FormProps<FieldType>["onFinish"] = async (
-    values: FieldType
-  ) => {
+  const onEditFinish: FormProps<FieldType>["onFinish"] = async (values: FieldType) => {
     try {
-      const product = lstProducts.find(
-        (prod) => prod.code === values.productId
-      );
+      const product = lstProducts.find((prod) => prod.code === values.productId);
       const res = await PromotionService.updatePromotion({
         ...values,
         promotionId: openEditModal.data.promotionId,
         productId: product?.productId,
         startDay: dayjs(values.startDay).format("YYYY-MM-DD HH:mm:ss"), 
-      endDay: dayjs(values.endDay).format("YYYY-MM-DD HH:mm:ss"), 
+        endDay: dayjs(values.endDay).format("YYYY-MM-DD HH:mm:ss"), 
       });
       if (res.code === 0) {
         message.success("Cập nhật khuyến mãi thành công");
@@ -239,11 +211,7 @@ export default function PromotionsPage() {
       <div css={tableCustomizeStyle} className="table-responsive">
         <Table
           columns={columns}
-          dataSource={lstPromotions.map((promo) => ({
-            ...promo,
-            code: lstProducts.find((prod) => prod.productId === promo.productId)
-              ?.code,
-          }))}
+          dataSource={lstPromotions}
           pagination={false}
           className="ant-border-space"
         />
@@ -294,7 +262,7 @@ export default function PromotionsPage() {
             <DatePicker
               style={{ width: "100%" }}
               format="YYYY-MM-DD HH:mm:ss"
-              showTime={{ defaultValue: dayjs("00:00:00", "HH:mm:ss") }}
+              showTime={{ defaultValue: dayjs("23:59:59", "HH:mm:ss") }}
             />
           </Form.Item>
           <Form.Item<FieldType>
@@ -302,10 +270,12 @@ export default function PromotionsPage() {
             name="status"
             rules={[{ required: true, message: "Trạng thái là bắt buộc!" }]}
           >
-            <Select>
-              <Option value={PROMOTIONS_STATUS.PRE_START}>CHƯA BẮT ĐẦU</Option>
-              <Option value={PROMOTIONS_STATUS.ACTIVE}>ĐANG HOẠT ĐỘNG</Option>
-              <Option value={PROMOTIONS_STATUS.EXPIRED}>HẾT HẠN</Option>
+            <Select placeholder="Chọn trạng thái" style={{ width: "100%" }}>
+              {Object.values(PROMOTIONS_STATUS).map((status) => (
+                <Option key={status} value={status}>
+                  {status}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
           <Form.Item<FieldType>
@@ -313,17 +283,17 @@ export default function PromotionsPage() {
             name="productId"
             rules={[{ required: true, message: "Mã sản phẩm là bắt buộc!" }]}
           >
-            <Select>
-              {lstProducts.map((prod) => (
-                <Option key={prod.productId} value={prod.code}>
-                  {prod.code}
+            <Select placeholder="Chọn mã sản phẩm" style={{ width: "100%" }}>
+              {lstProducts.map((product) => (
+                <Option key={product.productId} value={product.code}>
+                  {product.code}
                 </Option>
               ))}
             </Select>
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type="primary" htmlType="submit">
-              Tạo
+              Tạo Khuyến Mãi
             </Button>
           </Form.Item>
         </Form>
@@ -344,7 +314,7 @@ export default function PromotionsPage() {
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
-          initialValues={openEditModal.data}
+          initialValues={{ remember: true }}
           onFinish={onEditFinish}
           autoComplete="off"
         >
@@ -352,6 +322,7 @@ export default function PromotionsPage() {
             label="Giá giảm"
             name="discountPrice"
             rules={[{ required: true, message: "Giá giảm là bắt buộc!" }]}
+            initialValue={openEditModal.data.discountPrice}
           >
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
@@ -359,6 +330,7 @@ export default function PromotionsPage() {
             label="Ngày bắt đầu"
             name="startDay"
             rules={[{ required: true, message: "Ngày bắt đầu là bắt buộc!" }]}
+            initialValue={openEditModal.data.startDay}
           >
             <DatePicker
               style={{ width: "100%" }}
@@ -370,6 +342,7 @@ export default function PromotionsPage() {
             label="Ngày kết thúc"
             name="endDay"
             rules={[{ required: true, message: "Ngày kết thúc là bắt buộc!" }]}
+            initialValue={openEditModal.data.endDay}
           >
             <DatePicker
               style={{ width: "100%" }}
@@ -381,29 +354,35 @@ export default function PromotionsPage() {
             label="Trạng thái"
             name="status"
             rules={[{ required: true, message: "Trạng thái là bắt buộc!" }]}
+            initialValue={openEditModal.data.status}
           >
-            <Select>
-              <Option value={PROMOTIONS_STATUS.PRE_START}>CHƯA BẮT ĐẦU</Option>
-              <Option value={PROMOTIONS_STATUS.ACTIVE}>ĐANG HOẠT ĐỘNG</Option>
-              <Option value={PROMOTIONS_STATUS.EXPIRED}>HẾT HẠN</Option>
+            <Select placeholder="Chọn trạng thái" style={{ width: "100%" }}>
+              {Object.values(PROMOTIONS_STATUS).map((status) => (
+                <Option key={status} value={status}>
+                  {status}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
           <Form.Item<FieldType>
             label="Mã sản phẩm"
             name="productId"
             rules={[{ required: true, message: "Mã sản phẩm là bắt buộc!" }]}
+            initialValue={lstProducts.find(
+              (product) => product.productId === openEditModal.data.productId
+            )?.code}
           >
-            <Select>
-              {lstProducts.map((prod) => (
-                <Option key={prod.productId} value={prod.code}>
-                  {prod.code}
+            <Select placeholder="Chọn mã sản phẩm" style={{ width: "100%" }}>
+              {lstProducts.map((product) => (
+                <Option key={product.productId} value={product.code}>
+                  {product.code}
                 </Option>
               ))}
             </Select>
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type="primary" htmlType="submit">
-              Cập nhật
+              Cập nhật Khuyến Mãi
             </Button>
           </Form.Item>
         </Form>

@@ -48,7 +48,7 @@ const OrdersController = {
         ],
         order: [['createdAt', 'DESC']]
       });
-  
+
       if (orderItems) {
         let transferData: any[] = [];
         for await (const orders of orderItems) {
@@ -56,13 +56,17 @@ const OrdersController = {
             where: { orderDetailId: orders.orderDetailId }
           });
           const isPaid = payments?.status === PAYMENT_STATUS.SUCCESS;
+          const amount = isPaid
+            ? Number(orders?.amount)
+            : orders.quanity *
+            Number(orders.productDetails.products.priceDiscount);
           transferData.push({
             status: orders.status,
             isReview: orders.isReview,
             paymentStatus: payments?.status,
             price: isPaid ? orders.price : orders.productDetails.products.price,
-            amount: isPaid ? orders?.amount : orders.quanity * Number(orders.productDetails.products.priceDiscount),
-            quanity: orders?.quanity,
+            amount: amount * orders.discountPercent,
+            discountPercent: orders.discountPercent, quanity: orders?.quanity,
             priceDiscount: isPaid ? orders.priceDiscount : orders.productDetails.products.priceDiscount,
             productId: orders?.productDetails?.productId,
             productDetailId: orders?.productDetailId,
@@ -73,7 +77,7 @@ const OrdersController = {
             path: orders?.productDetails?.products?.gallery?.[0]?.path,
           });
         }
-  
+
         res.json(
           ResponseBody({
             code: RESPONSE_CODE.SUCCESS,
@@ -90,12 +94,12 @@ const OrdersController = {
           })
         );
       }
-  
+
     } catch (error) {
       next(error);
     }
   },
-  
+
 
   // getLstOders: async (req: Request, res: Response, next: NextFunction) => {
   //   try {

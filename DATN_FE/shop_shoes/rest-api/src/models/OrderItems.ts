@@ -43,20 +43,20 @@ export class OrderItems extends Model {
   @Column
   public orderItemId!: number;
 
-  @Column(DataType.DECIMAL(16,2))
+  @Column(DataType.DECIMAL(16, 2))
   public amount!: number;
 
-  @Default(ODER_STATUS.CHO_THANH_TOAN)
+  @Default(ODER_STATUS.CHO_XAC_NHAN)
   @Column
   public status!: string;
 
   @Column
   public returnStatus?: REFUND_STATUS;
 
-  @Column(DataType.DECIMAL(16,2))
+  @Column(DataType.DECIMAL(16, 2))
   public price!: number;
-  
-  @Column(DataType.DECIMAL(16,2))
+
+  @Column(DataType.DECIMAL(16, 2))
   public priceDiscount!: number;
 
   @Column
@@ -70,6 +70,9 @@ export class OrderItems extends Model {
 
   @Column
   public quanity!: number;
+  @Default(1)
+  @Column(DataType.FLOAT)
+  public discountPercent!: number;
 
   @ForeignKey(() => ProductDetails)
   @Column

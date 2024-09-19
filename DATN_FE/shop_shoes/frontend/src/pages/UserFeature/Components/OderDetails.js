@@ -209,10 +209,14 @@ export default function OderDetails() {
     }
 
     try {
-      const res = await AxiosClient.post(`/orders/generate-invoice`, { orderId: order.id });
+      const res = await AxiosClient.post(`/orders/generate-invoice`, {
+        orderId: order.id,
+      });
 
       if (res.code === 0) {
-        const emailRes = await AxiosClient.post(`/orders/send-invoice-email`, { orderId: order.id });
+        const emailRes = await AxiosClient.post(`/orders/send-invoice-email`, {
+          orderId: order.id,
+        });
         if (emailRes.code === 0) {
           toast.success("Hóa đơn đã được gửi qua email!");
         } else {

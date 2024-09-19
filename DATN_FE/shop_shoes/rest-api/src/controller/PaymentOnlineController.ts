@@ -611,16 +611,18 @@ const PaymentOnlineController = {
             where: { orderDetailId: orders.orderDetailId },
           });
           const isPaid = payments?.status === PAYMENT_STATUS.SUCCESS;
+          const amount = isPaid
+            ? Number(orders?.amount)
+            : orders.quanity *
+            Number(orders.productDetails.products.priceDiscount);
+          console.log("discountPercent",  orders.discountPercent);
           transferData.push({
-            status: orders.status,
+            status: orders.status,  
             isReview: orders.isReview,
             paymentStatus: payments?.status,
             price: isPaid ? orders.price : orders.productDetails.products.price,
-            amount: isPaid
-              ? orders?.amount
-              : orders.quanity *
-              Number(orders.productDetails.products.priceDiscount),
-            quanity: orders?.quanity,
+            amount: amount * orders.discountPercent,
+            discountPercent: orders.discountPercent,
             priceDiscount: isPaid
               ? orders.priceDiscount
               : orders.productDetails.products.priceDiscount,
@@ -659,7 +661,7 @@ const PaymentOnlineController = {
       const { provider, name, address, phone, voucherCode } = req.body;
 
       let ordersAmount = 0;
-      let discountPercent = 1;
+      let discountPercents = 100;
 
       const carts = await ShoppingCarts.findOne({ where: { userId } });
       if (!carts) {
@@ -690,7 +692,7 @@ const PaymentOnlineController = {
         // if(carts.amount < voucher.minOrderValue) {
 
         // }
-        discountPercent = 1 -  (Number(voucher.discountValue || 0) / 100);
+        discountPercents = 1 - (Number(voucher.discountValue || 0) / 100);
       }
 
       const newOrders = await OrderDetails.create({
@@ -718,17 +720,19 @@ const PaymentOnlineController = {
       });
 
       for await (const cartItem of cartItems) {
-        const productsAmount = cartItem.quanity * Number(cartItem.productDetails.products.priceDiscount) * discountPercent;
-        console.log("productsAmount", productsAmount, discountPercent,  cartItem.quanity,Number(cartItem.productDetails.products.priceDiscount));
-        await OrderItems.create({
+        const productsAmount = cartItem.quanity * Number(cartItem.productDetails.products.priceDiscount) * discountPercents;
+        const newOrderItem = await OrderItems.create({
           userId,
           amount: productsAmount,
           quanity: cartItem.quanity,
           orderDetailId: newOrders.orderDetailId,
+          discountPercent: discountPercents,
+          status: provider === PAYMENT_PROVIDER.MOMO ? ODER_STATUS.CHO_LAY_HANG : ODER_STATUS.CHO_XAC_NHAN,
           productDetailId: cartItem.productDetailId,
           price: cartItem.productDetails.products.price,
           priceDiscount: cartItem.productDetails.products.priceDiscount,
         });
+        await newOrderItem.save();
         ordersAmount += productsAmount;
         await cartItem.destroy();
       }
@@ -738,6 +742,7 @@ const PaymentOnlineController = {
         provider,
         orderDetailId: newOrders.orderDetailId,
       });
+
       //cập nhật lại tổng giá trị đơn hàng
       newOrders.amount = ordersAmount;
 

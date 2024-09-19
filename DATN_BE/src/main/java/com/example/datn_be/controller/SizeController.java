@@ -36,7 +36,7 @@ public class SizeController {
         }catch (Exception e){
             return  new ResponseEntity<>(
                     Map.of("message","Thực hiện thất bại","erro",e.getMessage()),
-                    HttpStatus.BAD_REQUEST
+                    HttpStatus.OK
             );
         }
     }
