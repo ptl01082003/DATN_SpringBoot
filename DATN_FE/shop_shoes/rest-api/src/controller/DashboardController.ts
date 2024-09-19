@@ -56,9 +56,14 @@ const DashboardCtrl = {
         updatedAt: {
           [Op.between]: [startOfDay, endOfDay],
         },
+        status: ODER_STATUS.DA_GIAO 
       },
     });
-    const revenuesTotals = await OrderItems.sum('amount');
+    const revenuesTotals = await OrderItems.sum('amount', {
+      where: {
+        status: ODER_STATUS.DA_GIAO 
+      },
+    });
     const rejectTotals = await OrderItems.findAll({
       where: {
         status: ODER_STATUS.DA_HUY,
@@ -70,8 +75,8 @@ const DashboardCtrl = {
       code: RESPONSE_CODE.SUCCESS,
       message: "Thực hiện thành công",
       data: {
-        today: todayRevenues,
-        total: revenuesTotals,
+        today: todayRevenues || 0,
+        total: revenuesTotals || 0,
         reject: rejectTotals.length || 0,
         reviewer: {
           totals: reviewers?.length || 0,

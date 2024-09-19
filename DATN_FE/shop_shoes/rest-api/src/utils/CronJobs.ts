@@ -39,15 +39,15 @@ import { updateProductPrices } from "./utils";
 // });
 
 
-cron.schedule("* * * * *", async () => {
-  console.log(`Cron job cập nhật giá sản phẩm bắt đầu lúc: ${new Date().toLocaleString()}`);
-  try {
-    await updateProductPrices();
-    console.log("Cron job cập nhật giá sản phẩm hoàn thành.");
-  } catch (error) {
-    console.error("Lỗi khi cập nhật giá sản phẩm:", error);
-  }
-});
+// cron.schedule("* * * * *", async () => {
+//   console.log(`Cron job cập nhật giá sản phẩm bắt đầu lúc: ${new Date().toLocaleString()}`);
+//   try {
+//     await updateProductPrices();
+//     console.log("Cron job cập nhật giá sản phẩm hoàn thành.");
+//   } catch (error) {
+//     console.error("Lỗi khi cập nhật giá sản phẩm:", error);
+//   }
+// });
 
 
 console.log("Cron jobs đã được lập lịch.");

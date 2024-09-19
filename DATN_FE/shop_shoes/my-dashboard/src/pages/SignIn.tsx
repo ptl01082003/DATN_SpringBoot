@@ -23,12 +23,15 @@ export default function SignIn() {
         // Kiểm tra mã phản hồi từ BE
         localStorage.setItem(KEY_STORAGE.TOKEN, response.data.accessToken);
         localStorage.setItem(KEY_STORAGE.RF_TOKEN, response.data.refreshToken);
-        dispatch(fetchGetUserInfo());
+        const userInfo = await dispatch(fetchGetUserInfo()).unwrap();
         socket.auth = {
           token: localStorage.getItem(KEY_STORAGE.TOKEN),
         };
         socket.connect();
-        navigation("/dashboard", { replace: true });
+
+        navigation(userInfo?.roleId === 2 ? "/products" : "/dashboard", {
+          replace: true,
+        });
       } else {
         toast.error(response.message); // Hiển thị thông báo lỗi
       }

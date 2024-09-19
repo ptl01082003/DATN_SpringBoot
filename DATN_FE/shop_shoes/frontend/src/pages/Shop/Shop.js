@@ -606,7 +606,7 @@ const Shop = () => {
     const [lstFilterRaw, setFilterRaw] = useState({});
     const [filterParams, setFilterParams] = useState({});
     const [isFetching, setIsFetching] = useState(false);
-    const [priceRange, setPriceRange] = useState([0, 5000]);
+    const [priceRange, setPriceRange] = useState([0, 10000000]);
 
     const goToProductDetails = (product) => {
         navigate(`/product/${product?.code}`);
@@ -693,7 +693,7 @@ const Shop = () => {
                 <Slider
                     range
                     min={0}
-                    max={5000}
+                    max={10000000}
                     value={priceRange}
                     onChange={handlePriceChange}
                     tooltip={{ formatter }}
@@ -772,7 +772,7 @@ const Shop = () => {
                 <button
                     onClick={() => {
                         setFilterParams({});
-                        setPriceRange([0, 5000]);
+                        setPriceRange([0, 10000000]);
                     }}
                     className="px-4 py-2 text-white bg-blue-500 rounded"
                 >

@@ -6,6 +6,7 @@ import com.example.datn_be.entity.Users;
 import com.example.datn_be.respository.OrderDetailsRepository;
 import com.example.datn_be.service.ThymeleafService;
 
+import com.lowagie.text.pdf.BaseFont;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xhtmlrenderer.pdf.PDFCreationListener;
 
@@ -58,6 +59,7 @@ import java.io.*;
             String filePath = "D:/DATN_SpringBoot/DATN_FE/shop_shoes/my-dashboard/Bill/Bill_" + orderItem.getOrderDetails().getOrderCode() + ".pdf";
             try (OutputStream outputStream = new FileOutputStream(filePath)) {
                 ITextRenderer renderer = new ITextRenderer();
+                renderer.getFontResolver().addFont("D:/DATN_SpringBoot/DATN_FE/shop_shoes/my-dashboard/Rubik-Black.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
                 renderer.setDocumentFromString(htmlContent);
                 renderer.layout();
                 renderer.createPDF(outputStream);
@@ -94,54 +96,3 @@ import java.io.*;
             }
         }
     }
-
-//    @Override
-//    @Transactional
-//    public String generateInvoiceAndSendEmail(OrderItems orderItem) {
-//        // Lấy thông tin đơn hàng
-//        Context context = new Context();
-//        context.setVariable("orderItems", orderItem);
-//        context.setVariable("orderDetails", orderItem.getOrderDetails());
-//        context.setVariable("user", orderItem.getOrderDetails().getUsers());
-//
-//        // Tạo HTML từ Thymeleaf template
-//        StringWriter writer = new StringWriter();
-//        templateEngine.process("invoice_template", context, writer);
-//        String htmlContent = writer.toString();
-//
-//        // Tạo PDF từ HTML
-//        String filePath = "D:/DATN_SpringBoot/DATN_FE/shop_shoes/my-dashboard/Bill/Bill_" + orderItem.getOrderDetails().getOrderCode() + ".pdf";
-//        try (OutputStream outputStream = new FileOutputStream(filePath)) {
-//            ITextRenderer renderer = new ITextRenderer();
-//            renderer.setDocumentFromString(htmlContent);
-//            renderer.layout();
-//            renderer.createPDF(outputStream);
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to generate PDF file", e);
-//        }
-//
-//        // Gửi email
-//        sendEmail(orderItem, filePath);
-//
-//        return filePath;
-//    }
-//
-//    private void sendEmail(OrderItems orderItem, String filePath) {
-//        String customerEmail = orderItem.getOrderDetails().getUsers().getEmail();
-//        MimeMessage mimeMessage = mailSender.createMimeMessage();
-//        try {
-//            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
-//            messageHelper.setTo(customerEmail);
-//            messageHelper.setSubject("Hóa đơn cho đơn hàng #" + orderItem.getOrderDetails().getOrderCode());
-//            messageHelper.setText("Hóa đơn đã được tạo và lưu thành công. Vui lòng kiểm tra hóa đơn đính kèm.", true);
-//
-//            // Thêm tệp PDF vào email
-//            File file = new File(filePath);
-//            messageHelper.addAttachment(file.getName(), file);
-//
-//            mailSender.send(mimeMessage);
-//        } catch (MessagingException e) {
-//            throw new RuntimeException("Failed to send email", e);
-//        }
-//    }
-//}

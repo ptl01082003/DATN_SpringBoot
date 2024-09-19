@@ -80,7 +80,7 @@ const ProductsController = {
     try {
       // Lấy tất cả sản phẩm
       const products = await Products.findAll({
-        where: { status: 1 }, 
+        where: { status: 1 },
         include: [
           {
             model: Materials,
@@ -164,10 +164,9 @@ const ProductsController = {
     }
   },
 
-
   getLstProducts: async (req: Request, res: Response, next: NextFunction) => {
     const where: any = {};
-    const {originId, styleId, materialId, brandId, priceMin, priceMax,minPrice,maxPrice } = req.body;
+    const { originId, styleId, materialId, brandId, priceMin, priceMax, minPrice, maxPrice } = req.body;
     try {
       if (styleId) {
         where.styleId = styleId;
@@ -201,8 +200,10 @@ const ProductsController = {
         };
       }
 
+      where.status = 1;
+      console.log("where", where)
       const products = await Products.findAll({
-        where: { status: 1 },
+        where : where,
         include: [
           {
             model: Materials,
@@ -495,6 +496,7 @@ const ProductsController = {
       next(error);
     }
   },
+
   getDiscountedProducts: async (
     req: Request,
     res: Response,
