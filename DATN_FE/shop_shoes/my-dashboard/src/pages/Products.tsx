@@ -243,16 +243,13 @@ const ProductPage: React.FC = () => {
       render: (status: any) => (status ? "Kích hoạt" : "Ngừng hoạt động"),
     },
     {
-      title: "Thương hiệu",
-      render: (record: any) => record?.brand?.name,
-    },
-    {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       render: (status: boolean, record: any) => (
         <Switch
           checked={status}
+          disabled={true}
           onChange={(checked) => handleUpdateStatus(record, checked)}
           checkedChildren={<CheckOutlined />}
           unCheckedChildren={<CloseOutlined />}

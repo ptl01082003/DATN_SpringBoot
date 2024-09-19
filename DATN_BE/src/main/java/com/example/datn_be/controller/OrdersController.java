@@ -19,6 +19,7 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -45,7 +46,7 @@ public class OrdersController {
 
     @PostMapping("/update-status")
     @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
-    public ResponseEntity<String> updateOrderStatus(
+    public ResponseEntity<?> updateOrderStatus(
             @RequestParam String status,
             @RequestParam Integer orderItemId) {
         try {
@@ -53,13 +54,10 @@ public class OrdersController {
             boolean result = orderItemsService.updateOrderStatus(orderItemId, status);
 
             // Kiểm tra kết quả
-            if (result) {
-                // Trả về thông báo khi cập nhật trạng thái thành công
-                return ResponseEntity.ok("Cập nhật trạng thái đơn hàng thành công. Hóa đơn đã được xuất và gửi email.");
-            } else {
-                // Nếu không tìm thấy đơn hàng hoặc trạng thái không hợp lệ
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy đơn hàng hoặc trạng thái không hợp lệ");
-            }
+            return new ResponseEntity<>(
+                    Map.of("message", "Thực hiện thành công", "code", 0),
+                    HttpStatus.OK
+            );
         } catch (Exception e) {
             // Trả về thông báo lỗi nếu có ngoại lệ xảy ra
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật trạng thái đơn hàng thất bại");

@@ -90,6 +90,7 @@ public class Products {
     @JoinColumn(name = "brandId", referencedColumnName = "brandId")
     private Brands brands;
 
+
     @OneToMany(mappedBy = "products", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ProductDetails> productDetails;

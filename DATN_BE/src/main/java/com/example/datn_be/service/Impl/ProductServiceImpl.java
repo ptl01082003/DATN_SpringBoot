@@ -161,7 +161,7 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productDTO.getPrice());
         product.setStatus(productDTO.getStatus());
         product.setDescription(productDTO.getDescription());
-        product.setPriceDiscount(productDTO.getPriceDiscount());
+        product.setPriceDiscount(productDTO.getPrice());
 
         // Cập nhật các thuộc tính quan hệ
         product.setOrigins(originsRepository.findById(productDTO.getOriginId())

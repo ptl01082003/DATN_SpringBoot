@@ -1,4 +1,3 @@
-
 import { PlusOutlined } from "@ant-design/icons";
 import { Divider, Empty, Image, Input, Modal, Rate, Tabs, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
@@ -245,7 +244,7 @@ export default function OrderDetails() {
     ODER_STATUS.CHO_XAC_NHAN
   );
   const [shouldRender, setShouldRender] = useState<boolean>(false);
-
+  console.log(shouldRender)
   useEffect(() => {
     (async () => {
       try {
@@ -278,24 +277,21 @@ export default function OrderDetails() {
 
   const updateOrderStatus = async (orderItemId: string, newStatus: string) => {
     try {
-      const token = localStorage.getItem(KEY_STORAGE.TOKEN); // Lấy token từ localStorage
-
+      const token = localStorage.getItem(KEY_STORAGE.TOKEN);
       const response = await AxiosRequest.post(
         `/orders/update-status?status=${encodeURIComponent(
           newStatus
         )}&orderItemId=${encodeURIComponent(orderItemId)}`,
-        {}, // Không cần gửi body cho yêu cầu này
+        {},
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Gắn token vào header
+            Authorization: `Bearer ${token}`,
           },
         }
-      );
-
-      if (response.status === 200) {
-        console.log("Order status updated successfully");
-        setShouldRender(!shouldRender); // Trigger re-render
+      ) as any;
+      if (response.code == 0) {
+        setShouldRender((x) => !x);
       } else {
         console.error("Failed to update order status:", response);
       }
@@ -341,7 +337,10 @@ export default function OrderDetails() {
             </button>
             <button
               onClick={() =>
-                updateOrderStatus(order.orderItemId, ODER_STATUS.KHONG_THANH_CONG)
+                updateOrderStatus(
+                  order.orderItemId,
+                  ODER_STATUS.KHONG_THANH_CONG
+                )
               }
               className="flex space-x-2 items-center px-5 hover:bg-slate-100 py-2 rounded-lg border border-[#344054]"
             >
@@ -364,22 +363,21 @@ export default function OrderDetails() {
             <span>Nhập lại vào kho</span>
           </button>
         );
-        // case ODER_STATUS.NHAP_KHO:
-        //   return (
-        //     <button
-        //       onClick={() =>
-        //         updateOrderStatus(order.orderItemId, ODER_STATUS.NHAP_KHO)
-        //       }
-        //       className="flex space-x-2 mt-8 items-center px-5 hover:bg-slate-100 py-2 rounded-lg border border-[#344054]"
-        //     >
-        //     </button>
-        //   ); 
-        
+      // case ODER_STATUS.NHAP_KHO:
+      //   return (
+      //     <button
+      //       onClick={() =>
+      //         updateOrderStatus(order.orderItemId, ODER_STATUS.NHAP_KHO)
+      //       }
+      //       className="flex space-x-2 mt-8 items-center px-5 hover:bg-slate-100 py-2 rounded-lg border border-[#344054]"
+      //     >
+      //     </button>
+      //   );
+
       default:
         return null;
     }
   };
-  
 
   const items = ODER_STATUS_STRING.map((status) => ({
     key: status.value,
@@ -451,11 +449,3 @@ export default function OrderDetails() {
     </>
   );
 }
-
-
-
-
-
-
-
-
