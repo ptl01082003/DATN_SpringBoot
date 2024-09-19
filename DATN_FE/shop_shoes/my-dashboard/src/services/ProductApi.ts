@@ -7,8 +7,7 @@ import { KEY_STORAGE } from "../constants";
 const API_URL = "/products";
 
 const ProductService = {
-
-  updateProductStatus : async (productId, status) => {
+  updateProductStatus: async (productId: number, status: boolean): Promise<any> => {
     try {
         const token = localStorage.getItem(KEY_STORAGE.TOKEN);
         const response = await AxiosClient.post(`${API_URL}/update-status`, {
@@ -25,7 +24,38 @@ const ProductService = {
         console.error("Lỗi khi cập nhật trạng thái sản phẩm", error);
         throw error;
     }
-  },
+},
+
+// updateProductStatus : async (productId, status) => {
+//     try {
+//         const token = localStorage.getItem(KEY_STORAGE.TOKEN);
+//         if (!token) {
+//             throw new Error("Token không tồn tại");
+//         }
+
+//         // Log trước khi gửi request để kiểm tra dữ liệu gửi lên
+//         console.log('Sending request to update status for Product ID:', productId, 'with status:', status);
+
+//         const response = await AxiosClient.post(`${API_URL}/update-status`, {
+//             productId,
+//             status
+//         }, {
+//             headers: {
+//                 Authorization: `Bearer ${token}`,
+//                 'Content-Type': 'application/json'
+//             }
+//         });
+
+//         // Log response từ server để đảm bảo nhận phản hồi đúng
+//         console.log('Response from server:', response);
+
+//         return response;
+//     } catch (error) {
+//         console.error("Lỗi khi cập nhật trạng thái sản phẩm", error);
+//         throw error;
+//     }
+// },
+
   // Lấy danh sách tất cả sản phẩm
   getProducts: async () => {
     try {

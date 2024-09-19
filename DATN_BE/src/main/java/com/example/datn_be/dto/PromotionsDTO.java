@@ -25,6 +25,7 @@ public class PromotionsDTO {
     private LocalDateTime endDay;
     private PromotionsStatus status;
     private Integer productId;
+    private String code;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

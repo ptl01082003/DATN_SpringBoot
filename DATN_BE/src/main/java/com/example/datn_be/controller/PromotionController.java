@@ -107,7 +107,6 @@ public class PromotionController {
         }
     }
 
-    // Xóa khuyến mãi
     @PostMapping("/remove")
     @PreAuthorize("hasAnyRole('ADMIN','MEMBERSHIP')")
     public ResponseEntity<Map<String, Object>> deletePromotion(@RequestParam Integer promotionId) {

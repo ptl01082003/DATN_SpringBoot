@@ -44,8 +44,15 @@ import java.io.*;
 
             // Tạo HTML từ Thymeleaf template
             StringWriter writer = new StringWriter();
-            templateEngine.process("invoice_template", context, writer);
+            try {
+                templateEngine.process("invoice_template", context, writer);
+            } catch (Exception e) {
+                log.error("Failed to process Thymeleaf template", e);
+                throw new RuntimeException("Failed to process Thymeleaf template", e);
+            }
+
             String htmlContent = writer.toString();
+            log.info("Generated HTML content: \n" + htmlContent); // Debug: In nội dung HTML
 
             // Tạo PDF từ HTML
             String filePath = "D:/DATN_SpringBoot/DATN_FE/shop_shoes/my-dashboard/Bill/Bill_" + orderItem.getOrderDetails().getOrderCode() + ".pdf";
@@ -64,6 +71,7 @@ import java.io.*;
 
             return filePath;
         }
+
 
         private void sendEmail(OrderItems orderItem, String filePath) {
             String customerEmail = orderItem.getOrderDetails().getUsers().getEmail();

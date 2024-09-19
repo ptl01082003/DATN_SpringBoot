@@ -288,22 +288,24 @@ const ProductPage: React.FC = () => {
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);
   };
-
   const handleUpdateStatus = async (record, checked) => {
     try {
         // Gọi API để cập nhật trạng thái sản phẩm
         const response = await ProductService.updateProductStatus(record.productId, checked);
-  
-        // Kiểm tra mã trạng thái trả về
-        if (response && response.status === 200) {
+
+        // Log để kiểm tra phản hồi từ server
+        console.log('Response from API:', response);
+
+        // Kiểm tra nếu response là chuỗi và chứa thông báo thành công
+        if (response && typeof response === 'string' && response.includes('Trạng thái sản phẩm đã được cập nhật')) {
             message.success('Cập nhật trạng thái sản phẩm thành công');
-  
+            
             // Cập nhật danh sách sản phẩm
             setProducts((prev) => {
                 if (!Array.isArray(prev)) {
                     return prev;
                 }
-  
+
                 const updatedProducts = prev.map((item) =>
                     item.productId === record.productId
                         ? { ...item, status: checked }
@@ -312,7 +314,8 @@ const ProductPage: React.FC = () => {
                 return updatedProducts;
             });
         } else {
-            message.error('Cập nhật trạng thái sản phẩm thất bại');
+            // Nếu không có thông báo thành công, hiển thị thông báo lỗi
+            message.error(`Cập nhật trạng thái sản phẩm thất bại: ${response || 'Unknown error'}`);
         }
     } catch (error) {
         console.error("Lỗi khi cập nhật trạng thái sản phẩm", error);
